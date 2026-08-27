@@ -1,0 +1,70 @@
+name: EduPay CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: edupay_user
+          POSTGRES_PASSWORD: edupay_password
+          POSTGRES_DB: edupay_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: ./backend
+      run: npm ci
+      
+    - name: Check code formatting (Lint)
+      working-directory: ./backend
+      run: npm run lint
+      continue-on-error: true # Pour l'instant on ne bloque pas sur le linting
+      
+    - name: Prisma Generate
+      working-directory: ./backend
+      run: npx prisma generate
+      
+    - name: Database Migration
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql://edupay_user:edupay_password@localhost:5432/edupay_test?schema=public
+      run: npx prisma migrate deploy
+      
+    - name: Run Tests
+      working-directory: ./backend
+      env:
+        NODE_ENV: test
+        DATABASE_URL: postgresql://edupay_user:edupay_password@localhost:5432/edupay_test?schema=public
+        REDIS_URL: redis://localhost:6379
+        JWT_ACCESS_SECRET: test-secret-access
+        JWT_REFRESH_SECRET: test-secret-refresh
+      run: npm test
+      continue-on-error: true # En attendant d'avoir des tests implémentés

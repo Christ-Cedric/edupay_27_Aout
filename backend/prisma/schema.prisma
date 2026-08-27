@@ -1,0 +1,584 @@
+// Schéma de données partagé EduPay — dérivé de docs/SHARED_API_CONTRACT.md §3.
+//
+// ⚠️ PROVISOIRE : les choix marqués « §7 #n » tranchent un point ouvert du
+// contrat dans le sens recommandé, EN ATTENTE de validation inter-équipes.
+// Convention : modèles/champs en camelCase (Dart/JS), colonnes/tables en
+// snake_case via @map/@@map. La sérialisation JSON snake_case (contrat §1) est
+// faite par la couche API, pas ici.
+//
+// Montants : entiers en FCFA/XOF (jamais de décimales — contrat §1).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────── Enums ───────────────────────────
+
+enum UserRole {
+  client
+  agent
+  admin
+}
+
+enum UserStatus {
+  pendingValidation @map("pending_validation")
+  active
+  rejected
+  suspended
+}
+
+enum ContractType {
+  volunteer
+  salaried
+}
+
+enum SavingsFrequency {
+  daily
+  weekly
+  monthly
+}
+
+enum SubscriptionStatus {
+  draft
+  confirmed
+}
+
+enum KitTier {
+  basic
+  comfort
+  complete
+}
+
+// Moteur générique (contrat §3.4) : `supplies` en V1, extensible sans code.
+enum SavingsGoalType {
+  supplies
+  registration
+  exam
+  transport
+  canteen
+  uniform
+}
+
+enum GoalStatus {
+  active
+  completed
+  cancelled
+}
+
+enum ContributionMethod {
+  orangeMoney @map("orange_money")
+  moovMoney   @map("moov_money")
+  wave
+  cashAgent   @map("cash_agent")
+}
+
+enum ContributionStatus {
+  pendingValidation @map("pending_validation")
+  confirmed
+  failed
+}
+
+enum DeliveryStatus {
+  preparation
+  shipped
+  outForDelivery   @map("out_for_delivery")
+  delivered
+  receiptConfirmed @map("receipt_confirmed")
+}
+
+enum DeliveryIssueType {
+  notReceived  @map("not_received")
+  missingItem  @map("missing_item")
+  damagedItem  @map("damaged_item")
+  lateDelivery @map("late_delivery")
+  other
+}
+
+enum IssueStatus {
+  open
+  resolved
+}
+
+enum RefundStatus {
+  requested
+  processing
+  approved
+  rejected
+  refunded
+}
+
+enum NotificationChannel {
+  push
+  sms
+  whatsapp
+  inApp    @map("in_app")
+}
+
+enum OtpPurpose {
+  signup
+  passwordReset @map("password_reset")
+}
+
+// ─────────────────────────── Modèles ───────────────────────────
+
+// Inscription par OTP (client uniquement, contrat §2 mis à jour — agent/admin
+// restent en téléphone + mot de passe, provisionnés par l'admin). Aucune
+// relation vers `User` : au moment de l'inscription, le compte n'existe pas
+// encore.
+model OtpCode {
+  id         String     @id @default(cuid())
+  phone      String
+  purpose    OtpPurpose
+  codeHash   String     @map("code_hash")
+  attempts   Int        @default(0)
+  expiresAt  DateTime   @map("expires_at")
+  consumedAt DateTime?  @map("consumed_at")
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  @@index([phone, purpose, expiresAt])
+  @@map("otp_codes")
+}
+
+model User {
+  id                 String     @id @default(cuid())
+  role               UserRole
+  fullName           String     @map("full_name")
+  phone              String     @unique
+  passwordHash       String     @map("password_hash")
+  status             UserStatus @default(pendingValidation)
+  city               String?
+  district           String?
+  mustChangePassword Boolean    @default(false) @map("must_change_password")
+  rejectionReason    String?    @map("rejection_reason")
+
+  // Identification terrain rapide (QR agent) : posé à la validation admin de
+  // la famille, jamais par le client lui-même.
+  familyCode         String?   @unique @map("family_code")
+  // Historique des relances de retard de paiement — `lateOverdue` reste un
+  // statut dérivé (jamais stocké, voir `admin.service.ts::isFamilyLate`),
+  // mais la mémoire des relances envoyées, elle, doit être persistée.
+  lateReminderCount  Int       @default(0) @map("late_reminder_count")
+  lastLateReminderAt DateTime? @map("last_late_reminder_at")
+
+  // Pour un client : son agent référent. Auto-relation vers un user(role=agent).
+  assignedAgentId String? @map("assigned_agent_id")
+  assignedAgent   User?   @relation("AgentClients", fields: [assignedAgentId], references: [id])
+  clients         User[]  @relation("AgentClients")
+
+  agentProfile     AgentProfile?
+  children         Child[]
+  savingsGoals     SavingsGoal[]
+  subscription     Subscription?
+  contributions    Contribution[]
+  deliveries       Delivery[]
+  refunds          Refund[]
+  notifications    Notification[]
+  refreshTokens    RefreshToken[]
+  sessions         Session[]
+  agentCommissions AgentCommission[]
+  deviceTokens     DeviceToken[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([assignedAgentId])
+  @@map("users")
+}
+
+model AgentProfile {
+  userId                  String       @id @map("user_id")
+  user                    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  zone                    String
+  district                String?      @map("district")
+  contractType            ContractType @default(volunteer) @map("contract_type")
+  commissionPerEnrollment Int          @default(200) @map("commission_per_enrollment")
+  commissionRateBps       Int          @default(200) @map("commission_rate_bps")
+
+  @@map("agent_profiles")
+}
+
+// Jetons de rafraîchissement (contrat §2.2), stockés hashés + rotation.
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  // true UNIQUEMENT si révoqué par rotation normale (`refresh()`, remplacé par
+  // un nouveau token) — c'est ce cas précis, et lui seul, qui signale un rejeu
+  // suspect si le token revient. Un token révoqué par déconnexion explicite
+  // (logout, révocation d'une session précise, reset/changement de mot de
+  // passe) reste `rotated: false` : le revoir ensuite est normal (ex. minuteur
+  // de rafraîchissement en arrière-plan sur un appareil qu'on vient de
+  // déconnecter à distance), pas un signal de compromission — sans cette
+  // distinction, révoquer UNE session déclenchait à tort la révocation de
+  // TOUTES les sessions (bug détecté en test).
+  rotated   Boolean   @default(false)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  session Session?
+
+  @@map("refresh_tokens")
+}
+
+// Vue "appareils connectés" (écran Sessions actives) — le contrôle d'accès
+// réel reste sur `RefreshToken` ; cette table n'ajoute que la visibilité et
+// la révocation individuelle par appareil. Une session survit à la rotation
+// silencieuse du refresh token (même ligne, `refreshTokenId` mis à jour) —
+// seule une reconnexion explicite (login/register/reset/change de mot de
+// passe) en crée une nouvelle.
+model Session {
+  id             String       @id @default(cuid())
+  userId         String       @map("user_id")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokenId String       @unique @map("refresh_token_id")
+  refreshToken   RefreshToken @relation(fields: [refreshTokenId], references: [id], onDelete: Cascade)
+  deviceLabel    String?      @map("device_label")
+  ipAddress      String?      @map("ip_address")
+  userAgent      String?      @map("user_agent")
+  lastUsedAt     DateTime     @default(now()) @map("last_used_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  revokedAt      DateTime?    @map("revoked_at")
+
+  @@index([userId, revokedAt])
+  @@map("sessions")
+}
+
+model Child {
+  id        String  @id @default(cuid()) // §7 #7 : id serveur stable (pas le prénom)
+  parentId  String  @map("parent_id")
+  parent    User    @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  firstName String  @map("first_name")
+  level     String
+  school    String
+  photoUrl  String? @map("photo_url")
+
+  savingsGoals SavingsGoal[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+
+  @@map("children")
+}
+
+// Moteur générique d'épargne (contrat §3.4, exigence non-négociable).
+model SavingsGoal {
+  id                 String          @id @default(cuid())
+  parentId           String          @map("parent_id")
+  parent             User            @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  childId            String?         @map("child_id") // §7 #2 : kit par enfant
+  child              Child?          @relation(fields: [childId], references: [id])
+  type               SavingsGoalType @default(supplies)
+  name               String
+  targetAmount       Int             @map("target_amount")
+  savedAmount        Int             @default(0) @map("saved_amount") // dérivé du ledger
+  kitId              String?         @map("kit_id")
+  kit                Kit?            @relation(fields: [kitId], references: [id])
+  // Personnalisation du kit STRICTEMENT pour cette famille/cet enfant —
+  // n'écrit jamais sur le `Kit` partagé du catalogue admin. `customAddedItems`
+  // référence des `Supply.id` du catalogue (§ CatalogApiService côté app) ;
+  // `customRemovedItems` identifie des lignes du kit de base par
+  // (category, label) à exclure du calcul de prix.
+  customAddedItems   Json?           @map("custom_added_items")
+  customRemovedItems Json?           @map("custom_removed_items")
+  status             GoalStatus      @default(active)
+  seasonId           String          @map("season_id")
+  season             Season          @relation(fields: [seasonId], references: [id])
+
+  allocations ContributionAllocation[]
+  createdAt   DateTime                 @default(now()) @map("created_at")
+
+  // Un seul kit/objectif par enfant et par saison (Postgres traite les NULL
+  // de `child_id` comme distincts, donc ça ne gêne pas les goals hérités
+  // sans enfant).
+  @@unique([childId, seasonId, type])
+  @@map("savings_goals")
+}
+
+model Subscription {
+  id          String             @id @default(cuid())
+  parentId    String             @unique @map("parent_id")
+  parent      User               @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  frequency   SavingsFrequency
+  status      SubscriptionStatus @default(draft)
+  confirmedAt DateTime?          @map("confirmed_at")
+  // Signature manuscrite (base64) du parent engageant le contrat — même
+  // mécanisme que `Delivery.signature`.
+  signature   String?
+
+  @@map("subscriptions")
+}
+
+model Kit {
+  id         String  @id @default(cuid())
+  tier       KitTier
+  name       String
+  levelScope String  @map("level_scope")
+  totalPrice Int     @map("total_price") // toujours Σ(quantity × unit_price) sur les KitItem, jamais saisi
+  isActive   Boolean @default(true) @map("is_active")
+  seasonId   String  @map("season_id")
+  season     Season  @relation(fields: [seasonId], references: [id])
+
+  items        KitItem[]
+  savingsGoals SavingsGoal[]
+
+  @@map("kits")
+}
+
+// `category` en texte libre (pas d'enum) : le vrai catalogue fournisseur a
+// une quinzaine de catégories différentes selon le cycle ("Cahiers &
+// Écriture", "Géométrie (BAC)", "Livres & Manuels techniques"...), bien
+// plus variées qu'un petit enum fermé ne peut le représenter.
+model KitItem {
+  id        String @id @default(cuid())
+  kitId     String @map("kit_id")
+  kit       Kit    @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  category  String
+  label     String
+  quantity  Int
+  // Défaut = valeur la plus fréquente du catalogue réel, utile uniquement
+  // pour combler les lignes existantes lors de l'ajout de cette colonne.
+  unit      String @default("unité")
+  unitPrice Int    @map("unit_price")
+
+  @@map("kit_items")
+}
+
+// Catalogue de fournitures réutilisable, indépendant des kits : l'admin y
+// pioche pour composer un `KitItem` (qui copie category/label/unit/unitPrice
+// au moment de l'ajout — pas de FK ici, volontairement, pour que modifier
+// une fourniture après coup n'altère jamais rétroactivement les kits déjà
+// composés avec elle).
+model Supply {
+  id        String @id @default(cuid())
+  category  String
+  label     String
+  unit      String
+  unitPrice Int    @map("unit_price")
+
+  @@map("supplies")
+}
+
+model Season {
+  id               String   @id @default(cuid())
+  label            String // §7 #1 : année scolaire à trancher (2025-2026 vs 2026-2027)
+  launchDate       DateTime @map("launch_date")
+  deliveryDeadline DateTime @map("delivery_deadline") // pilote le calcul des échéances
+  enrollmentOpen   Boolean  @default(true) @map("enrollment_open")
+  refundFee        Int      @default(500) @map("refund_fee")
+  // Invariant "au plus une saison courante" (voir seasons.service.ts) imposé
+  // en base par un index unique partiel — Prisma ne sait pas déclarer un
+  // index unique partiel nativement, donc il n'apparaît pas ici :
+  //   CREATE UNIQUE INDEX seasons_one_current_idx ON seasons (is_current)
+  //   WHERE is_current = true;
+  // À reproduire manuellement après tout `prisma db push`/reset qui
+  // recréerait la table, sous peine de revoir le bug du 2026-08-06 (deux
+  // saisons courantes ⇒ `findFirst({ where: { isCurrent: true } })` non
+  // déterministe ⇒ enfants/paiements qui disparaissent de l'affichage).
+  isCurrent        Boolean  @default(false) @map("is_current")
+
+  kits         Kit[]
+  savingsGoals SavingsGoal[]
+
+  @@map("seasons")
+}
+
+model Contribution {
+  id                 String             @id @default(cuid())
+  parentId           String             @map("parent_id")
+  parent             User               @relation(fields: [parentId], references: [id])
+  amount             Int
+  method             ContributionMethod
+  reference          String             @unique
+  status             ContributionStatus @default(pendingValidation)
+  collectedByAgentId String?            @map("collected_by_agent_id")
+  proofUrl           String?            @map("proof_url")
+
+  // Déduplication d'un double-tap agent sur un réseau terrain instable :
+  // rejouer la même clé renvoie la cotisation déjà créée au lieu d'en
+  // recréer une (voir `POST /agent/me/families/:id/contributions`).
+  idempotencyKey String? @unique @map("idempotency_key")
+
+  targetGoalType SavingsGoalType? @map("target_goal_type")
+
+
+  // Provider Pattern (paiement mobile money) : découplé de `method` car deux
+  // passerelles différentes pourraient un jour traiter le même moyen de
+  // paiement. `null` pour une cotisation cash (pas de passerelle externe).
+  provider          String? @map("provider") // ex. "ligdicash"
+  providerReference String? @unique @map("provider_reference") // id transaction côté passerelle, sert à recouper le webhook
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  confirmedAt DateTime? @map("confirmed_at")
+
+  allocations ContributionAllocation[]
+  commission  AgentCommission?
+
+  @@index([parentId, createdAt])
+  @@index([collectedByAgentId, createdAt])
+  @@map("contributions")
+}
+
+// Rémunération de l'agent sur un encaissement cash qu'il a personnellement
+// collecté (jamais sur un paiement mobile money en self-service — voir
+// `payments.service.ts::creditConfirmedContribution`). Taux figé au moment
+// du calcul (`AgentProfile.commissionRateBps` peut changer plus tard sans
+// réécrire l'historique).
+model AgentCommission {
+  id             String       @id @default(cuid())
+  agentId        String       @map("agent_id")
+  agent          User         @relation(fields: [agentId], references: [id])
+  contributionId String       @unique @map("contribution_id")
+  contribution   Contribution @relation(fields: [contributionId], references: [id], onDelete: Cascade)
+  amount         Int
+  rateBps        Int          @map("rate_bps")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  @@index([agentId, createdAt])
+  @@map("agent_commissions")
+}
+
+// Répartition prorata multi-enfants (contrat §6.1). `childId` nullable : tant
+// que le moteur d'épargne n'a pas d'objectifs par enfant (aucun `Child` en
+// base à ce stade), l'allocation cible un objectif au niveau famille.
+model ContributionAllocation {
+  id             String       @id @default(cuid())
+  contributionId String       @map("contribution_id")
+  contribution   Contribution @relation(fields: [contributionId], references: [id], onDelete: Cascade)
+  childId        String?      @map("child_id")
+  savingsGoalId  String       @map("savings_goal_id")
+  savingsGoal    SavingsGoal  @relation(fields: [savingsGoalId], references: [id])
+  amount         Int
+
+  @@map("contribution_allocations")
+}
+
+model Delivery {
+  id              String         @id @default(cuid())
+  parentId        String         @map("parent_id")
+  parent          User           @relation(fields: [parentId], references: [id])
+  childId         String?        @map("child_id")
+  kitId           String         @map("kit_id")
+  status          DeliveryStatus @default(preparation)
+  assignedAgentId String?        @map("assigned_agent_id")
+  locationLat     Float?         @map("location_lat")
+  locationLng     Float?         @map("location_lng")
+  address         String?
+  deliveryNoteNo  String?        @map("delivery_note_no")
+  signedAt        DateTime?      @map("signed_at")
+  // Date prévue de passage (planification agent — "livraisons du jour"),
+  // distincte de `signedAt` (horodatage réel de la confirmation).
+  scheduledAt     DateTime?      @map("scheduled_at")
+  // Signature capturée par l'agent sur son propre appareil au moment de la
+  // remise physique (base64) — chemin alternatif à `confirmReceipt` (parent,
+  // self-service) ; voir `delivery.service.ts::confirmByAgent`.
+  signature       String?
+  createdAt       DateTime       @default(now()) @map("created_at")
+
+  issues DeliveryIssue[]
+
+  @@index([parentId, scheduledAt])
+  @@index([status, scheduledAt])
+  @@index([assignedAgentId, scheduledAt])
+  @@map("deliveries")
+}
+
+model DeliveryIssue {
+  id          String            @id @default(cuid())
+  deliveryId  String            @map("delivery_id")
+  delivery    Delivery          @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+  type        DeliveryIssueType
+  description String
+  photoUrl    String?           @map("photo_url")
+  status      IssueStatus       @default(open)
+  createdAt   DateTime          @default(now()) @map("created_at")
+
+  @@map("delivery_issues")
+}
+
+model Refund {
+  id                 String       @id @default(cuid())
+  parentId           String       @map("parent_id")
+  parent             User         @relation(fields: [parentId], references: [id])
+  amount             Int
+  reason             String
+  status             RefundStatus @default(requested)
+  processedByAdminId String?      @map("processed_by_admin_id")
+  createdAt          DateTime     @default(now()) @map("created_at")
+
+  @@map("refunds")
+}
+
+// Journal comptable immuable (contrat §3.11) — append-only, source de vérité
+// de savedAmount. Jamais d'UPDATE/DELETE applicatif.
+model LedgerEntry {
+  id            String   @id @default(cuid())
+  entryType     String   @map("entry_type") // contribution_confirmed | refund | ...
+  parentId      String   @map("parent_id")
+  savingsGoalId String?  @map("savings_goal_id")
+  amount        Int // signé : + cotisation, − remboursement
+  reference     String
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("ledger_entries")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String   @map("actor_id")
+  action    String
+  entity    String
+  entityId  String?  @map("entity_id")
+  before    Json?
+  after     Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}
+
+model Notification {
+  id         String              @id @default(cuid())
+  userId     String              @map("user_id")
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       String
+  title      String
+  body       String
+  channel    NotificationChannel
+  readAt     DateTime?           @map("read_at")
+  // Statut de l'envoi réel sur `channel` (distinct de la persistance in-app,
+  // qui elle réussit toujours) — `null` tant qu'aucune tentative n'a eu lieu.
+  sentAt     DateTime?           @map("sent_at")
+  error      String?
+  // Push FCM tenté EN PLUS de `channel` (jamais à sa place) — colonnes
+  // séparées de `sentAt`/`error` ci-dessus, qui restent celles du canal
+  // `channel` (WhatsApp aujourd'hui). Un utilisateur sans appareil enregistré
+  // (`DeviceToken`) n'a simplement aucune tentative de push (`pushSentAt`
+  // et `pushError` restent tous deux `null`, distinct d'un échec réel).
+  pushSentAt DateTime?           @map("push_sent_at")
+  pushError  String?             @map("push_error")
+  createdAt  DateTime            @default(now()) @map("created_at")
+
+  @@map("notifications")
+}
+
+// Appareil enregistré pour le push FCM — plusieurs par utilisateur (un par
+// appareil). `token` unique tout court (pas scopé à l'utilisateur) : FCM
+// réattribue parfois le même token à un autre compte sur le même appareil
+// (déconnexion/reconnexion) — l'upsert par token bascule alors simplement
+// `userId` plutôt que de laisser deux lignes pointer le même appareil.
+model DeviceToken {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token      String   @unique
+  platform   String? // ios | android | web — informatif seulement
+  createdAt  DateTime @default(now()) @map("created_at")
+  lastUsedAt DateTime @default(now()) @map("last_used_at")
+
+  @@index([userId])
+  @@map("device_tokens")
+}

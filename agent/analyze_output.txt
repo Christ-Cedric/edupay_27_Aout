@@ -1,0 +1,30 @@
+Analyzing project_edupay...                                     
+
+warning • Unused import: 'package:flutter/material.dart' • lib/core/data/app_state.dart:1:8 • unused_import
+  error • Undefined class 'LivraisonModel' • lib/features/agent/screens/ag_bon_livraison_screen.dart:18:3 • undefined_class
+  error • Undefined name 'LivraisonModel' • lib/features/agent/screens/ag_bon_livraison_screen.dart:34:20 • undefined_identifier
+warning • Unused import: '../../../core/providers/agent_provider.dart' • lib/features/agent/screens/ag_clients_screen.dart:9:8 • unused_import
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_clients_screen.dart:32:20 • non_type_as_type_argument
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_clients_screen.dart:37:37 • non_type_as_type_argument
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_clients_screen.dart:61:38 • non_type_as_type_argument
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_clients_screen.dart:102:45 • non_type_as_type_argument
+warning • Unused import: '../../../core/providers/agent_provider.dart' • lib/features/agent/screens/ag_dashboard_screen.dart:10:8 • unused_import
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_dashboard_screen.dart:29:20 • non_type_as_type_argument
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_dashboard_screen.dart:45:38 • non_type_as_type_argument
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_dashboard_screen.dart:76:45 • non_type_as_type_argument
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_encaisser_screen.dart:47:39 • non_type_as_type_argument
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_encaisser_screen.dart:87:20 • non_type_as_type_argument
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_encaisser_screen.dart:110:38 • non_type_as_type_argument
+  error • The name 'AgLivraisonsScreen' isn't a class • lib/features/agent/screens/ag_encaisser_screen.dart:310:49 • creation_with_non_type
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/features/agent/screens/ag_fiche_client_screen.dart:231:40 • use_build_context_synchronously
+warning • Unused import: '../../../core/providers/agent_provider.dart' • lib/features/agent/screens/ag_impayes_screen.dart:10:8 • unused_import
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_impayes_screen.dart:38:38 • non_type_as_type_argument
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_impayes_screen.dart:78:45 • non_type_as_type_argument
+warning • Unused import: '../../../core/providers/agent_provider.dart' • lib/features/agent/screens/ag_inscrire_screen.dart:10:8 • unused_import
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_inscrire_screen.dart:90:20 • non_type_as_type_argument
+  error • The name 'AgentProvider' isn't a type, so it can't be used as a type argument • lib/features/agent/screens/ag_inscrire_screen.dart:91:20 • non_type_as_type_argument
+   info • Don't use 'BuildContext's across async gaps • lib/features/agent/screens/ag_profil_screen.dart:258:36 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/features/agent/screens/ag_profil_screen.dart:272:36 • use_build_context_synchronously
+warning • Unused import: 'package:google_fonts/google_fonts.dart' • lib/features/agent/screens/ag_rapport_screen.dart:2:8 • unused_import
+  error • The function 'AgentProvider' isn't defined • lib/main.dart:25:47 • undefined_function
+

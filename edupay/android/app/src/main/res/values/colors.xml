@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bleu nuit de marque (identique au fond du logo assets/icon/logo.png)
+         utilisé comme fond d'écran de démarrage (splash), pour qu'il n'y ait
+         aucune bordure blanche visible autour de l'icône. -->
+    <color name="splash_background">#0A1628</color>
+</resources>

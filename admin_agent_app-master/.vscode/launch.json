@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "EduPay Admin (backend réel - Wi-Fi)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=APP_ENV=development",
+        "--dart-define=API_BASE_URL=http://192.168.1.76:3000"
+      ]
+    },
+    {
+      "name": "EduPay Admin (backend réel - Localhost / Web / Windows)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=APP_ENV=development",
+        "--dart-define=API_BASE_URL=http://localhost:3000"
+      ]
+    },
+    {
+      "name": "EduPay Admin (backend réel - Émulateur Android)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=APP_ENV=development",
+        "--dart-define=API_BASE_URL=http://10.0.2.2:3000"
+      ]
+    },
+    {
+      "name": "EduPay Admin (mock, sans backend)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart"
+    }
+  ]
+}

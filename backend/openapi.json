@@ -1,0 +1,2668 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "EduPay API",
+    "version": "0.1.0",
+    "description": "API du monolithe EduPay (contrat inter-équipes v1). Périmètre couvert ici : Auth + module Administration/Agent. Toutes les routes sont préfixées par `/api/v1`. Erreurs au format unifié §1.1."
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Base de l’API"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Système"
+    },
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Admin · Dashboard"
+    },
+    {
+      "name": "Admin · Familles"
+    },
+    {
+      "name": "Admin · Agents"
+    },
+    {
+      "name": "Admin · Catalogue"
+    },
+    {
+      "name": "Admin · Remboursements"
+    },
+    {
+      "name": "Admin · Audit"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "UserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "agent",
+              "parent"
+            ]
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pendingValidation",
+              "active",
+              "rejected",
+              "suspended"
+            ]
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "district": {
+            "type": "string",
+            "nullable": true
+          },
+          "must_change_password": {
+            "type": "boolean"
+          },
+          "rejection_reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "full_name",
+          "phone",
+          "status",
+          "city",
+          "district",
+          "must_change_password",
+          "rejection_reason"
+        ],
+        "example": {
+          "id": "3f2a1c8e-0b6d-4e2a-9c11-7a8b9d0e1f23",
+          "role": "admin",
+          "full_name": "DERRA Bassirou",
+          "phone": "+22676691911",
+          "status": "active",
+          "city": null,
+          "district": null,
+          "must_change_password": false,
+          "rejection_reason": null
+        }
+      },
+      "SessionDto": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserDto"
+          }
+        },
+        "required": [
+          "access_token",
+          "refresh_token",
+          "user"
+        ]
+      },
+      "AgentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "zone": {
+            "type": "string"
+          },
+          "client_count": {
+            "type": "integer"
+          },
+          "commission": {
+            "type": "integer",
+            "description": "Commission cumulée (FCFA)."
+          },
+          "contract_type": {
+            "type": "string",
+            "enum": [
+              "volunteer",
+              "paid"
+            ]
+          },
+          "temporary_password": {
+            "type": "string",
+            "description": "Présent uniquement à la création si généré côté serveur."
+          }
+        },
+        "required": [
+          "id",
+          "full_name",
+          "phone",
+          "zone",
+          "client_count",
+          "commission",
+          "contract_type"
+        ]
+      },
+      "FamilyDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "plan": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ]
+          },
+          "balance": {
+            "type": "integer",
+            "description": "Épargné à ce jour (FCFA)."
+          },
+          "target_amount": {
+            "type": "integer",
+            "description": "Objectif = prix du kit (FCFA)."
+          },
+          "children_count": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pendingValidation",
+              "active",
+              "lateOverdue",
+              "rejected"
+            ]
+          },
+          "delivery_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "inProgress",
+              "delivered"
+            ]
+          },
+          "registered_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "kit_id": {
+            "type": "string"
+          },
+          "assigned_agent_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "rejection_reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "full_name",
+          "phone",
+          "city",
+          "plan",
+          "balance",
+          "target_amount",
+          "children_count",
+          "status",
+          "delivery_status",
+          "registered_at",
+          "kit_id",
+          "assigned_agent_name",
+          "rejection_reason"
+        ]
+      },
+      "DashboardDto": {
+        "type": "object",
+        "properties": {
+          "season": {
+            "type": "string",
+            "description": "Libellé saison courante (\"\" si aucune)."
+          },
+          "active_families": {
+            "type": "integer"
+          },
+          "total_collected": {
+            "type": "integer",
+            "description": "Épargne cumulée (FCFA)."
+          },
+          "collection_rate": {
+            "type": "number",
+            "description": "Ratio ∈ [0,1]."
+          },
+          "overdue_payments": {
+            "type": "integer"
+          },
+          "active_agents": {
+            "type": "integer"
+          },
+          "pending_deliveries": {
+            "type": "integer"
+          },
+          "alerts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "subtitle": {
+                  "type": "string"
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": [
+                    "danger",
+                    "warning",
+                    "info"
+                  ]
+                }
+              },
+              "required": [
+                "title",
+                "subtitle",
+                "severity"
+              ]
+            }
+          }
+        },
+        "required": [
+          "season",
+          "active_families",
+          "total_collected",
+          "collection_rate",
+          "overdue_payments",
+          "active_agents",
+          "pending_deliveries",
+          "alerts"
+        ]
+      },
+      "SeasonDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "launch_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "delivery_deadline": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "enrollment_open": {
+            "type": "boolean"
+          },
+          "refund_fee": {
+            "type": "integer"
+          },
+          "is_current": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "launch_date",
+          "delivery_deadline",
+          "enrollment_open",
+          "refund_fee",
+          "is_current"
+        ]
+      },
+      "KitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "basic",
+              "intermediate",
+              "premium"
+            ]
+          },
+          "price": {
+            "type": "integer",
+            "description": "Prix saisi par l’admin (FCFA)."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Libellés des fournitures."
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "price",
+          "items"
+        ]
+      },
+      "CollectionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "family_id": {
+            "type": "string"
+          },
+          "family_name": {
+            "type": "string"
+          },
+          "agent_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "cash",
+              "orangeMoney",
+              "moovMoney"
+            ]
+          },
+          "collected_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "receipt_number": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "family_id",
+          "family_name",
+          "agent_name",
+          "amount",
+          "mode",
+          "collected_at",
+          "receipt_number"
+        ]
+      },
+      "RefundRequestDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string",
+            "example": "RMB-2026-0A1B2C"
+          },
+          "family_name": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "reference",
+          "family_name",
+          "amount",
+          "reason"
+        ]
+      },
+      "RefundMonthSummaryDto": {
+        "type": "object",
+        "properties": {
+          "approved_count": {
+            "type": "integer"
+          },
+          "approved_amount": {
+            "type": "integer"
+          },
+          "fees_retained": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "approved_count",
+          "approved_amount",
+          "fees_retained"
+        ]
+      },
+      "RefundsResponse": {
+        "type": "object",
+        "properties": {
+          "pending": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RefundRequestDto"
+            }
+          },
+          "month_summary": {
+            "$ref": "#/components/schemas/RefundMonthSummaryDto"
+          }
+        },
+        "required": [
+          "pending",
+          "month_summary"
+        ]
+      },
+      "AuditLogDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "actor_id": {
+            "type": "string"
+          },
+          "actor_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "action": {
+            "type": "string",
+            "example": "user.suspended"
+          },
+          "entity": {
+            "type": "string",
+            "example": "user"
+          },
+          "entity_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "before": {
+            "nullable": true
+          },
+          "after": {
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "actor_id",
+          "actor_name",
+          "action",
+          "entity",
+          "entity_id",
+          "created_at"
+        ]
+      },
+      "PageMeta": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer"
+          },
+          "perPage": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "page",
+          "perPage",
+          "total"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "nullable": true
+                  }
+                },
+                "description": "Détails contextuels (ex. erreurs de champ)."
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "details"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "example": {
+          "error": {
+            "code": "VALIDATION_ERROR",
+            "message": "Données invalides.",
+            "details": [
+              {
+                "field": "phone",
+                "issue": "String must contain at least 8 character(s)"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Système"
+        ],
+        "summary": "Sonde de vivacité",
+        "responses": {
+          "200": {
+            "description": "Service opérationnel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    },
+                    "time": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "time"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Connexion par téléphone + mot de passe",
+        "description": "Limité en fréquence (anti brute-force) : 429 au-delà du quota.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phone": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "phone",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Session émise (paire access/refresh).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Numéro ou mot de passe incorrect.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Compte désactivé (rejected/suspended).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de tentatives.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Rotation du jeton de rafraîchissement",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refresh_token": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "refresh_token"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Nouvelle session ; l’ancien refresh est révoqué.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton invalide ou session expirée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de tentatives.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Révocation d’une session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refresh_token": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "refresh_token"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Session révoquée (idempotent)."
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Utilisateur courant",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profil de l’utilisateur authentifié.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentification requise.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Modifier ses identifiants (téléphone / mot de passe)",
+        "description": "Écran « Mon compte ». Au moins un champ. Un changement de mot de passe révoque les autres sessions ; une nouvelle paire de jetons est renvoyée.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "new_phone": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "new_password": {
+                    "type": "string",
+                    "minLength": 6
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Identifiants mis à jour ; nouvelle session émise.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Aucun champ fourni / données invalides.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentification requise.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Téléphone déjà utilisé.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/dashboard": {
+      "get": {
+        "tags": [
+          "Admin · Dashboard"
+        ],
+        "summary": "Statistiques agrégées",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Indicateurs calculés en base.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentification requise.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/families": {
+      "get": {
+        "tags": [
+          "Admin · Familles"
+        ],
+        "summary": "Lister les familles (clients)",
+        "description": "Filtres : `?search`, `?status`, `?city`.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pendingValidation",
+                "active",
+                "lateOverdue",
+                "rejected"
+              ]
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "city",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Familles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FamilyDto"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin · Familles"
+        ],
+        "summary": "Inscription directe d’une famille (statut actif)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "full_name": {
+                    "type": "string",
+                    "minLength": 2
+                  },
+                  "phone": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "plan": {
+                    "type": "string",
+                    "enum": [
+                      "daily",
+                      "weekly",
+                      "monthly"
+                    ]
+                  },
+                  "kit_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "assigned_agent_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "city": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  }
+                },
+                "required": [
+                  "full_name",
+                  "phone",
+                  "plan",
+                  "kit_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Famille inscrite.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Kit / agent inconnu ou données invalides.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Téléphone déjà utilisé.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/families/pending": {
+      "get": {
+        "tags": [
+          "Admin · Familles"
+        ],
+        "summary": "File de validation (comptes en attente)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Familles en attente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FamilyDto"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/families/{id}": {
+      "get": {
+        "tags": [
+          "Admin · Familles"
+        ],
+        "summary": "Détail d’une famille",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Famille.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Famille introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/families/{id}/contributions": {
+      "get": {
+        "tags": [
+          "Admin · Familles"
+        ],
+        "summary": "Historique des cotisations d’une famille",
+        "description": "Vide tant que le module Paiements n’alimente pas les cotisations.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cotisations.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CollectionDto"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Famille introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/families/{id}/incident": {
+      "post": {
+        "tags": [
+          "Admin · Familles"
+        ],
+        "summary": "Signaler un incident sur un dossier famille",
+        "description": "Consigné au journal d’audit.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "note": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "note"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Incident consigné."
+          },
+          "400": {
+            "description": "Note manquante.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Famille introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/families/{id}/approve": {
+      "post": {
+        "tags": [
+          "Admin · Familles"
+        ],
+        "summary": "Valider un compte client en attente",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Compte validé (actif).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Famille introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Le compte n’est pas en attente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/families/{id}/reject": {
+      "post": {
+        "tags": [
+          "Admin · Familles"
+        ],
+        "summary": "Rejeter un compte client en attente",
+        "description": "Motif obligatoire, renvoyé au client sur son écran de statut.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Compte rejeté.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Motif manquant ou invalide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Famille introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Le compte n’est pas en attente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/agents": {
+      "get": {
+        "tags": [
+          "Admin · Agents"
+        ],
+        "summary": "Lister les agents",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des agents (enveloppe `{ data }`).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AgentDto"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentification requise.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin · Agents"
+        ],
+        "summary": "Créer un agent (actif immédiatement)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "full_name": {
+                    "type": "string",
+                    "minLength": 2
+                  },
+                  "phone": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "zone": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "contract_type": {
+                    "type": "string",
+                    "enum": [
+                      "volunteer",
+                      "paid"
+                    ],
+                    "default": "volunteer"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6
+                  }
+                },
+                "required": [
+                  "full_name",
+                  "phone",
+                  "zone"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Agent créé.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données invalides.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentification requise.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Numéro de téléphone déjà utilisé.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/agents/{id}/suspend": {
+      "post": {
+        "tags": [
+          "Admin · Agents"
+        ],
+        "summary": "Suspendre un agent",
+        "description": "Révoque immédiatement ses sessions ; motif consigné à l’audit.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Agent suspendu.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentification requise.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Agent déjà suspendu.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/agents/{id}/reactivate": {
+      "post": {
+        "tags": [
+          "Admin · Agents"
+        ],
+        "summary": "Réactiver un agent suspendu",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent réactivé.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentification requise.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Agent déjà actif / transition invalide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/audit-logs": {
+      "get": {
+        "tags": [
+          "Admin · Audit"
+        ],
+        "summary": "Consulter le journal d’audit",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "example": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 100,
+              "example": 20
+            },
+            "required": false,
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Filtre nom / téléphone."
+            },
+            "required": false,
+            "name": "search",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entrées d’audit paginées (récentes d’abord).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AuditLogDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMeta"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentification requise.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/refunds": {
+      "get": {
+        "tags": [
+          "Admin · Remboursements"
+        ],
+        "summary": "Demandes en attente + bilan du mois",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Demandes en attente et bilan mensuel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefundsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/refunds/{id}/approve": {
+      "post": {
+        "tags": [
+          "Admin · Remboursements"
+        ],
+        "summary": "Approuver une demande de remboursement",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Demande approuvée."
+          },
+          "404": {
+            "description": "Demande introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Demande déjà traitée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/refunds/{id}/reject": {
+      "post": {
+        "tags": [
+          "Admin · Remboursements"
+        ],
+        "summary": "Rejeter une demande de remboursement",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Demande rejetée."
+          },
+          "404": {
+            "description": "Demande introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Demande déjà traitée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/seasons": {
+      "get": {
+        "tags": [
+          "Admin · Catalogue"
+        ],
+        "summary": "Lister les saisons",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saisons (récentes d’abord).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SeasonDto"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin · Catalogue"
+        ],
+        "summary": "Créer une saison",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 4,
+                    "maxLength": 20
+                  },
+                  "launch_date": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "delivery_deadline": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "enrollment_open": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "refund_fee": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 500
+                  }
+                },
+                "required": [
+                  "label",
+                  "launch_date",
+                  "delivery_deadline"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Saison créée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeasonDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dates incohérentes / données invalides.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/seasons/{id}": {
+      "get": {
+        "tags": [
+          "Admin · Catalogue"
+        ],
+        "summary": "Détail d’une saison",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saison.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeasonDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Saison introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Admin · Catalogue"
+        ],
+        "summary": "Mettre à jour une saison",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 4,
+                    "maxLength": 20
+                  },
+                  "launch_date": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "delivery_deadline": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "enrollment_open": {
+                    "type": "boolean"
+                  },
+                  "refund_fee": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saison mise à jour.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeasonDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dates incohérentes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Saison introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/seasons/{id}/set-current": {
+      "post": {
+        "tags": [
+          "Admin · Catalogue"
+        ],
+        "summary": "Définir la saison courante (unique)",
+        "description": "Démarque toute autre saison courante dans la même transaction.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saison désormais courante.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeasonDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Saison introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/kits": {
+      "get": {
+        "tags": [
+          "Admin · Catalogue"
+        ],
+        "summary": "Lister les kits (catalogue saison courante)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kits.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/KitDto"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin · Catalogue"
+        ],
+        "summary": "Créer un kit",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "string",
+                    "enum": [
+                      "basic",
+                      "intermediate",
+                      "premium"
+                    ]
+                  },
+                  "price": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "level",
+                  "price",
+                  "items"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Kit créé.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Aucune saison courante / articles invalides.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Réservé admin / mot de passe à changer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/kits/{id}": {
+      "get": {
+        "tags": [
+          "Admin · Catalogue"
+        ],
+        "summary": "Détail d’un kit",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kit introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Admin · Catalogue"
+        ],
+        "summary": "Modifier un kit (niveau, prix, articles)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "string",
+                    "enum": [
+                      "basic",
+                      "intermediate",
+                      "premium"
+                    ]
+                  },
+                  "price": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    },
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kit mis à jour.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Articles invalides.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kit introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin · Catalogue"
+        ],
+        "summary": "Supprimer un kit",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "clx123abc"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Kit supprimé."
+          },
+          "404": {
+            "description": "Kit introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

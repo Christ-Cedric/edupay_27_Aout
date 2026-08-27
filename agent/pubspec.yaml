@@ -1,0 +1,41 @@
+name: project_edupay
+description: "EduPay - Application de gestion epargne scolaire."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  url_launcher: ^6.3.0
+  http: ^1.2.2
+  shared_preferences: ^2.3.3
+  provider: ^6.1.2
+  flutter_secure_storage: ^9.2.2
+  intl: ^0.19.0
+  # QR Code & Scanner
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^5.2.3
+  # PDF Generation & Print
+  pdf: ^3.11.1
+  printing: ^5.13.1
+  # System
+  path_provider: ^2.1.4
+  # Signature manuscrite (bon de livraison agent)
+  signature: ^5.5.0
+  # Notifications push (FCM)
+  firebase_core: ^4.1.1
+  firebase_messaging: ^16.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "984563431681",
+    "project_id": "edupay-8a171",
+    "storage_bucket": "edupay-8a171.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:984563431681:android:c777fbeb07a36a2d218300",
+        "android_client_info": {
+          "package_name": "com.edupay.agent"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdghWqLr4GfJLGNT9AJqEdsyYsJjcTD1w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:984563431681:android:ee8e61021b74c10a218300",
+        "android_client_info": {
+          "package_name": "com.edupay.client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdghWqLr4GfJLGNT9AJqEdsyYsJjcTD1w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
