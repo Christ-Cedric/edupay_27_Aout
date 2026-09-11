@@ -19,41 +19,48 @@ class FamilyFilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.sm,
-      runSpacing: AppSpacing.xs,
-      children: [
-        _Chip(
-          label: 'Toutes',
-          variant: AppTagVariant.green,
-          selected: selected == null,
-          onTap: () => onSelected(null),
-        ),
-        _Chip(
-          label: 'Actives',
-          variant: AppTagVariant.green,
-          selected: selected == FamilyStatus.active,
-          onTap: () => onSelected(FamilyStatus.active),
-        ),
-        _Chip(
-          label: 'Inactives',
-          variant: AppTagVariant.neutral,
-          selected: selected == FamilyStatus.rejected,
-          onTap: () => onSelected(FamilyStatus.rejected),
-        ),
-        _Chip(
-          label: 'Impayées',
-          variant: AppTagVariant.danger,
-          selected: selected == FamilyStatus.lateOverdue,
-          onTap: () => onSelected(FamilyStatus.lateOverdue),
-        ),
-        _Chip(
-          label: 'En attente',
-          variant: AppTagVariant.gold,
-          selected: selected == FamilyStatus.pendingValidation,
-          onTap: onPendingTap,
-        ),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _Chip(
+            label: 'Toutes',
+            variant: AppTagVariant.green,
+            selected: selected == null,
+            onTap: () => onSelected(null),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          _Chip(
+            label: 'Actives',
+            variant: AppTagVariant.green,
+            selected: selected == FamilyStatus.active,
+            onTap: () => onSelected(FamilyStatus.active),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          _Chip(
+            label: 'Inactives',
+            variant: AppTagVariant.neutral,
+            selected: selected == FamilyStatus.rejected,
+            onTap: () => onSelected(FamilyStatus.rejected),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          _Chip(
+            label: 'Impayées',
+            variant: AppTagVariant.danger,
+            selected: selected == FamilyStatus.lateOverdue,
+            onTap: () => onSelected(FamilyStatus.lateOverdue),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          _Chip(
+            label: 'En attente',
+            variant: AppTagVariant.gold,
+            selected: selected == FamilyStatus.pendingValidation,
+            onTap: onPendingTap,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -76,13 +83,11 @@ class _Chip extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadii.tag),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: AppSpacing.minTapTarget),
-        child: Center(
-          child: Opacity(
-            opacity: selected ? 1 : .5,
-            child: AppTag(label: label, variant: variant),
-          ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Opacity(
+          opacity: selected ? 1.0 : 0.45,
+          child: AppTag(label: label, variant: variant),
         ),
       ),
     );

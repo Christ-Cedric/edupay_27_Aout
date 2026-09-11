@@ -47,17 +47,18 @@ class AppTheme {
         surface: AppColors.cardBg,
         error: AppColors.red,
       ),
-      textTheme: GoogleFonts.openSansTextTheme(
+      // Montserrat comme police globale de l'application
+      textTheme: GoogleFonts.montserratTextTheme(
         const TextTheme(
-          bodyLarge: TextStyle(color: AppColors.white),
-          bodyMedium: TextStyle(color: AppColors.white70),
-          bodySmall: TextStyle(color: AppColors.white50),
+          bodyLarge: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+          bodyMedium: TextStyle(color: AppColors.white70, fontWeight: FontWeight.w700),
+          bodySmall: TextStyle(color: AppColors.white50, fontWeight: FontWeight.w700),
         ),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.background,
         elevation: 0,
-        titleTextStyle: GoogleFonts.openSans(
+        titleTextStyle: GoogleFonts.montserrat(
           color: AppColors.white,
           fontSize: 14,
           fontWeight: FontWeight.w700,
@@ -80,13 +81,13 @@ class AppTheme {
         color: color,
       );
 
-  // Text styles Open Sans (corps)
+  // Text styles Open Sans (corps) - Redirigé vers Montserrat pour cohérence globale
   static TextStyle openSans({
     double fontSize = 12,
-    FontWeight fontWeight = FontWeight.w400,
+    FontWeight fontWeight = FontWeight.w700, // Mis en gras foncé (w700) par défaut pour plus de lisibilité
     Color color = AppColors.white,
   }) =>
-      GoogleFonts.openSans(
+      GoogleFonts.montserrat(
         fontSize: fontSize,
         fontWeight: fontWeight,
         color: color,

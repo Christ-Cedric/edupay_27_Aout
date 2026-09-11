@@ -71,7 +71,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final response = await ApiClient.post('/agent/me/families/${_selectedClient!.id}/contributions', {
+      await ApiClient.post('/agent/me/families/${_selectedClient!.id}/contributions', {
         'amount': amount,
       });
 
@@ -80,17 +80,24 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
       // Rafraîchir les données du dashboard
       context.read<AgentProvider>().loadDashboard();
 
-      // Vérifier si l'objectif est atteint (livraison auto-créée)
-      final data = response['data'];
-      final bool objectifAtteint = data?['isObjectifAtteint'] == true;
-      final livraisonCreee = data?['livraisonCreee'];
+      // Le backend renvoie la cotisation, puis la famille fait foi pour
+      // savoir si l'objectif agrégé est terminé après l'encaissement.
+      final familyResponse =
+          await ApiClient.get('/agent/me/families/${_selectedClient!.id}');
+      if (!mounted) return;
+      final familyData =
+          (familyResponse['data'] ?? familyResponse) as Map<String, dynamic>;
+      final updatedClient = ClientModel.fromJson(familyData);
+      final objectifAtteint = updatedClient.isCompleted;
 
-      if (objectifAtteint && livraisonCreee != null) {
-        // Rafraîchir les livraisons
+      if (objectifAtteint) {
+        context.read<AgentProvider>().loadClients();
         context.read<AgentProvider>().loadLivraisons();
-        // Afficher le dialogue de félicitations
-        await _showObjectifAtteintDialog(livraisonCreee);
+        await _showObjectifAtteintDialog({
+          'reference': updatedClient.familyCode ?? updatedClient.id,
+        });
       } else {
+        context.read<AgentProvider>().loadClients();
         showEduToast(context, 'Encaissement validé avec succès');
         Navigator.pushReplacement(
           context,
@@ -127,10 +134,10 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
           decoration: BoxDecoration(
             color: AppColors.cardBg,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.green.withOpacity(0.4)),
+            border: Border.all(color: AppColors.green.withValues(alpha: 0.4)),
             boxShadow: [
               BoxShadow(
-                color: AppColors.green.withOpacity(0.15),
+                color: AppColors.green.withValues(alpha: 0.15),
                 blurRadius: 30,
                 spreadRadius: 2,
               ),
@@ -144,7 +151,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: AppColors.green.withOpacity(0.15),
+                  color: AppColors.green.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.green, width: 2),
                 ),
@@ -167,7 +174,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
 
               Text(
                 '${_selectedClient?.fullName ?? 'Le client'} a atteint son objectif d\'épargne.',
-                style: GoogleFonts.openSans(
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                   fontSize: 12,
                   color: AppColors.white70,
                 ),
@@ -190,7 +197,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
                     const SizedBox(height: 4),
                     Text(
                       'Une livraison a été créée automatiquement',
-                      style: GoogleFonts.openSans(
+                      style: GoogleFonts.montserrat(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: AppColors.white,
@@ -200,7 +207,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
                     const SizedBox(height: 2),
                     Text(
                       'Réf: ${livraison['reference'] ?? ''}',
-                      style: GoogleFonts.openSans(
+                      style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                         fontSize: 10,
                         color: AppColors.white50,
                       ),
@@ -213,7 +220,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
               // Info notification
               Text(
                 '💬 Le client a été notifié par WhatsApp',
-                style: GoogleFonts.openSans(
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                   fontSize: 10,
                   color: AppColors.white50,
                 ),
@@ -251,7 +258,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
                 },
                 child: Text(
                   'Voir le reçu',
-                  style: GoogleFonts.openSans(
+                  style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                     fontSize: 12,
                     color: AppColors.white50,
                     decoration: TextDecoration.underline,
@@ -335,7 +342,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
                               children: [
                                 Text(
                                   _selectedClient == null ? 'Sélectionner un client' : _selectedClient!.fullName,
-                                  style: GoogleFonts.openSans(
+                                  style: GoogleFonts.montserrat(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.white,
@@ -343,7 +350,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
                                 ),
                                 Text(
                                   _selectedClient == null ? 'Appuyez pour choisir' : 'Plan ${_selectedClient!.plan}',
-                                  style: GoogleFonts.openSans(
+                                  style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                       fontSize: 10, color: AppColors.white50),
                                 ),
                               ],
@@ -363,7 +370,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
                       children: [
                         Text(
                           'Montant à encaisser (FCFA)',
-                          style: GoogleFonts.openSans(
+                          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                               fontSize: 10, color: AppColors.white50),
                           textAlign: TextAlign.center,
                         ),
@@ -421,7 +428,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
                               child: Center(
                                 child: Text(
                                   mode['ico'] as String,
-                                  style: GoogleFonts.openSans(
+                                  style: GoogleFonts.montserrat(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w800,
                                     color: (mode['textDark'] as bool)
@@ -435,7 +442,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
                             Expanded(
                               child: Text(
                                 mode['label'] as String,
-                                style: GoogleFonts.openSans(
+                                style: GoogleFonts.montserrat(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.white,
@@ -474,7 +481,7 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
                   Center(
                     child: Text(
                       'Le client est notifié automatiquement par WhatsApp',
-                      style: GoogleFonts.openSans(
+                      style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                           fontSize: 10, color: AppColors.white35),
                     ),
                   ),
@@ -531,11 +538,11 @@ class _AgEncaisserScreenState extends State<AgEncaisserScreen> {
                         leading: InitialsAvatar(
                             initials: client.initials, size: 36),
                         title: Text(client.fullName,
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                 color: AppColors.white)),
                         subtitle: Text(
                             'Plan ${client.plan}',
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                 color: AppColors.white50, fontSize: 10)),
                         onTap: () {
                           setState(() {

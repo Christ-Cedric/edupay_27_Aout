@@ -805,7 +805,7 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
     );
 
     if (result != null && context.mounted) {
-      final (amount, type) = result as (int, String);
+      final (amount, type) = result;
       await state.setChildTransport(index, amount, amount > 0 ? type : null);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

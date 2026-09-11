@@ -11,6 +11,9 @@ import '../../../core/services/api_client.dart';
 import '../../../core/providers/agent_provider.dart';
 import 'ag_encaisser_screen.dart';
 import 'ag_qr_code_client_screen.dart';
+import 'ag_personnaliser_kit_screen.dart';
+import 'ag_scolarite_screen.dart';
+import 'ag_transport_screen.dart';
 
 class AgFicheClientScreen extends StatefulWidget {
   final ClientModel client;
@@ -38,15 +41,9 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
   Future<void> _loadSavingPlans() async {
     try {
       final response = await ApiClient.get('/catalog/kits');
-      if (mounted)
-        setState(() => _savingPlans = response['data'] as List<dynamic>);
+      if (mounted) setState(() => _savingPlans = response['data'] as List<dynamic>);
     } catch (e) {
-      if (mounted)
-        showEduToast(
-          context,
-          'Impossible de charger les kits d\'épargne',
-          isError: true,
-        );
+      if (mounted) showEduToast(context, 'Impossible de charger les kits d\'épargne', isError: true);
     }
   }
 
@@ -62,8 +59,7 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
         context.read<AgentProvider>().loadDashboard();
       }
     } catch (e) {
-      if (mounted)
-        showEduToast(context, 'Erreur lors du rafraîchissement', isError: true);
+      if (mounted) showEduToast(context, 'Erreur lors du rafraîchissement', isError: true);
     }
   }
 
@@ -72,9 +68,8 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
     final client = _client;
     final balance = client.balance;
     final targetAmount = client.targetAmount;
-    final progress = targetAmount > 0
-        ? (balance / targetAmount).clamp(0.0, 1.0)
-        : 0.0;
+    final progress =
+        targetAmount > 0 ? (balance / targetAmount).clamp(0.0, 1.0) : 0.0;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -85,29 +80,24 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
             padding: const EdgeInsets.fromLTRB(16, 48, 16, 12),
             decoration: const BoxDecoration(
               color: AppColors.background,
-              border: Border(
-                bottom: BorderSide(color: AppColors.divider, width: 1),
-              ),
+              border:
+                  Border(bottom: BorderSide(color: AppColors.divider, width: 1)),
             ),
             child: Row(
               children: [
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: const Icon(
-                    Icons.arrow_back,
-                    color: AppColors.white70,
-                    size: 22,
-                  ),
+                  child: const Icon(Icons.arrow_back,
+                      color: AppColors.white70, size: 22),
                 ),
                 const Expanded(
                   child: Center(
                     child: Text(
                       'Fiche Famille',
                       style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
+                          color: AppColors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
@@ -128,11 +118,8 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                       InitialsAvatar(
                         initials: client.initials,
                         size: 44,
-                        backgroundColor: client.isCompleted
-                            ? AppColors.green
-                            : client.isLate
-                            ? AppColors.red
-                            : AppColors.green,
+                        backgroundColor:
+                            client.isCompleted ? AppColors.green : client.isLate ? AppColors.red : AppColors.green,
                       ),
                       const SizedBox(width: 12),
                       Column(
@@ -149,19 +136,15 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                           Text(
                             '${client.phone} — ${client.city}',
                             style: GoogleFonts.openSans(
-                              fontSize: 10,
-                              color: AppColors.white50,
-                            ),
+                                fontSize: 10, color: AppColors.white50),
                           ),
-                          if (client.familyCode != null &&
-                              client.familyCode!.isNotEmpty)
+                          if (client.familyCode != null && client.familyCode!.isNotEmpty)
                             Text(
                               client.familyCode!,
                               style: GoogleFonts.openSans(
-                                fontSize: 9,
-                                color: AppColors.gold,
-                                fontWeight: FontWeight.w700,
-                              ),
+                                  fontSize: 9,
+                                  color: AppColors.gold,
+                                  fontWeight: FontWeight.w700),
                             ),
                         ],
                       ),
@@ -175,15 +158,12 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                       width: double.infinity,
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 12,
-                      ),
+                          vertical: 8, horizontal: 12),
                       decoration: BoxDecoration(
-                        color: AppColors.green.withOpacity(0.1),
+                        color: AppColors.green.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: AppColors.green.withOpacity(0.3),
-                        ),
+                        border:
+                            Border.all(color: AppColors.green.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -211,12 +191,12 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                           valueColor: AppColors.gold,
                         ),
                         EduDataRow(
-                          label: 'Objectif Global',
-                          value: '${targetAmount.toStringAsFixed(0)} FCFA',
-                        ),
+                            label: 'Objectif Global',
+                            value: '${targetAmount.toStringAsFixed(0)} FCFA'),
                         EduDataRow(
                           label: 'Progression',
-                          value: '${(progress * 100).toStringAsFixed(1)}%',
+                          value:
+                              '${(progress * 100).toStringAsFixed(1)}%',
                           valueColor: AppColors.green,
                         ),
                       ],
@@ -236,9 +216,7 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                       widthFactor: progress,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: client.isLate
-                              ? AppColors.red
-                              : AppColors.green,
+                          color: client.isLate ? AppColors.red : AppColors.green,
                           borderRadius: BorderRadius.circular(7),
                         ),
                       ),
@@ -256,9 +234,7 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                       child: Text(
                         '⚠ En retard de ${client.lateWeeks} semaine(s)',
                         style: GoogleFonts.openSans(
-                          fontSize: 10,
-                          color: AppColors.red,
-                        ),
+                            fontSize: 10, color: AppColors.red),
                       ),
                     ),
                   ],
@@ -313,76 +289,32 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                       ),
                     )
                   else
-                    ...client.children!.map(
-                      (c) => Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.white05,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.borderDefault),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              c.firstName,
-                              style: GoogleFonts.openSans(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.white,
-                                fontSize: 13,
-                              ),
-                            ),
-                            if (c.school != null && c.school!.isNotEmpty)
-                              Text(
-                                'École: ${c.school}',
-                                style: GoogleFonts.openSans(
-                                  color: AppColors.white50,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            if (c.targetAmount != null && c.targetAmount! > 0)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: Text(
-                                  'Objectif - ${c.targetAmount!.toStringAsFixed(0)} FCFA',
-                                  style: GoogleFonts.openSans(
-                                    color: AppColors.gold,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    ...client.children!.map((c) => _buildChildCard(c)),
 
                   const SizedBox(height: 16),
 
                   EduButton.green(
-                    ' Encaisser une cotisation',
+                    '💵 Encaisser une cotisation',
                     onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            AgEncaisserScreen(preselectedClient: client),
-                      ),
+                          builder: (_) =>
+                              AgEncaisserScreen(preselectedClient: client)),
                     ),
                   ),
                   const SizedBox(height: 8),
                   EduButton.yellow(
-                    ' Voir l\'historique',
+                    '📋 Voir l\'historique',
                     onPressed: () => _showHistory(context),
                   ),
                   const SizedBox(height: 8),
                   EduButton.outlined(
-                    ' Notifications envoyées',
+                    '🔔 Notifications envoyées',
                     onPressed: () => _showNotifications(context),
                   ),
                   const SizedBox(height: 8),
                   EduButton.outlined(
-                    'Voir le QR Code',
+                    '📱 Voir le QR Code',
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -397,21 +329,17 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                   ),
                   const SizedBox(height: 8),
                   EduButton.outlined(
-                    ' Appeler ce client',
+                    '📞 Appeler ce client',
                     onPressed: () async {
-                      final phone = client.phone
-                          .replaceAll(' ', '')
-                          .replaceAll('+', '');
+                      final phone =
+                          client.phone.replaceAll(' ', '').replaceAll('+', '');
                       final url = Uri.parse('tel:$phone');
                       try {
                         await launchUrl(url);
                       } catch (_) {
                         if (!context.mounted) return;
-                        showEduToast(
-                          context,
-                          'Impossible de lancer l\'appel',
-                          isError: true,
-                        );
+                        showEduToast(context, 'Impossible de lancer l\'appel',
+                            isError: true);
                       }
                     },
                   ),
@@ -438,11 +366,7 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
         if (mounted && _savingPlans.isNotEmpty) {
           _showAddChildModal();
         } else if (mounted) {
-          showEduToast(
-            context,
-            'Aucun kit d\'épargne disponible',
-            isError: true,
-          );
+          showEduToast(context, 'Aucun kit d\'épargne disponible', isError: true);
         }
       });
       return;
@@ -455,22 +379,24 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
     // catalogue complet — une fois le vrai catalogue importé (28 classes),
     // ceci permet de ne proposer que les 3 kits (basic/intermediate/premium)
     // de LA classe de l'enfant, au lieu de tout le catalogue de la saison.
-    final availableClasses = <String>{
-      for (final p in _savingPlans)
-        if (p['level_scope'] is String) p['level_scope'] as String,
-    }.toList()..sort();
+    final availableClasses = [
+      'CP1', 'CP2', 'CE1', 'CE2', 'CM1', 'CM2',
+      '6e', '5e', '4e', '3e', '2nde', '1ere', 'Tle A', 'Tle D'
+    ];
 
-    String? selectedClass = availableClasses.isNotEmpty
-        ? availableClasses.first
-        : null;
+    String? selectedClass = availableClasses.isNotEmpty ? availableClasses.first : null;
     List<dynamic> kitsForClass = selectedClass == null
         ? _savingPlans
         : _savingPlans.where((p) => p['level_scope'] == selectedClass).toList();
-    String? selectedPlanId =
-        (kitsForClass.isNotEmpty && kitsForClass.first['id'] != null)
+    if (kitsForClass.isEmpty) {
+      kitsForClass = _savingPlans;
+    }
+    String? selectedPlanId = (kitsForClass.isNotEmpty && kitsForClass.first['id'] != null)
         ? kitsForClass.first['id'] as String
         : null;
     bool isSubmitting = false;
+    // Liste des articles personnalisés choisis dans le catalogue
+    List<Map<String, dynamic>>? customSelectedItems;
 
     showModalBottomSheet(
       context: context,
@@ -484,15 +410,15 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
           builder: (ctx, setModalState) {
             return Padding(
               padding: EdgeInsets.only(
-                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-                top: 20,
-                left: 20,
-                right: 20,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                  bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+                  top: 20,
+                  left: 20,
+                  right: 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   Text(
                     'Ajouter un enfant',
                     style: GoogleFonts.montserrat(
@@ -510,10 +436,7 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                     _buildLabel('CLASSE'),
                     Container(
                       margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 4,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppColors.white07,
                         border: Border.all(color: AppColors.borderDefault),
@@ -524,29 +447,20 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                           value: selectedClass,
                           isExpanded: true,
                           dropdownColor: AppColors.cardBg,
-                          style: GoogleFonts.openSans(
-                            fontSize: 13,
-                            color: AppColors.white,
-                          ),
+                          style: GoogleFonts.openSans(fontSize: 13, color: AppColors.white),
                           items: availableClasses
-                              .map(
-                                (c) => DropdownMenuItem<String>(
-                                  value: c,
-                                  child: Text(c),
-                                ),
-                              )
+                              .map((c) => DropdownMenuItem<String>(value: c, child: Text(c)))
                               .toList(),
                           onChanged: (v) {
                             setModalState(() {
                               selectedClass = v;
                               kitsForClass = v == null
                                   ? _savingPlans
-                                  : _savingPlans
-                                        .where((p) => p['level_scope'] == v)
-                                        .toList();
-                              selectedPlanId =
-                                  (kitsForClass.isNotEmpty &&
-                                      kitsForClass.first['id'] != null)
+                                  : _savingPlans.where((p) => p['level_scope'] == v).toList();
+                              if (kitsForClass.isEmpty) {
+                                kitsForClass = _savingPlans;
+                              }
+                              selectedPlanId = (kitsForClass.isNotEmpty && kitsForClass.first['id'] != null)
                                   ? kitsForClass.first['id'] as String
                                   : null;
                             });
@@ -555,85 +469,470 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                       ),
                     ),
                   ],
-                  _buildLabel('KIT D\'ÉPARGNE'),
-                  Text(
-                    'Choisissez une formule et consultez sa composition.',
-                    style: GoogleFonts.openSans(
-                      fontSize: 11,
-                      color: AppColors.white50,
-                    ),
-                  ),
+                  _buildLabel('KIT SCOLAIRE'),
                   const SizedBox(height: 10),
-                  ...kitsForClass.map((plan) {
-                    final planId = plan['id'] as String?;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: _buildKitChoice(
-                        plan: plan,
-                        selected: planId != null && planId == selectedPlanId,
-                        onTap: planId == null
-                            ? null
-                            : () =>
-                                  setModalState(() => selectedPlanId = planId),
+                  // ── 4 kits fixes en grille 2×2 ──
+                  Builder(builder: (ctx2) {
+                    // Mapper les niveaux backend vers les IDs disponibles
+                    String? idBasic, idEssential, idPremium;
+                    for (final p in kitsForClass) {
+                      final lvl = (p['level'] as String? ?? '').toLowerCase();
+                      final pid = p['id'] as String? ?? '';
+                      if (lvl == 'basic') {
+                        idBasic = pid;
+                      } else if (lvl == 'intermediate' || lvl == 'essential') {
+                        idEssential = pid;
+                      } else if (lvl == 'premium') {
+                        idPremium = pid;
+                      }
+                    }
+                    // Si on a peu de kits on tente d'allouer par ordre
+                    if (kitsForClass.isNotEmpty && idBasic == null) {
+                      idBasic = kitsForClass[0]['id'] as String?;
+                    }
+                    if (kitsForClass.length >= 2 && idEssential == null) {
+                      idEssential = kitsForClass[1]['id'] as String?;
+                    }
+                    if (kitsForClass.length >= 3 && idPremium == null) {
+                      idPremium = kitsForClass[2]['id'] as String?;
+                    }
+
+                    // Récupérer les prix affichés
+                    String priceOf(String? id) {
+                      if (id == null) return '';
+                      final p = kitsForClass.firstWhere((x) => x['id'] == id, orElse: () => <String,dynamic>{});
+                      final price = p['price'];
+                      return price != null ? '${(price as num).toInt()} F' : '';
+                    }
+
+                    // Définition des 4 kits (ordre : Basique | Essentiel / Premium | Personnaliser)
+                    final List<Map<String, dynamic>> kits = [
+                      {
+                        'id': idBasic ?? '',
+                        'label': 'Kit Basique',
+                        'icon': Icons.school_outlined,
+                        'price': priceOf(idBasic),
+                        'selectable': idBasic != null,
+                        'custom': false,
+                      },
+                      {
+                        'id': idEssential ?? '',
+                        'label': 'Kit Essentiel',
+                        'icon': Icons.shopping_bag_outlined,
+                        'price': priceOf(idEssential),
+                        'selectable': idEssential != null,
+                        'custom': false,
+                      },
+                      {
+                        'id': idPremium ?? '',
+                        'label': 'Kit Premium',
+                        'icon': Icons.workspace_premium_outlined,
+                        'price': priceOf(idPremium),
+                        'selectable': idPremium != null,
+                        'custom': false,
+                      },
+                      {
+                        'id': '__custom__',
+                        'label': 'Personnaliser',
+                        'icon': Icons.tune_outlined,
+                        'price': 'À définir',
+                        'selectable': true,
+                        'custom': true,
+                      },
+                    ];
+
+                    Widget buildKitCard(Map<String, dynamic> kit, {bool addRightMargin = false}) {
+                      final kitId = kit['id'] as String;
+                      final isSelected = selectedPlanId == kitId && kitId.isNotEmpty;
+                      final price = kit['price'] as String;
+
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => setModalState(() => selectedPlanId = kitId),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            margin: EdgeInsets.only(right: addRightMargin ? 9 : 0, bottom: 10),
+                            padding: const EdgeInsets.fromLTRB(6, 14, 6, 10),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? const Color(0xFF00C853).withValues(alpha: 0.13)
+                                  : const Color(0x0DFFFFFF),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xFF00C853)
+                                    : const Color(0x26FFFFFF),
+                                width: isSelected ? 2.0 : 1.0,
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Icône du kit
+                                Icon(
+                                  kit['icon'] as IconData,
+                                  color: isSelected
+                                      ? const Color(0xFF00C853)
+                                      : const Color(0x99FFFFFF),
+                                  size: 26,
+                                ),
+                                const SizedBox(height: 6),
+                                // Nom du kit
+                                Text(
+                                  kit['label'] as String,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.openSans(
+                                    fontSize: 10,
+                                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                    color: isSelected
+                                        ? const Color(0xFF00C853)
+                                        : const Color(0xCCFFFFFF),
+                                  ),
+                                ),
+                                // Prix ou "À définir"
+                                if (price.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Text(
+                                      price,
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.openSans(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w600,
+                                        color: isSelected
+                                            ? const Color(0xFF00C853)
+                                            : const Color(0x55FFFFFF),
+                                      ),
+                                    ),
+                                  ),
+                                const SizedBox(height: 10),
+                                // Case à cocher circulaire
+                                Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: isSelected
+                                        ? const Color(0xFF00C853)
+                                        : Colors.transparent,
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? const Color(0xFF00C853)
+                                          : const Color(0x55FFFFFF),
+                                      width: 1.8,
+                                    ),
+                                  ),
+                                  child: isSelected
+                                      ? const Icon(Icons.check_rounded,
+                                          color: Colors.white, size: 12)
+                                      : null,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return Column(
+                      children: [
+                        // Ligne 1 : Kit Basique | Kit Essentiel
+                        Row(children: [
+                          buildKitCard(kits[0], addRightMargin: true),
+                          buildKitCard(kits[1]),
+                        ]),
+                        // Ligne 2 : Kit Premium | Personnaliser
+                        Row(children: [
+                          buildKitCard(kits[2], addRightMargin: true),
+                          buildKitCard(kits[3]),
+                        ]),
+                      ],
+                    );
+                  }),
+                  const SizedBox(height: 4),
+                       // ── Aperçu kit standard OU formulaire kit personnalisé ──
+                  Builder(builder: (_) {
+                    // ── Kit Personnaliser sélectionné ──
+                    if (selectedPlanId == '__custom__') {
+                      int customTotal = 0;
+                      if (customSelectedItems != null) {
+                        for (var item in customSelectedItems!) {
+                          customTotal += (item['qty'] as int) * (item['price'] as int);
+                        }
+                      }
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0D1D34),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0x26FFFFFF)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.tune_outlined, color: Color(0xFF00C853), size: 15),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Composition du kit personnalisé',
+                                  style: GoogleFonts.openSans(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF00C853),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            
+                            if (customSelectedItems == null || customSelectedItems!.isEmpty)
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 20),
+                                  child: Column(
+                                    children: [
+                                      const Icon(Icons.shopping_basket_outlined, color: AppColors.white35, size: 32),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Aucun article sélectionné',
+                                        style: GoogleFonts.openSans(fontSize: 11, color: AppColors.white50),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            else ...[
+                              // En-tête colonnes
+                              Row(
+                                children: [
+                                  Expanded(flex: 4, child: Text('Article', style: GoogleFonts.openSans(fontSize: 9, color: const Color(0x80FFFFFF), fontWeight: FontWeight.w600))),
+                                  const SizedBox(width: 4),
+                                  SizedBox(width: 30, child: Text('Qté', textAlign: TextAlign.center, style: GoogleFonts.openSans(fontSize: 9, color: const Color(0x80FFFFFF), fontWeight: FontWeight.w600))),
+                                  const SizedBox(width: 4),
+                                  SizedBox(width: 50, child: Text('Total', textAlign: TextAlign.right, style: GoogleFonts.openSans(fontSize: 9, color: const Color(0x80FFFFFF), fontWeight: FontWeight.w600))),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              const Divider(color: Color(0x26FFFFFF), height: 1),
+                              const SizedBox(height: 8),
+                              // Lignes d'articles
+                              ...List.generate(customSelectedItems!.length, (idx) {
+                                final item = customSelectedItems![idx];
+                                final subtotal = (item['qty'] as int) * (item['price'] as int);
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 6),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 4,
+                                        child: Text(
+                                          item['name'],
+                                          style: GoogleFonts.openSans(fontSize: 11, color: const Color(0xFFFFFFFF)),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      SizedBox(
+                                        width: 30,
+                                        child: Text(
+                                          item['qty'].toString(),
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.openSans(fontSize: 11, color: const Color(0xFFFFFFFF), fontWeight: FontWeight.w600),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      SizedBox(
+                                        width: 50,
+                                        child: Text(
+                                          subtotal.toString(),
+                                          textAlign: TextAlign.right,
+                                          style: GoogleFonts.openSans(fontSize: 11, color: const Color(0xFF00C853), fontWeight: FontWeight.w600),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                              const SizedBox(height: 8),
+                              const Divider(color: Color(0x26FFFFFF), height: 1),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Total estimé:', style: GoogleFonts.openSans(fontSize: 11, color: AppColors.white70)),
+                                  Text('$customTotal F', style: GoogleFonts.montserrat(fontSize: 14, color: AppColors.gold, fontWeight: FontWeight.w800)),
+                                ],
+                              ),
+                            ],
+
+                            const SizedBox(height: 16),
+                            // Bouton pour ouvrir le catalogue
+                            EduButton.outlined(
+                              customSelectedItems == null || customSelectedItems!.isEmpty 
+                                ? 'Ouvrir le catalogue pour personnaliser' 
+                                : 'Modifier la sélection',
+                              onPressed: () async {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => AgPersonnaliserKitScreen(
+                                      selectedClass: selectedClass ?? 'CP1',
+                                    ),
+                                  ),
+                                );
+                                if (result != null && result is List<Map<String, dynamic>>) {
+                                  setModalState(() {
+                                    customSelectedItems = result;
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    // ── Aperçu kit standard ──
+                    if (selectedPlanId == null) return const SizedBox.shrink();
+                    final selKit = kitsForClass.firstWhere(
+                      (p) => p['id'] == selectedPlanId,
+                      orElse: () => null,
+                    );
+                    if (selKit == null) return const SizedBox.shrink();
+                    final items = selKit['items'] as List<dynamic>? ?? [];
+                    final description = selKit['description'] as String? ?? '';
+                    if (items.isEmpty && description.isEmpty) return const SizedBox.shrink();
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00C853).withValues(alpha: 0.06),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFF00C853).withValues(alpha: 0.2)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (description.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                children: [
+                                  const Text('✨ ', style: TextStyle(fontSize: 12)),
+                                  Expanded(
+                                    child: Text(
+                                      description,
+                                      style: GoogleFonts.openSans(fontSize: 10, color: const Color(0xB3FFFFFF), fontStyle: FontStyle.italic),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ...items.take(3).map((item) {
+                            final name = item['name'] as String? ?? item['item_name'] as String? ?? item.toString();
+                            final qty = item['quantity'] ?? item['qty'];
+                            final itemPrice = item['price'] ?? item['unit_price'];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 5),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.check_circle_outline, color: Color(0xFF00C853), size: 13),
+                                  const SizedBox(width: 6),
+                                  Expanded(child: Text(qty != null ? '$qty × $name' : name, style: GoogleFonts.openSans(fontSize: 10, color: const Color(0xB3FFFFFF)))),
+                                  if (itemPrice != null)
+                                    Text('${(itemPrice as num).toInt()} F', style: GoogleFonts.openSans(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0x80FFFFFF))),
+                                ],
+                              ),
+                            );
+                          }),
+                          if (items.length > 3)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text('Voir plus (${items.length - 3} articles)', style: GoogleFonts.openSans(fontSize: 10, color: const Color(0xFF00C853), fontWeight: FontWeight.w600)),
+                            ),
+                        ],
                       ),
                     );
                   }),
                   if (isSubmitting)
-                    const Center(
-                      child: CircularProgressIndicator(color: AppColors.green),
-                    )
+                    const Center(child: CircularProgressIndicator(color: AppColors.green))
                   else
-                    EduButton.green(
-                      'Ajouter',
-                      onPressed: () async {
-                        if (firstNameCtrl.text.trim().isEmpty ||
-                            selectedPlanId == null) {
-                          showEduToast(
-                            ctx,
-                            'Prénom et plan obligatoires',
-                            isError: true,
-                          );
+                    EduButton.green('Ajouter', onPressed: () async {
+                      if (firstNameCtrl.text.trim().isEmpty) {
+                        showEduToast(ctx, 'Le prénom est obligatoire', isError: true);
+                        return;
+                      }
+                      if (selectedPlanId == null) {
+                        showEduToast(ctx, 'Veuillez choisir un kit', isError: true);
+                        return;
+                      }
+                      // Validation kit personnalisé
+                      if (selectedPlanId == '__custom__') {
+                        if (customSelectedItems == null || customSelectedItems!.isEmpty) {
+                          showEduToast(ctx, 'Ajoutez au moins un article au kit', isError: true);
                           return;
                         }
-                        setModalState(() => isSubmitting = true);
-                        try {
-                          final resp = await ApiClient.post(
-                            '/agent/me/families/${_client.id}/children',
-                            {
-                              'first_name': firstNameCtrl.text.trim(),
-                              'school': schoolNameCtrl.text.trim(),
-                              if (selectedClass != null) 'level': selectedClass,
-                            },
+                      }
+                      setModalState(() => isSubmitting = true);
+                      try {
+                        final existingChildIds =
+                            (_client.children ?? const <ChildModel>[])
+                                .map((child) => child.id)
+                                .toSet();
+                        final resp = await ApiClient.post('/agent/me/families/${_client.id}/children', {
+                          'first_name': firstNameCtrl.text.trim(),
+                          'school': schoolNameCtrl.text.trim(),
+                          'level': selectedClass,
+                        });
+                        final Map<String, dynamic> data = resp['data'] ?? {};
+                        final List children = data['children'] ?? [];
+                        final newChild = children
+                            .whereType<Map<String, dynamic>>()
+                            .where((child) =>
+                                !existingChildIds.contains(child['id']))
+                            .cast<Map<String, dynamic>?>()
+                            .firstOrNull;
+                        final newChildId = newChild?['id'] as String?;
+
+                        if (newChildId == null) {
+                          throw ApiException(
+                            500,
+                            'Enfant créé, mais impossible de retrouver son identifiant pour assigner le kit.',
                           );
-
-                          final Map<String, dynamic> data = resp['data'] ?? {};
-                          final List children = data['children'] ?? [];
-                          // Trouver l'enfant qu'on vient de créer
-                          final newChild = children.lastWhere(
-                            (c) =>
-                                c['first_name'] == firstNameCtrl.text.trim() &&
-                                c['kit_id'] == null,
-                            orElse: () =>
-                                children.isNotEmpty ? children.last : null,
-                          );
-
-                          if (newChild != null && newChild['id'] != null) {
-                            await ApiClient.post(
-                              '/agent/me/families/${_client.id}/children/${newChild['id']}/kit',
-                              {'kit_id': selectedPlanId},
-                            );
-                          }
-
-                          if (mounted) Navigator.pop(ctx);
-                          showEduToast(context, 'Enfant ajouté avec succès');
-                          _refreshClient();
-                        } catch (e) {
-                          setModalState(() => isSubmitting = false);
-                          showEduToast(ctx, 'Erreur: $e', isError: true);
                         }
-                      },
-                    ),
+
+                        if (selectedPlanId != '__custom__') {
+                          await ApiClient.post('/agent/me/families/${_client.id}/children/$newChildId/kit', {
+                            'kit_id': selectedPlanId,
+                          });
+                        } else {
+                          final validItems = customSelectedItems!.map((i) => {
+                                'name': i['name'],
+                                'quantity': i['qty'],
+                                'price': i['price'],
+                              }).toList();
+                          await ApiClient.post('/agent/me/families/${_client.id}/children/$newChildId/kit', {
+                            'custom': true,
+                            'items': validItems,
+                          });
+                        }
+                        if (!mounted || !ctx.mounted) return;
+                        Navigator.pop(ctx);
+                        showEduToast(context, 'Enfant ajouté avec succès');
+                        _refreshClient();
+                      } catch (e) {
+                        if (!ctx.mounted) return;
+                        setModalState(() => isSubmitting = false);
+                        showEduToast(ctx, 'Erreur: $e', isError: true);
+                      }
+                    }),
                 ],
+              ),
               ),
             );
           },
@@ -642,156 +941,198 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
     );
   }
 
-  Widget _buildKitChoice({
-    required dynamic plan,
-    required bool selected,
-    required VoidCallback? onTap,
-  }) {
-    final level = plan['level'] as String? ?? '';
-    final price = (plan['price'] as num?)?.toInt() ?? 0;
-    final items = plan['items'] is List ? plan['items'] as List : const [];
-    final title = switch (level) {
-      'basic' => 'Kit Basique',
-      'intermediate' => 'Kit Intermédiaire',
-      'premium' => 'Kit Premium',
-      _ => 'Kit scolaire',
-    };
-    final subtitle = switch (level) {
-      'basic' => 'L’essentiel pour bien démarrer',
-      'intermediate' => 'Un équipement plus complet',
-      'premium' => 'La formule la plus complète',
-      _ => 'Fournitures adaptées à la classe',
-    };
+  Widget _buildChildCard(ChildModel c) {
+    final initials = c.firstName.isNotEmpty ? c.firstName[0].toUpperCase() : '?';
+    final hasKit = c.kitId != null && c.kitId!.isNotEmpty;
+    final kitLabel = hasKit ? 'Kit assigné' : 'Kit non assigné';
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: selected
-              ? AppColors.green.withValues(alpha: .12)
-              : AppColors.white07,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: selected ? AppColors.green : AppColors.borderDefault,
-            width: selected ? 1.5 : 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: selected ? AppColors.green : AppColors.white10,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    level == 'premium'
-                        ? Icons.workspace_premium_outlined
-                        : Icons.shopping_basket_outlined,
-                    color: selected ? Colors.white : AppColors.gold,
-                    size: 21,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: GoogleFonts.openSans(
-                          color: AppColors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: GoogleFonts.openSans(
-                          color: AppColors.white50,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  '${price.toString()} FCFA',
-                  style: GoogleFonts.montserrat(
-                    color: selected ? AppColors.green : AppColors.gold,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Icon(
-                  selected ? Icons.check_circle : Icons.radio_button_unchecked,
-                  color: selected ? AppColors.green : AppColors.white35,
-                  size: 20,
-                ),
-              ],
+    // Déduire le label du kit depuis _savingPlans
+    String kitDisplayLabel = kitLabel;
+    if (hasKit) {
+      final plan = _savingPlans.firstWhere(
+        (p) => p['id'] == c.kitId,
+        orElse: () => null,
+      );
+      if (plan != null) {
+        final level = plan['level'] as String? ?? '';
+        final price = plan['price'];
+        final priceStr = price != null ? ' — ${(price as num).toInt()} F' : '';
+        kitDisplayLabel = level == 'basic'
+            ? 'Kit Basique$priceStr'
+            : level == 'intermediate'
+                ? 'Kit Essentiel$priceStr'
+                : level == 'premium'
+                    ? 'Kit Premium$priceStr'
+                    : 'Kit$priceStr';
+      }
+    }
+
+    return GestureDetector(
+      onTap: () => _showChildOptions(context, c),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.white05,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderDefault),
+      ),
+      child: Row(
+        children: [
+          // Avatar initiale
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: AppColors.green.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(9),
             ),
-            if (selected && items.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              const Divider(color: AppColors.divider, height: 1),
-              const SizedBox(height: 8),
-              Text(
-                'Composition du kit',
-                style: GoogleFonts.openSans(
-                  color: AppColors.white70,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 11,
+            child: Center(
+              child: Text(
+                initials,
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.green,
                 ),
               ),
-              const SizedBox(height: 5),
-              ...items.take(4).map((item) {
-                final itemMap = item is Map ? item : const <String, dynamic>{};
-                final label =
-                    itemMap['label'] ?? itemMap['name'] ?? 'Fourniture';
-                final quantity = itemMap['quantity'] ?? 1;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.check_circle_outline,
-                        color: AppColors.green,
-                        size: 14,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          '$quantity × $label',
-                          style: GoogleFonts.openSans(
-                            color: AppColors.white70,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-              if (items.length > 4)
+            ),
+          ),
+          const SizedBox(width: 10),
+          // Infos enfant
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  '+ ${items.length - 4} autres fournitures',
+                  c.firstName,
                   style: GoogleFonts.openSans(
-                    color: AppColors.white50,
-                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.white,
+                    fontSize: 13,
                   ),
                 ),
+                if (c.level != null && c.level!.isNotEmpty ||
+                    c.school != null && c.school!.isNotEmpty)
+                  Text(
+                    [
+                      if (c.level != null && c.level!.isNotEmpty) c.level!,
+                      if (c.school != null && c.school!.isNotEmpty) c.school!,
+                    ].join(' · '),
+                    style: GoogleFonts.openSans(
+                      color: AppColors.white50,
+                      fontSize: 10,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          // Badge kit + montant
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (c.targetAmount != null && c.targetAmount! > 0)
+                Text(
+                  '${c.targetAmount!.toStringAsFixed(0)} F',
+                  style: GoogleFonts.openSans(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.gold,
+                  ),
+                ),
+              const SizedBox(height: 4),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                decoration: BoxDecoration(
+                  color: hasKit
+                      ? AppColors.green.withValues(alpha: 0.12)
+                      : AppColors.white10,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: hasKit
+                        ? AppColors.green.withValues(alpha: 0.4)
+                        : AppColors.borderDefault,
+                  ),
+                ),
+                child: Text(
+                  kitDisplayLabel,
+                  style: GoogleFonts.openSans(
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w700,
+                    color: hasKit ? AppColors.green : AppColors.white35,
+                  ),
+                ),
+              ),
             ],
-          ],
-        ),
+          ),
+        ],
       ),
+    ));
+  }
+
+  void _showChildOptions(BuildContext context, ChildModel child) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.cardBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Options pour ${child.firstName}',
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.white,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.school_outlined, color: AppColors.green),
+                title: Text('Scolarité', style: GoogleFonts.openSans(color: AppColors.white, fontWeight: FontWeight.w600)),
+                subtitle: Text('Gérer le paiement de la scolarité', style: GoogleFonts.openSans(color: AppColors.white50, fontSize: 11)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AgScolariteScreen(
+                        familyId: _client.id,
+                        child: child,
+                      ),
+                    ),
+                  ).then((_) => _refreshClient());
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.directions_bus_outlined, color: AppColors.gold),
+                title: Text('Transport', style: GoogleFonts.openSans(color: AppColors.white, fontWeight: FontWeight.w600)),
+                subtitle: Text('Gérer les abonnements de transport', style: GoogleFonts.openSans(color: AppColors.white50, fontSize: 11)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AgTransportScreen(
+                        familyId: _client.id,
+                        child: child,
+                      ),
+                    ),
+                  ).then((_) => _refreshClient());
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -818,10 +1159,7 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
         style: GoogleFonts.openSans(fontSize: 13, color: AppColors.white),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: GoogleFonts.openSans(
-            fontSize: 13,
-            color: AppColors.white35,
-          ),
+          hintStyle: GoogleFonts.openSans(fontSize: 13, color: AppColors.white35),
           filled: true,
           fillColor: AppColors.white07,
           enabledBorder: OutlineInputBorder(
@@ -832,10 +1170,7 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
             borderRadius: BorderRadius.circular(9),
             borderSide: const BorderSide(color: AppColors.green),
           ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 12,
-          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         ),
       ),
     );
@@ -851,9 +1186,7 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
       ),
       builder: (ctx) {
         return FutureBuilder<Map<String, dynamic>>(
-          future: ApiClient.get(
-            '/agent/me/families/${_client.id}/contributions',
-          ),
+          future: ApiClient.get('/agent/me/families/${_client.id}/contributions'),
           builder: (ctx, snapshot) {
             return Padding(
               padding: const EdgeInsets.all(20),
@@ -872,23 +1205,20 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                   const SizedBox(height: 16),
                   if (snapshot.connectionState == ConnectionState.waiting)
                     const Center(
-                      child: CircularProgressIndicator(color: AppColors.green),
-                    )
+                        child: CircularProgressIndicator(
+                            color: AppColors.green))
                   else if (snapshot.hasError)
-                    Text(
-                      'Impossible de charger l\'historique.',
-                      style: GoogleFonts.openSans(color: AppColors.red),
-                    )
+                    Text('Impossible de charger l\'historique.',
+                        style: GoogleFonts.openSans(color: AppColors.red))
                   else if (!snapshot.hasData ||
                       (snapshot.data!['data'] as List).isEmpty)
-                    Text(
-                      'Aucune cotisation enregistrée.',
-                      style: GoogleFonts.openSans(color: AppColors.white50),
-                    )
+                    Text('Aucune cotisation enregistrée.',
+                        style: GoogleFonts.openSans(color: AppColors.white50))
                   else
                     ...(snapshot.data!['data'] as List).take(10).map((tx) {
                       final amount =
-                          double.tryParse(tx['amount']?.toString() ?? '0') ?? 0;
+                          double.tryParse(tx['amount']?.toString() ?? '0') ??
+                              0;
                       final status = tx['status'] ?? '';
                       final createdAt = tx['createdAt']?.toString() ?? '';
                       final date = createdAt.length >= 10
@@ -974,8 +1304,7 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                         const Expanded(
                           child: Center(
                             child: CircularProgressIndicator(
-                              color: AppColors.green,
-                            ),
+                                color: AppColors.green),
                           ),
                         )
                       else if (notifications.isEmpty)
@@ -984,10 +1313,8 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text(
-                                  '📭',
-                                  style: TextStyle(fontSize: 40),
-                                ),
+                                const Text('📭',
+                                    style: TextStyle(fontSize: 40)),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Aucune notification envoyée',
@@ -1005,7 +1332,7 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                           child: ListView.separated(
                             controller: scrollController,
                             itemCount: notifications.length,
-                            separatorBuilder: (_, __) => const Divider(
+                            separatorBuilder: (_, _) => const Divider(
                               color: AppColors.divider,
                               height: 1,
                             ),
@@ -1026,9 +1353,8 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
   }
 
   Widget _buildNotificationTile(NotificationModel notif) {
-    final formattedDate = DateFormat(
-      'dd/MM/yyyy HH:mm',
-    ).format(notif.createdAt);
+    final formattedDate =
+        DateFormat('dd/MM/yyyy HH:mm').format(notif.createdAt);
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
@@ -1041,7 +1367,7 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
             height: 36,
             decoration: BoxDecoration(
               color: notif.isSent
-                  ? AppColors.green.withOpacity(0.12)
+                  ? AppColors.green.withValues(alpha: 0.12)
                   : AppColors.white05,
               borderRadius: BorderRadius.circular(8),
             ),
@@ -1071,13 +1397,11 @@ class _AgFicheClientScreenState extends State<AgFicheClientScreen> {
                     // Badge statut
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: notif.isSent
-                            ? AppColors.green.withOpacity(0.12)
-                            : AppColors.gold.withOpacity(0.12),
+                            ? AppColors.green.withValues(alpha: 0.12)
+                            : AppColors.gold.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

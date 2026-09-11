@@ -97,9 +97,17 @@ export const kitCustomRemovedItemSchema = z.object({
 // remplace le `SavingsGoal` de cet enfant pour cette saison (jamais plus
 // d'un goal par enfant et par saison, contrainte `@@unique` en base).
 export const assignKitSchema = z.object({
-  kit_id: z.string().min(1),
+  kit_id: z.string().min(1).optional(),
   added_items: z.array(kitCustomAddedItemSchema).optional(),
   removed_items: z.array(kitCustomRemovedItemSchema).optional(),
+  custom: z.boolean().optional(),
+  items: z.array(
+    z.object({
+      name: z.string().min(1),
+      quantity: z.number().int().positive(),
+      price: z.number().positive(),
+    })
+  ).optional(),
 });
 
 // Aligné sur l'écran `new_agent_screen` (Flutter) : pas de politique stricte
@@ -182,3 +190,11 @@ export type UpdateFamilyProfileInput = z.infer<typeof updateFamilyProfileSchema>
 export type AgentsQuery = z.infer<typeof agentsQuerySchema>;
 export type ApproveFamilyInput = z.infer<typeof approveFamilySchema>;
 export type ReassignAgentInput = z.infer<typeof reassignAgentSchema>;
+
+export const assignDeliveryLocationSchema = z.object({
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+  address: z.string().trim().optional(),
+  assigned_agent_id: z.string().optional(),
+});
+export type AssignDeliveryLocationInput = z.infer<typeof assignDeliveryLocationSchema>;

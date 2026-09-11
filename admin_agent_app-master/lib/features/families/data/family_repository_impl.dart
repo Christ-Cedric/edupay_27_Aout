@@ -61,11 +61,13 @@ class FamilyRepositoryImpl implements FamilyRepository {
     required String familyId,
     required int amount,
     String? collectedByAgentId,
+    String? targetGoalType,
   }) {
     return _dataSource.recordCashContribution(
       familyId: familyId,
       amount: amount,
       collectedByAgentId: collectedByAgentId,
+      targetGoalType: targetGoalType,
     );
   }
 

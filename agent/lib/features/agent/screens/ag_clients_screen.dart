@@ -35,7 +35,7 @@ class _AgClientsScreenState extends State<AgClientsScreen> {
 
   List<ClientModel> get _filtered {
     final agentState = context.read<AgentProvider>();
-    var list = agentState.clients;
+    var list = agentState.clients.where((c) => !c.isCompleted).toList();
 
     if (_searchQuery.isNotEmpty) {
       list = list
@@ -49,8 +49,6 @@ class _AgClientsScreenState extends State<AgClientsScreen> {
 
     if (_activeFilter == 'LATE') {
       list = list.where((c) => c.isLate).toList();
-    } else if (_activeFilter == 'COMPLETED') {
-      list = list.where((c) => c.isCompleted).toList();
     }
 
     return list;
@@ -59,7 +57,7 @@ class _AgClientsScreenState extends State<AgClientsScreen> {
   @override
   Widget build(BuildContext context) {
     final agentState = context.watch<AgentProvider>();
-    final all = agentState.clients;
+    final all = agentState.clients.where((c) => !c.isCompleted).toList();
     final lateCount = all.where((c) => c.isLate).length;
 
     return Scaffold(

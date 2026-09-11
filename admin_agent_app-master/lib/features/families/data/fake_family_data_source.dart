@@ -266,6 +266,7 @@ class FakeFamilyDataSource implements FamilyDataSource {
     required String familyId,
     required int amount,
     String? collectedByAgentId,
+    String? targetGoalType,
   }) async {
     await Future.delayed(const Duration(milliseconds: 400));
     final family = await fetchById(familyId);

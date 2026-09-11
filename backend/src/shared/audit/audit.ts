@@ -47,6 +47,7 @@ export type AuditAction =
   | 'delivery.status_advanced'
   | 'delivery.scheduled'
   | 'delivery.confirmed_by_agent'
+  | 'delivery.assigned'
   | 'goal.completed'
   | 'commission.credited'
   | 'family.reminded'

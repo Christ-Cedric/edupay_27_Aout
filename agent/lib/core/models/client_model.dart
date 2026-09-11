@@ -16,8 +16,8 @@ class ClientModel {
   final String? familyCode;
   final String? assignedAgentName;
   final List<ChildModel>? children;
+  final List<TransportGoalModel>? transportGoals;
   final String registeredAt;
-  final String? temporaryPassword;
 
   ClientModel({
     required this.id,
@@ -33,8 +33,8 @@ class ClientModel {
     this.familyCode,
     this.assignedAgentName,
     this.children,
+    this.transportGoals,
     required this.registeredAt,
-    this.temporaryPassword,
   });
 
   String get initials {
@@ -46,9 +46,9 @@ class ClientModel {
 
   bool get isLate => status == 'lateOverdue';
   bool get isCompleted => targetAmount > 0 && balance >= targetAmount;
-
+  
   // Backward compatibility for lateWeeks if UI needs it
-  int get lateWeeks => isLate ? 1 : 0;
+  int get lateWeeks => isLate ? 1 : 0; 
   String get address => city;
 
   factory ClientModel.fromJson(Map<String, dynamic> json) {
@@ -60,19 +60,53 @@ class ClientModel {
       district: json['district'],
       plan: json['plan'] ?? 'weekly',
       balance: double.tryParse(json['balance']?.toString() ?? '0') ?? 0,
-      targetAmount:
-          double.tryParse(json['target_amount']?.toString() ?? '0') ?? 0,
+      targetAmount: double.tryParse(json['target_amount']?.toString() ?? '0') ?? 0,
       status: json['status'] ?? 'active',
       deliveryStatus: json['delivery_status'] ?? 'pending',
       familyCode: json['family_code'],
       assignedAgentName: json['assigned_agent_name'],
       registeredAt: json['registered_at'] ?? '',
-      temporaryPassword: json['temporary_password'],
       children: json['children'] != null
-          ? (json['children'] as List)
-                .map((i) => ChildModel.fromJson(i))
-                .toList()
+          ? (json['children'] as List).map((i) => ChildModel.fromJson(i)).toList()
           : null,
+      transportGoals: json['transport_goals'] != null
+          ? (json['transport_goals'] as List).map((i) => TransportGoalModel.fromJson(i)).toList()
+          : null,
+    );
+  }
+}
+
+class TransportGoalModel {
+  final String id;
+  final String childId;
+  final String name;
+  final double targetAmount;
+  final double savedAmount;
+  final String status;
+  final String? planFrequency;
+  final double? planCapacity;
+
+  TransportGoalModel({
+    required this.id,
+    required this.childId,
+    required this.name,
+    required this.targetAmount,
+    required this.savedAmount,
+    required this.status,
+    this.planFrequency,
+    this.planCapacity,
+  });
+
+  factory TransportGoalModel.fromJson(Map<String, dynamic> json) {
+    return TransportGoalModel(
+      id: json['id'] ?? '',
+      childId: json['child_id'] ?? '',
+      name: json['name'] ?? '',
+      targetAmount: double.tryParse(json['target_amount']?.toString() ?? '0') ?? 0,
+      savedAmount: double.tryParse(json['saved_amount']?.toString() ?? '0') ?? 0,
+      status: json['status'] ?? 'active',
+      planFrequency: json['plan_frequency'],
+      planCapacity: double.tryParse(json['plan_capacity']?.toString() ?? ''),
     );
   }
 }
@@ -85,6 +119,9 @@ class ChildModel {
   final String? kitId;
   final double? targetAmount;
   final double? savedAmount;
+  final List<dynamic>? customAddedItems;
+  final SchoolingGoalModel? schoolingGoal;
+  final TransportGoalModel? transportGoal;
 
   ChildModel({
     required this.id,
@@ -94,6 +131,9 @@ class ChildModel {
     this.kitId,
     this.targetAmount,
     this.savedAmount,
+    this.customAddedItems,
+    this.schoolingGoal,
+    this.transportGoal,
   });
 
   factory ChildModel.fromJson(Map<String, dynamic> json) {
@@ -105,6 +145,9 @@ class ChildModel {
       kitId: json['kit_id'],
       targetAmount: double.tryParse(json['target_amount']?.toString() ?? '0'),
       savedAmount: double.tryParse(json['saved_amount']?.toString() ?? '0'),
+      customAddedItems: json['custom_added_items'] as List<dynamic>?,
+      schoolingGoal: json['schooling_goal'] != null ? SchoolingGoalModel.fromJson(json['schooling_goal']) : null,
+      transportGoal: json['transport_goal'] != null ? TransportGoalModel.fromJson(json['transport_goal']) : null,
     );
   }
 }
@@ -135,3 +178,85 @@ class SavingPlanModel {
     );
   }
 }
+
+class SchoolingGoalModel {
+  final String id;
+  final double targetAmount;
+  final double savedAmount;
+  final String status;
+  final String? planFrequency;
+  final double? planCapacity;
+
+  SchoolingGoalModel({
+    required this.id,
+    required this.targetAmount,
+    required this.savedAmount,
+    required this.status,
+    this.planFrequency,
+    this.planCapacity,
+  });
+
+  factory SchoolingGoalModel.fromJson(Map<String, dynamic> json) {
+    return SchoolingGoalModel(
+      id: json['id'] ?? '',
+      targetAmount: double.tryParse(json['target_amount']?.toString() ?? '0') ?? 0,
+      savedAmount: double.tryParse(json['saved_amount']?.toString() ?? '0') ?? 0,
+      status: json['status'] ?? 'active',
+      planFrequency: json['plan_frequency'],
+      planCapacity: double.tryParse(json['plan_capacity']?.toString() ?? ''),
+    );
+  }
+}
+
+class SchoolingHistoryModel {
+  final String id;
+  final double amount;
+  final String date;
+  final String status;
+  final String reference;
+
+  SchoolingHistoryModel({
+    required this.id,
+    required this.amount,
+    required this.date,
+    required this.status,
+    required this.reference,
+  });
+
+  factory SchoolingHistoryModel.fromJson(Map<String, dynamic> json) {
+    return SchoolingHistoryModel(
+      id: json['id'] ?? '',
+      amount: double.tryParse(json['amount']?.toString() ?? '0') ?? 0,
+      date: json['date'] ?? '',
+      status: json['status'] ?? '',
+      reference: json['reference'] ?? '',
+    );
+  }
+}
+
+class TransportOptionModel {
+  final String id;
+  final String name;
+  final String? description;
+  final String? icon;
+  final double price;
+
+  TransportOptionModel({
+    required this.id,
+    required this.name,
+    this.description,
+    this.icon,
+    required this.price,
+  });
+
+  factory TransportOptionModel.fromJson(Map<String, dynamic> json) {
+    return TransportOptionModel(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description'],
+      icon: json['icon'],
+      price: double.tryParse(json['price']?.toString() ?? '0') ?? 0,
+    );
+  }
+}
+

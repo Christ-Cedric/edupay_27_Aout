@@ -309,7 +309,7 @@ class _AgQrScannerScreenState extends State<AgQrScannerScreen>
                     const SizedBox(height: 12),
                     Text(
                       'Chargement du client...',
-                      style: GoogleFonts.openSans(
+                      style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                           fontSize: 13, color: Colors.white70),
                     ),
                   ] else ...[
@@ -327,10 +327,10 @@ class _AgQrScannerScreenState extends State<AgQrScannerScreen>
                           const SizedBox(width: 8),
                           Text(
                             'Pointez la caméra vers le QR EduPay',
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(
                               fontSize: 13,
                               color: Colors.white,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
@@ -339,7 +339,7 @@ class _AgQrScannerScreenState extends State<AgQrScannerScreen>
                     const SizedBox(height: 8),
                     Text(
                       'Le dossier du client s\'ouvrira automatiquement',
-                      style: GoogleFonts.openSans(
+                      style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                           fontSize: 10, color: Colors.white54),
                     ),
                   ],
@@ -596,13 +596,13 @@ class _CotisationModalState extends State<_CotisationModal> {
                         children: [
                           Text(
                             client.familyCode ?? '',
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                 fontSize: 10, color: AppColors.green),
                           ),
                           const SizedBox(width: 8),
                           Text(
                             '• ${client.phone}',
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                 fontSize: 10, color: AppColors.white50),
                           ),
                         ],
@@ -622,7 +622,7 @@ class _CotisationModalState extends State<_CotisationModal> {
                   ),
                   child: Text(
                     client.isLate ? '⚠ Retard' : '✓ Actif',
-                    style: GoogleFonts.openSans(
+                    style: GoogleFonts.montserrat(
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
                       color: client.isLate
@@ -642,12 +642,12 @@ class _CotisationModalState extends State<_CotisationModal> {
                 children: [
                   Text(
                     'Épargne accumulée',
-                    style: GoogleFonts.openSans(
+                    style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                         fontSize: 10, color: AppColors.white50),
                   ),
                   Text(
                     '${NumberFormat('#,###').format(balance.toInt())} / ${NumberFormat('#,###').format(targetAmount.toInt())} FCFA',
-                    style: GoogleFonts.openSans(
+                    style: GoogleFonts.montserrat(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: AppColors.gold,
@@ -669,7 +669,7 @@ class _CotisationModalState extends State<_CotisationModal> {
               const SizedBox(height: 4),
               Text(
                 '${(progressPct * 100).toStringAsFixed(0)}% atteint',
-                style: GoogleFonts.openSans(
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                     fontSize: 9, color: AppColors.white35),
               ),
               const SizedBox(height: 12),
@@ -693,7 +693,7 @@ class _CotisationModalState extends State<_CotisationModal> {
                         const SizedBox(width: 5),
                         Text(
                           'ENFANTS INSCRITS (${client.children!.length})',
-                          style: GoogleFonts.openSans(
+                          style: GoogleFonts.montserrat(
                             fontSize: 8,
                             fontWeight: FontWeight.w700,
                             color: AppColors.green,
@@ -732,16 +732,16 @@ class _CotisationModalState extends State<_CotisationModal> {
                               children: [
                                 Text(
                                   child.firstName,
-                                  style: GoogleFonts.openSans(
+                                  style: GoogleFonts.montserrat(
                                     fontSize: 11,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w700,
                                     color: AppColors.white,
                                   ),
                                 ),
                                   if (child.school != null)
                                     Text(
                                       child.school!,
-                                      style: GoogleFonts.openSans(
+                                      style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                           fontSize: 9, color: AppColors.white50),
                                     ),
                                 ],
@@ -750,7 +750,7 @@ class _CotisationModalState extends State<_CotisationModal> {
                             if (child.targetAmount != null && child.targetAmount! > 0)
                               Text(
                                 '${child.targetAmount!.toInt()} FCFA (Obj.)',
-                                style: GoogleFonts.openSans(
+                                style: GoogleFonts.montserrat(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.gold,
@@ -767,15 +767,15 @@ class _CotisationModalState extends State<_CotisationModal> {
                       children: [
                         Text(
                           'Total cotisation suggérée',
-                          style: GoogleFonts.openSans(
+                          style: GoogleFonts.montserrat(
                             fontSize: 10,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: AppColors.white70,
                           ),
                         ),
                         Text(
                           '${_montantSuggere.toInt()} FCFA',
-                          style: GoogleFonts.openSans(
+                          style: GoogleFonts.montserrat(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             color: AppColors.green,
@@ -795,7 +795,7 @@ class _CotisationModalState extends State<_CotisationModal> {
             // Titre saisie
             Text(
               'ENCAISSER LA COTISATION',
-              style: GoogleFonts.openSans(
+              style: GoogleFonts.montserrat(
                 fontSize: 9,
                 fontWeight: FontWeight.w700,
                 color: AppColors.green,
@@ -816,7 +816,7 @@ class _CotisationModalState extends State<_CotisationModal> {
                 children: [
                   Text(
                     'Montant à encaisser (FCFA)',
-                    style: GoogleFonts.openSans(
+                    style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                         fontSize: 10, color: AppColors.white50),
                   ),
                   TextField(
@@ -842,10 +842,10 @@ class _CotisationModalState extends State<_CotisationModal> {
                           minimumSize: const Size(0, 28)),
                       child: Text(
                         'Montant suggéré: ${_montantSuggere.toInt()} FCFA',
-                        style: GoogleFonts.openSans(
+                        style: GoogleFonts.montserrat(
                           fontSize: 10,
                           color: AppColors.green,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
@@ -857,7 +857,7 @@ class _CotisationModalState extends State<_CotisationModal> {
             // Modes de paiement
             Text(
               'MODE DE PAIEMENT',
-              style: GoogleFonts.openSans(
+              style: GoogleFonts.montserrat(
                 fontSize: 9,
                 fontWeight: FontWeight.w700,
                 color: AppColors.white50,
@@ -899,9 +899,9 @@ class _CotisationModalState extends State<_CotisationModal> {
                           const SizedBox(height: 4),
                           Text(
                             mode['label'] as String,
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(
                               fontSize: 9,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                               color: isSelected
                                   ? mode['bg'] as Color
                                   : AppColors.white50,

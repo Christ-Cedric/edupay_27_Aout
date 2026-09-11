@@ -372,7 +372,7 @@ final class ValidationControllerProvider
 }
 
 String _$validationControllerHash() =>
-    r'0e2e32b4fb6ea13f150848e4fedb45c12d768328';
+    r'05808d7aa7cb906f972aa5ad7d4ad5f1998d8c26';
 
 /// Approuve/rejette les comptes en attente de validation (règle métier
 /// ajoutée par le client, absente du prototype — voir mémo de validation).
@@ -428,7 +428,7 @@ final class RecordContributionControllerProvider
 }
 
 String _$recordContributionControllerHash() =>
-    r'd55fbba0352f3b13c7b46c302cb057438532a6c7';
+    r'a69ef3500210f252780307d3fa97bf36739dbc53';
 
 /// Enregistre un encaissement cash (dossier famille → « Enregistrer un
 /// encaissement »).

@@ -32,6 +32,7 @@ import {
   suspendAgentHandler,
   updateChildHandler,
   updateFamilyHandler,
+  assignDeliveryLocationHandler,
 } from './admin.controller.js';
 
 // Module Administration (notre équipe) — contrat §5.4. Réservé au rôle admin.
@@ -64,6 +65,9 @@ adminRouter.get('/audit-logs', asyncHandler(listAuditLogsHandler));
 // — même service générique que parents/agent, il manquait juste sa route ici.
 adminRouter.get('/notifications', asyncHandler(listNotificationsHandler));
 adminRouter.get('/contributions', asyncHandler(listContributionsHandler));
+
+// Livraison
+adminRouter.patch('/deliveries/:id/assign', asyncHandler(assignDeliveryLocationHandler));
 
 // Catalogue (saisons + kits) — sous-ressources du module Administration.
 adminRouter.use('/seasons', seasonsRouter);

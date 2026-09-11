@@ -219,8 +219,9 @@ int childShareOfContribution({
   required int childRemaining,
   required int globalRemaining,
 }) {
-  if (globalRemaining <= 0 || childRemaining <= 0 || contribution <= 0)
+  if (globalRemaining <= 0 || childRemaining <= 0 || contribution <= 0) {
     return 0;
+  }
   final share = ((contribution * childRemaining) / globalRemaining).round();
   return share.clamp(0, childRemaining);
 }

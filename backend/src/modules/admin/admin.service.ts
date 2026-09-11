@@ -358,10 +358,12 @@ const familyInclude = {
   children: { select: { id: true, firstName: true, level: true, school: true } },
   savingsGoals: {
     select: {
-      childId: true,
-      seasonId: true,
+      id: true,
       type: true,
       name: true,
+      status: true,
+      childId: true,
+      seasonId: true,
       savedAmount: true,
       targetAmount: true,
       kitId: true,
@@ -465,39 +467,55 @@ function toFamilyDto(f: FamilyRow, currentSeason: CurrentSeason) {
   const targetAmount = currentGoals.reduce((sum, g) => sum + g.targetAmount, 0);
   const goalsByChildId = new Map<string, typeof currentGoals>();
   for (const g of currentGoals) {
-    if (g.childId !== null) {
-      const list = goalsByChildId.get(g.childId) || [];
+    if (g.childId) {
+      const list = goalsByChildId.get(g.childId) ?? [];
       list.push(g);
       goalsByChildId.set(g.childId, list);
     }
   }
-  
-  // Tous les enfants de la famille (indépendant de la saison)
+
+  // Tous les enfants de la famille (indépendant de la saison) — un enfant
+  // sans objectif pour la saison en cours est un état normal (kit pas
+  // encore choisi cette saison), pas un enfant "invisible".
   const children = f.children.map((c) => {
-    const childGoals = goalsByChildId.get(c.id) || [];
-    const kitGoal = childGoals.find(g => g.type === 'supplies');
-    const tuitionGoal = childGoals.find(g => g.type === 'registration');
-    const transportGoal = childGoals.find(g => g.type === 'transport');
-    
-    // Le saved_amount total de l'enfant est la somme des savedAmount de tous ses objectifs
-    const totalSaved = childGoals.reduce((sum, g) => sum + g.savedAmount, 0);
+    const goals = goalsByChildId.get(c.id) ?? [];
+    const suppliesGoal = goals.find((g) => g.type === 'supplies');
+    const schoolingGoal = goals.find((g) => g.type === 'registration');
+    const transportGoal = goals.find((g) => g.type === 'transport');
 
     return {
       id: c.id,
       first_name: c.firstName,
       level: c.level,
       school: c.school,
-      kit_id: kitGoal?.kitId ?? null,
-      target_amount: kitGoal?.targetAmount ?? null,
-      saved_amount: totalSaved, // total for all goals
-      kit_saved_amount: kitGoal?.savedAmount ?? 0,
-      tuition_amount: tuitionGoal?.targetAmount ?? 0,
-      tuition_saved_amount: tuitionGoal?.savedAmount ?? 0,
-      transport_amount: transportGoal?.targetAmount ?? 0,
-      transport_saved_amount: transportGoal?.savedAmount ?? 0,
-      transport_type: transportGoal?.name ?? null,
-      custom_added_items: kitGoal?.customAddedItems ?? null,
-      custom_removed_items: kitGoal?.customRemovedItems ?? null,
+      kit_id: suppliesGoal?.kitId ?? null,
+      target_amount: suppliesGoal?.targetAmount ?? null,
+      saved_amount: suppliesGoal?.savedAmount ?? null,
+      // Personnalisation propre à cet enfant (voir `assignKit`) — jamais un
+      // changement du `Kit` partagé, juste ce qui a été ajouté/retiré pour lui.
+      custom_added_items: suppliesGoal?.customAddedItems ?? null,
+      custom_removed_items: suppliesGoal?.customRemovedItems ?? null,
+      schooling_goal: schoolingGoal
+        ? {
+            id: schoolingGoal.id,
+            target_amount: schoolingGoal.targetAmount,
+            saved_amount: schoolingGoal.savedAmount,
+            status: schoolingGoal.status,
+            plan_frequency: (schoolingGoal.customAddedItems as any)?.frequency,
+            plan_capacity: (schoolingGoal.customAddedItems as any)?.capacity,
+          }
+        : null,
+      transport_goal: transportGoal
+        ? {
+            id: transportGoal.id,
+            target_amount: transportGoal.targetAmount,
+            saved_amount: transportGoal.savedAmount,
+            status: transportGoal.status,
+            name: transportGoal.name,
+            plan_frequency: (transportGoal.customAddedItems as any)?.frequency,
+            plan_capacity: (transportGoal.customAddedItems as any)?.capacity,
+          }
+        : null,
     };
   });
   return {
@@ -635,7 +653,16 @@ export async function listFamilyContributions(clientId: string) {
   await assertClientExists(clientId);
   const contributions = await prisma.contribution.findMany({
     where: { parentId: clientId },
-    include: { parent: { select: { fullName: true } } },
+    include: {
+      parent: { select: { fullName: true } },
+      allocations: {
+        include: {
+          savingsGoal: {
+            select: { type: true, name: true, child: { select: { firstName: true } } },
+          },
+        },
+      },
+    },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -647,16 +674,28 @@ export async function listFamilyContributions(clientId: string) {
     : [];
   const agentName = new Map(agents.map((a) => [a.id, a.fullName]));
 
-  return contributions.map((c) => ({
-    id: c.id,
-    family_id: c.parentId,
-    family_name: c.parent.fullName,
-    agent_name: c.collectedByAgentId ? agentName.get(c.collectedByAgentId) ?? null : null,
-    amount: c.amount,
-    mode: methodToMode(c.method),
-    collected_at: c.createdAt.toISOString(),
-    receipt_number: c.reference,
-  }));
+  return contributions.map((c) => {
+    const distinctTypes = [...new Set(c.allocations.map((a) => a.savingsGoal.type))];
+    const resolvedGoalType = c.targetGoalType ?? (distinctTypes.length === 1 ? distinctTypes[0] : null);
+
+    return {
+      id: c.id,
+      family_id: c.parentId,
+      family_name: c.parent.fullName,
+      agent_name: c.collectedByAgentId ? agentName.get(c.collectedByAgentId) ?? null : null,
+      amount: c.amount,
+      mode: methodToMode(c.method),
+      collected_at: c.createdAt.toISOString(),
+      receipt_number: c.reference,
+      target_goal_type: resolvedGoalType,
+      allocations: c.allocations.map((a) => ({
+        goal_type: a.savingsGoal.type,
+        amount: a.amount,
+        child_name: a.savingsGoal.child?.firstName ?? null,
+        goal_name: a.savingsGoal.name,
+      })),
+    };
+  });
 }
 
 /**
@@ -666,7 +705,16 @@ export async function listFamilyContributions(clientId: string) {
  */
 export async function listAllContributions() {
   const contributions = await prisma.contribution.findMany({
-    include: { parent: { select: { fullName: true } } },
+    include: {
+      parent: { select: { fullName: true } },
+      allocations: {
+        include: {
+          savingsGoal: {
+            select: { type: true, name: true, child: { select: { firstName: true } } },
+          },
+        },
+      },
+    },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -678,16 +726,28 @@ export async function listAllContributions() {
     : [];
   const agentName = new Map(agents.map((a) => [a.id, a.fullName]));
 
-  return contributions.map((c) => ({
-    id: c.id,
-    family_id: c.parentId,
-    family_name: c.parent.fullName,
-    agent_name: c.collectedByAgentId ? agentName.get(c.collectedByAgentId) ?? null : null,
-    amount: c.amount,
-    mode: methodToMode(c.method),
-    collected_at: c.createdAt.toISOString(),
-    receipt_number: c.reference,
-  }));
+  return contributions.map((c) => {
+    const distinctTypes = [...new Set(c.allocations.map((a) => a.savingsGoal.type))];
+    const resolvedGoalType = c.targetGoalType ?? (distinctTypes.length === 1 ? distinctTypes[0] : null);
+
+    return {
+      id: c.id,
+      family_id: c.parentId,
+      family_name: c.parent.fullName,
+      agent_name: c.collectedByAgentId ? agentName.get(c.collectedByAgentId) ?? null : null,
+      amount: c.amount,
+      mode: methodToMode(c.method),
+      collected_at: c.createdAt.toISOString(),
+      receipt_number: c.reference,
+      target_goal_type: resolvedGoalType,
+      allocations: c.allocations.map((a) => ({
+        goal_type: a.savingsGoal.type,
+        amount: a.amount,
+        child_name: a.savingsGoal.child?.firstName ?? null,
+        goal_name: a.savingsGoal.name,
+      })),
+    };
+  });
 }
 
 /** Signale un incident sur un dossier famille → tracé au journal d'audit. */
@@ -759,11 +819,9 @@ export async function enrollFamily(actorId: string, input: EnrollFamilyInput) {
     }
   }
 
-  // Le compte est créé par l'agent : le mot de passe temporaire doit donc
-  // être remis au client pour qu'il puisse ouvrir le même compte dans l'app.
-  // Il n'est renvoyé qu'une seule fois dans la réponse de création.
-  const temporaryPassword = generateTempPassword();
-  const passwordHash = await bcrypt.hash(temporaryPassword, 10);
+  // Le client définira son mot de passe via le parcours OTP (app Client) ;
+  // ici un secret aléatoire non communicable empêche tout login prématuré.
+  const passwordHash = await bcrypt.hash(randomBytes(24).toString('base64url'), 10);
 
   const client = await prisma.$transaction(async (tx) => {
     const created = await tx.user.create({
@@ -824,10 +882,7 @@ export async function enrollFamily(actorId: string, input: EnrollFamilyInput) {
     });
     return tx.user.findUniqueOrThrow({ where: { id: created.id }, include: familyInclude });
   });
-  return {
-    ...toFamilyDto(client, currentSeason),
-    temporary_password: temporaryPassword,
-  };
+  return toFamilyDto(client, currentSeason);
 }
 
 /** Enfant + vérification qu'il appartient bien à cette famille, ou 404. */
@@ -938,48 +993,73 @@ export async function assignKit(
   await assertKitChangeAllowed(childId);
   const seasonId = await currentSeasonId();
 
-  const kit = await prisma.kit.findUnique({ where: { id: input.kit_id }, include: { items: true } });
-  if (!kit) {
-    throw ApiError.badRequest('Kit inconnu.', [{ field: 'kit_id', issue: 'Introuvable.' }]);
-  }
-  if (kit.seasonId !== seasonId) {
-    throw ApiError.badRequest("Ce kit n'appartient pas à la saison en cours.", [
-      { field: 'kit_id', issue: 'Kit hors saison courante.' },
-    ]);
-  }
+  let effectiveTargetAmount = 0;
+  let kitId: string | null = null;
+  let kitName = 'Kit Personnalisé';
+  let customAddedItems: any = Prisma.JsonNull;
+  let customRemovedItems: any = Prisma.JsonNull;
 
-  // Personnalisation propre à CET enfant — ne modifie jamais `kit`/`kit.items`
-  // en base, seulement le prix effectif de son `SavingsGoal` (voir doc du
-  // champ `customAddedItems`/`customRemovedItems` sur le modèle Prisma).
-  let removedSubtotal = 0;
-  if (input.removed_items?.length) {
-    for (const removed of input.removed_items) {
-      const match = kit.items.find((i) => i.category === removed.category && i.label === removed.label);
-      if (!match) {
-        throw ApiError.badRequest('Fourniture à retirer introuvable dans ce kit.', [
-          { field: 'removed_items', issue: `${removed.category} / ${removed.label} absent du kit.` },
-        ]);
-      }
-      removedSubtotal += match.quantity * match.unitPrice;
-    }
-  }
+  const child = await prisma.child.findUnique({
+    where: { id: childId },
+    select: { level: true },
+  });
 
-  let addedSubtotal = 0;
-  if (input.added_items?.length) {
-    const supplyIds = input.added_items.map((i) => i.supply_id);
-    const supplies = await prisma.supply.findMany({ where: { id: { in: supplyIds } } });
-    const supplyById = new Map(supplies.map((s) => [s.id, s]));
-    for (const added of input.added_items) {
-      const supply = supplyById.get(added.supply_id);
-      if (!supply) {
-        throw ApiError.badRequest('Fourniture à ajouter introuvable au catalogue.', [
-          { field: 'added_items', issue: `supply_id ${added.supply_id} inconnu.` },
-        ]);
-      }
-      addedSubtotal += added.quantity * supply.unitPrice;
+  if (input.custom && input.items) {
+    for (const item of input.items) {
+      effectiveTargetAmount += item.quantity * item.price;
     }
+    customAddedItems = input.items;
+    kitName = 'Kit Personnalisé';
+  } else if (input.kit_id) {
+    const kit = await prisma.kit.findUnique({ where: { id: input.kit_id }, include: { items: true } });
+    if (!kit) {
+      throw ApiError.badRequest('Kit inconnu.', [{ field: 'kit_id', issue: 'Introuvable.' }]);
+    }
+    if (kit.seasonId !== seasonId) {
+      throw ApiError.badRequest("Ce kit n'appartient pas à la saison en cours.", [
+        { field: 'kit_id', issue: 'Kit hors saison courante.' },
+      ]);
+    }
+    kitId = kit.id;
+    kitName = kit.name;
+
+    // Personnalisation propre à CET enfant — ne modifie jamais `kit`/`kit.items`
+    // en base, seulement le prix effectif de son `SavingsGoal` (voir doc du
+    // champ `customAddedItems`/`customRemovedItems` sur le modèle Prisma).
+    let removedSubtotal = 0;
+    if (input.removed_items?.length) {
+      for (const removed of input.removed_items) {
+        const match = kit.items.find((i) => i.category === removed.category && i.label === removed.label);
+        if (!match) {
+          throw ApiError.badRequest('Fourniture à retirer introuvable dans ce kit.', [
+            { field: 'removed_items', issue: `${removed.category} / ${removed.label} absent du kit.` },
+          ]);
+        }
+        removedSubtotal += match.quantity * match.unitPrice;
+      }
+    }
+
+    let addedSubtotal = 0;
+    if (input.added_items?.length) {
+      const supplyIds = input.added_items.map((i) => i.supply_id);
+      const supplies = await prisma.supply.findMany({ where: { id: { in: supplyIds } } });
+      const supplyById = new Map(supplies.map((s) => [s.id, s]));
+      for (const added of input.added_items) {
+        const supply = supplyById.get(added.supply_id);
+        if (!supply) {
+          throw ApiError.badRequest('Fourniture à ajouter introuvable au catalogue.', [
+            { field: 'added_items', issue: `supply_id ${added.supply_id} inconnu.` },
+          ]);
+        }
+        addedSubtotal += added.quantity * supply.unitPrice;
+      }
+    }
+    effectiveTargetAmount = kit.totalPrice + addedSubtotal - removedSubtotal;
+    customAddedItems = input.added_items ?? Prisma.JsonNull;
+    customRemovedItems = input.removed_items ?? Prisma.JsonNull;
+  } else {
+    throw ApiError.badRequest('Paramètres invalides.', [{ field: 'kit_id', issue: 'kit_id ou custom requis.' }]);
   }
-  const effectiveTargetAmount = kit.totalPrice + addedSubtotal - removedSubtotal;
 
   const existingGoal = await prisma.savingsGoal.findUnique({
     where: { childId_seasonId_type: { childId, seasonId, type: 'supplies' } },
@@ -995,15 +1075,28 @@ export async function assignKit(
   // ne bloque l'écriture elle-même.
 
   await prisma.$transaction(async (tx) => {
+    if (input.custom && input.items) {
+      kitId = await upsertCustomKit(
+        tx,
+        seasonId,
+        childId,
+        effectiveTargetAmount,
+        input.items,
+        child?.level ?? 'CP1',
+        existingGoal?.id,
+        existingGoal?.kitId,
+      );
+    }
+
     if (existingGoal) {
       await tx.savingsGoal.update({
         where: { id: existingGoal.id },
         data: {
-          kitId: kit.id,
-          name: kit.name,
+          kitId,
+          name: kitName,
           targetAmount: effectiveTargetAmount,
-          customAddedItems: input.added_items ?? Prisma.JsonNull,
-          customRemovedItems: input.removed_items ?? Prisma.JsonNull,
+          customAddedItems,
+          customRemovedItems,
         },
       });
       await writeAudit(tx, {
@@ -1012,7 +1105,7 @@ export async function assignKit(
         entity: 'savings_goal',
         entityId: existingGoal.id,
         before: { kitId: existingGoal.kitId },
-        after: { kitId: kit.id },
+        after: { kitId },
       });
     } else {
       const created = await tx.savingsGoal.create({
@@ -1020,12 +1113,12 @@ export async function assignKit(
           parentId: clientId,
           childId,
           type: 'supplies',
-          name: kit.name,
+          name: kitName,
           targetAmount: effectiveTargetAmount,
-          kitId: kit.id,
+          kitId,
           seasonId,
-          customAddedItems: input.added_items ?? Prisma.JsonNull,
-          customRemovedItems: input.removed_items ?? Prisma.JsonNull,
+          customAddedItems,
+          customRemovedItems,
         },
       });
       await writeAudit(tx, {
@@ -1033,15 +1126,83 @@ export async function assignKit(
         action: 'child.kit_assigned',
         entity: 'savings_goal',
         entityId: created.id,
-        after: { kitId: kit.id, childId },
+        after: { kitId, childId },
       });
     }
   });
   notifyFamilyActedByOther(
     actorId,
     clientId,
-    `Le kit "${kit.name}" a été ${existingGoal ? 'modifié' : 'choisi'} pour un de vos enfants.`,
+    `Le kit "${kitName}" a été ${existingGoal ? 'modifié' : 'choisi'} pour un de vos enfants.`,
   );
+  return getFamily(clientId);
+}
+
+/**
+ * Définit ou met à jour un objectif d'épargne annexe (Scolarité, Transport) pour un enfant.
+ */
+export async function setChildGoal(
+  actorId: string,
+  clientId: string,
+  childId: string,
+  type: 'registration' | 'transport',
+  amount: number,
+  name?: string,
+  planDetails?: { frequency: string; capacity: number }
+) {
+  await getChildOrThrow(clientId, childId);
+  const seasonId = await currentSeasonId();
+
+  const existingGoal = await prisma.savingsGoal.findUnique({
+    where: { childId_seasonId_type: { childId, seasonId, type } },
+  });
+
+  await prisma.$transaction(async (tx) => {
+    if (existingGoal) {
+      await tx.savingsGoal.update({
+        where: { id: existingGoal.id },
+        data: { 
+          targetAmount: amount, 
+          ...(name ? { name } : {}),
+          ...(planDetails ? { customAddedItems: planDetails as any } : {})
+        },
+      });
+      await writeAudit(tx, {
+        actorId,
+        action: 'child.goal_updated',
+        entity: 'savings_goal',
+        entityId: existingGoal.id,
+        before: { targetAmount: existingGoal.targetAmount },
+        after: { targetAmount: amount, planDetails },
+      });
+    } else {
+      const created = await tx.savingsGoal.create({
+        data: {
+          parentId: clientId,
+          childId,
+          type,
+          name: name ?? (type === 'registration' ? 'Scolarité' : 'Transport'),
+          targetAmount: amount,
+          seasonId,
+          customAddedItems: planDetails ? (planDetails as any) : null,
+        },
+      });
+      await writeAudit(tx, {
+        actorId,
+        action: 'child.goal_added',
+        entity: 'savings_goal',
+        entityId: created.id,
+        after: { targetAmount: amount, childId, planDetails },
+      });
+    }
+  });
+
+  notifyFamilyActedByOther(
+    actorId,
+    clientId,
+    `L'objectif de ${type === 'registration' ? 'scolarité' : 'transport'} a été ${existingGoal ? 'mis à jour' : 'créé'} pour un de vos enfants.`
+  );
+
   return getFamily(clientId);
 }
 
@@ -1317,58 +1478,107 @@ export async function listFamilyLedger(clientId: string) {
 }
 
 /**
- * Crée ou met à jour un objectif d'épargne annexe (scolarité, transport).
- * Pour la scolarité on utilise 'registration' et pour le transport 'transport'.
+ * Materialise un kit personnalisé (sans enfant) pour une saison donnée —
+ * utilisé par `assignKit` pour les cas où le parent choisit des fournitures
+ * spécifiques plutôt qu'un kit prédéfini. Le prix total du kit est recalculé
+ * à chaque appel en fonction des fournitures ajoutées/retirées.
+ *
+ * Crée ou met à jour en fonction de l'existence d'un `existingKitId` :
+ * - si fourni, le kit est mis à jour (nom, périmètre, prix total) ;
+ * - sinon, un nouveau kit est créé.
+ *
+ * Les éléments du kit (fournitures) sont remplacés en bloc : suppression de
+ * l'ancien contenu puis ajout du nouveau. Les quantités et prix unitaires
+ * sont ceux fournis par le parent dans `input.items`.
  */
-export async function setChildGoal(
-  actorId: string,
-  clientId: string,
+async function upsertCustomKit(
+  tx: Prisma.TransactionClient,
+  seasonId: string,
   childId: string,
-  type: 'registration' | 'transport',
-  amount: number,
-  name?: string
+  targetAmount: number,
+  items: Array<{ name: string; quantity: number; price: number }>,
+  levelScope: string,
+  existingGoalId?: string,
+  existingKitId?: string | null,
+): Promise<string> {
+  let kitId = existingKitId;
+  const kitName = 'Kit Personnalisé';
+
+  if (!kitId) {
+    const created = await tx.kit.create({
+      data: {
+        tier: 'basic',
+        name: kitName,
+        levelScope: levelScope.trim() || 'CP1',
+        totalPrice: targetAmount,
+        seasonId,
+        isActive: true,
+      },
+    });
+    kitId = created.id;
+  } else {
+    await tx.kit.update({
+      where: { id: kitId },
+      data: {
+        name: kitName,
+        levelScope: levelScope.trim() || 'CP1',
+        totalPrice: targetAmount,
+      },
+    });
+  }
+
+  await tx.kitItem.deleteMany({ where: { kitId } });
+  if (items.length > 0) {
+    await tx.kitItem.createMany({
+      data: items.map((item) => ({
+        kitId,
+        category: 'Personnalisé',
+        label: item.name,
+        quantity: item.quantity,
+        unit: 'unité',
+        unitPrice: item.price,
+      })),
+    });
+  }
+
+  if (existingGoalId) {
+    await tx.savingsGoal.update({
+      where: { id: existingGoalId },
+      data: { kitId },
+    });
+  }
+
+  return kitId;
+}
+
+/** Assign a location and/or agent to a specific delivery. */
+export async function assignDeliveryLocation(
+  actorId: string,
+  deliveryId: string,
+  input: { lat?: number; lng?: number; address?: string; assigned_agent_id?: string },
 ) {
-  await getChildOrThrow(clientId, childId);
-  const seasonId = await currentSeasonId();
+  const delivery = await prisma.delivery.findUnique({ where: { id: deliveryId } });
+  if (!delivery) throw ApiError.notFound('Livraison introuvable.');
 
-  const existingGoal = await prisma.savingsGoal.findUnique({
-    where: { childId_seasonId_type: { childId, seasonId, type } },
+  const data: Prisma.DeliveryUpdateInput = {};
+  if (input.lat !== undefined) data.locationLat = input.lat;
+  if (input.lng !== undefined) data.locationLng = input.lng;
+  if (input.address !== undefined) data.address = input.address;
+  if (input.assigned_agent_id !== undefined) data.assignedAgentId = input.assigned_agent_id;
+
+  if (Object.keys(data).length === 0) return delivery;
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const u = await tx.delivery.update({ where: { id: deliveryId }, data });
+    await writeAudit(tx, {
+      actorId,
+      action: 'delivery.assigned',
+      entity: 'delivery',
+      entityId: deliveryId,
+      after: input,
+    });
+    return u;
   });
 
-  await prisma.$transaction(async (tx) => {
-    if (existingGoal) {
-      await tx.savingsGoal.update({
-        where: { id: existingGoal.id },
-        data: { targetAmount: amount, name: name ?? existingGoal.name },
-      });
-      await writeAudit(tx, {
-        actorId,
-        action: 'child.goal_updated',
-        entity: 'savings_goal',
-        entityId: existingGoal.id,
-        before: { targetAmount: existingGoal.targetAmount },
-        after: { targetAmount: amount },
-      });
-    } else {
-      const created = await tx.savingsGoal.create({
-        data: {
-          parentId: clientId,
-          childId,
-          seasonId,
-          type,
-          name: name ?? (type === 'registration' ? 'Scolarité' : 'Transport'),
-          targetAmount: amount,
-          status: 'active',
-        },
-      });
-      await writeAudit(tx, {
-        actorId,
-        action: 'child.goal_added',
-        entity: 'savings_goal',
-        entityId: created.id,
-        after: { targetAmount: amount, type },
-      });
-    }
-  });
-  return getFamily(clientId);
+  return updated;
 }

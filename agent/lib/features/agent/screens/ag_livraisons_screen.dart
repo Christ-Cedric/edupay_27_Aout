@@ -75,13 +75,13 @@ class _AgLivraisonsScreenState extends State<AgLivraisonsScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppColors.gold.withOpacity(0.15),
+                      color: AppColors.gold.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.gold.withOpacity(0.4)),
+                      border: Border.all(color: AppColors.gold.withValues(alpha: 0.4)),
                     ),
                     child: Text(
                       '$pendingCount en attente',
-                      style: GoogleFonts.openSans(
+                      style: GoogleFonts.montserrat(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
                         color: AppColors.gold,
@@ -116,7 +116,7 @@ class _AgLivraisonsScreenState extends State<AgLivraisonsScreen> {
                     const SizedBox(height: 4),
                     Text(
                       '$deliveredCount livraison${deliveredCount > 1 ? 's' : ''} sur $totalCount terminée${deliveredCount > 1 ? 's' : ''}',
-                      style: GoogleFonts.openSans(
+                      style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                           fontSize: 11, color: AppColors.white50),
                     ),
                     const SizedBox(height: 20),
@@ -154,7 +154,7 @@ class _AgLivraisonsScreenState extends State<AgLivraisonsScreen> {
             const SizedBox(height: 12),
             Text(
               'Aucune livraison prévue aujourd\'hui',
-              style: GoogleFonts.openSans(
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                 color: AppColors.white50,
                 fontSize: 13,
               ),
@@ -163,7 +163,7 @@ class _AgLivraisonsScreenState extends State<AgLivraisonsScreen> {
             const SizedBox(height: 6),
             Text(
               'Les livraisons apparaîtront automatiquement\nquand un client atteint son objectif d\'épargne.',
-              style: GoogleFonts.openSans(
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                 color: AppColors.white35,
                 fontSize: 10,
               ),
@@ -234,7 +234,7 @@ class _AgLivraisonsScreenState extends State<AgLivraisonsScreen> {
                       children: [
                         Text(
                           livraison.clientFullName ?? 'Client inconnu',
-                          style: GoogleFonts.openSans(
+                          style: GoogleFonts.montserrat(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: AppColors.white,
@@ -244,7 +244,7 @@ class _AgLivraisonsScreenState extends State<AgLivraisonsScreen> {
                             livraison.childFirstName!.isNotEmpty)
                           Text(
                             '👦 ${livraison.childFirstName}',
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                               fontSize: 10,
                               color: AppColors.white50,
                             ),
@@ -253,7 +253,7 @@ class _AgLivraisonsScreenState extends State<AgLivraisonsScreen> {
                             livraison.childSchool!.isNotEmpty)
                           Text(
                             '🏫 ${livraison.childSchool}',
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                               fontSize: 10,
                               color: AppColors.white35,
                             ),
@@ -261,7 +261,7 @@ class _AgLivraisonsScreenState extends State<AgLivraisonsScreen> {
                         else
                           Text(
                             'Réf: ${livraison.reference}',
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                               fontSize: 10,
                               color: AppColors.white50,
                             ),
@@ -285,20 +285,20 @@ class _AgLivraisonsScreenState extends State<AgLivraisonsScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.gold.withOpacity(0.06),
+                  color: AppColors.gold.withValues(alpha: 0.06),
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(12),
                     bottomRight: Radius.circular(12),
                   ),
                   border: Border(
                     top: BorderSide(
-                      color: AppColors.gold.withOpacity(0.2),
+                      color: AppColors.gold.withValues(alpha: 0.2),
                     ),
                   ),
                 ),
                 child: Text(
                   livraison.statusLabel,
-                  style: GoogleFonts.openSans(
+                  style: GoogleFonts.montserrat(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     color: AppColors.gold,
@@ -312,13 +312,13 @@ class _AgLivraisonsScreenState extends State<AgLivraisonsScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.green.withOpacity(0.05),
+                  color: AppColors.green.withValues(alpha: 0.05),
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(12),
                     bottomRight: Radius.circular(12),
                   ),
                   border: Border(
-                    top: BorderSide(color: AppColors.green.withOpacity(0.2)),
+                    top: BorderSide(color: AppColors.green.withValues(alpha: 0.2)),
                   ),
                 ),
                 child: Row(
@@ -326,7 +326,7 @@ class _AgLivraisonsScreenState extends State<AgLivraisonsScreen> {
                   children: [
                     Text(
                       '✅ Kit livré — Client notifié',
-                      style: GoogleFonts.openSans(
+                      style: GoogleFonts.montserrat(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: AppColors.green,

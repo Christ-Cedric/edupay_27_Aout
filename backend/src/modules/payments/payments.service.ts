@@ -280,7 +280,11 @@ export async function initiateContribution(
   // Pré-validation optimiste : évite d'appeler la passerelle externe pour un
   // montant manifestement impossible. Revalidée avec des données fraîches
   // DANS la transaction juste avant de créditer (protection anti-course).
-  const precheckGoals = await getActiveGoalsForCapacity(prisma, parentId, 'fund');
+  let precheckGoals = await getActiveGoalsForCapacity(prisma, parentId, 'fund', targetGoalType);
+  if (targetGoalType && precheckGoals.reduce((sum, g) => sum + g.capacity, 0) === 0) {
+    // Si la catégorie ciblée est déjà pleine, on retombe sur tous les objectifs
+    precheckGoals = await getActiveGoalsForCapacity(prisma, parentId, 'fund');
+  }
   const precheckTotal = precheckGoals.reduce((sum, g) => sum + g.capacity, 0);
   if (precheckTotal <= 0) {
     throw ApiError.conflict('Cette famille n’a aucun objectif d’épargne actif à créditer.');
@@ -300,6 +304,7 @@ export async function initiateContribution(
     amount,
     method,
     reference,
+    targetGoalType: targetGoalType ?? null,
     collectedByAgentId: collectedByAgentId ?? null,
     idempotencyKey: idempotencyKey ?? null,
     provider: provider.name === cashProvider.name ? null : provider.name,
@@ -336,7 +341,10 @@ export async function initiateContribution(
       // Lecture faisant autorité, dans la transaction : si le besoin a changé
       // depuis la pré-validation (course avec une autre cotisation), on échoue
       // proprement plutôt que de créditer un montant incorrect.
-      const freshGoals = await getActiveGoalsForCapacity(tx, parentId, 'fund');
+      let freshGoals = await getActiveGoalsForCapacity(tx, parentId, 'fund', targetGoalType);
+      if (targetGoalType && freshGoals.reduce((sum, g) => sum + g.capacity, 0) === 0) {
+        freshGoals = await getActiveGoalsForCapacity(tx, parentId, 'fund');
+      }
       const freshTotal = freshGoals.reduce((sum, g) => sum + g.capacity, 0);
       if (amount > freshTotal) {
         await tx.contribution.update({ where: { id: c.id }, data: { status: 'failed' } });

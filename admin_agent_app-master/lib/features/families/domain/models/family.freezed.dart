@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$FamilyChild {
 
- String get id; String get firstName; String get level; String get school; String? get kitId; double? get targetAmount; double? get savedAmount;
+ String get id; String get firstName; String get level; String get school; String? get kitId; double? get targetAmount; double? get savedAmount; double? get tuitionAmount; double? get tuitionSavedAmount; double? get transportAmount; double? get transportSavedAmount; String? get transportType;
 /// Create a copy of FamilyChild
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $FamilyChildCopyWith<FamilyChild> get copyWith => _$FamilyChildCopyWithImpl<Fami
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FamilyChild&&(identical(other.id, id) || other.id == id)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.level, level) || other.level == level)&&(identical(other.school, school) || other.school == school)&&(identical(other.kitId, kitId) || other.kitId == kitId)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&(identical(other.savedAmount, savedAmount) || other.savedAmount == savedAmount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FamilyChild&&(identical(other.id, id) || other.id == id)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.level, level) || other.level == level)&&(identical(other.school, school) || other.school == school)&&(identical(other.kitId, kitId) || other.kitId == kitId)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&(identical(other.savedAmount, savedAmount) || other.savedAmount == savedAmount)&&(identical(other.tuitionAmount, tuitionAmount) || other.tuitionAmount == tuitionAmount)&&(identical(other.tuitionSavedAmount, tuitionSavedAmount) || other.tuitionSavedAmount == tuitionSavedAmount)&&(identical(other.transportAmount, transportAmount) || other.transportAmount == transportAmount)&&(identical(other.transportSavedAmount, transportSavedAmount) || other.transportSavedAmount == transportSavedAmount)&&(identical(other.transportType, transportType) || other.transportType == transportType));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,firstName,level,school,kitId,targetAmount,savedAmount);
+int get hashCode => Object.hash(runtimeType,id,firstName,level,school,kitId,targetAmount,savedAmount,tuitionAmount,tuitionSavedAmount,transportAmount,transportSavedAmount,transportType);
 
 @override
 String toString() {
-  return 'FamilyChild(id: $id, firstName: $firstName, level: $level, school: $school, kitId: $kitId, targetAmount: $targetAmount, savedAmount: $savedAmount)';
+  return 'FamilyChild(id: $id, firstName: $firstName, level: $level, school: $school, kitId: $kitId, targetAmount: $targetAmount, savedAmount: $savedAmount, tuitionAmount: $tuitionAmount, tuitionSavedAmount: $tuitionSavedAmount, transportAmount: $transportAmount, transportSavedAmount: $transportSavedAmount, transportType: $transportType)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $FamilyChildCopyWith<$Res>  {
   factory $FamilyChildCopyWith(FamilyChild value, $Res Function(FamilyChild) _then) = _$FamilyChildCopyWithImpl;
 @useResult
 $Res call({
- String id, String firstName, String level, String school, String? kitId, double? targetAmount, double? savedAmount
+ String id, String firstName, String level, String school, String? kitId, double? targetAmount, double? savedAmount, double? tuitionAmount, double? tuitionSavedAmount, double? transportAmount, double? transportSavedAmount, String? transportType
 });
 
 
@@ -62,7 +62,7 @@ class _$FamilyChildCopyWithImpl<$Res>
 
 /// Create a copy of FamilyChild
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? firstName = null,Object? level = null,Object? school = null,Object? kitId = freezed,Object? targetAmount = freezed,Object? savedAmount = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? firstName = null,Object? level = null,Object? school = null,Object? kitId = freezed,Object? targetAmount = freezed,Object? savedAmount = freezed,Object? tuitionAmount = freezed,Object? tuitionSavedAmount = freezed,Object? transportAmount = freezed,Object? transportSavedAmount = freezed,Object? transportType = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
@@ -71,7 +71,12 @@ as String,school: null == school ? _self.school : school // ignore: cast_nullabl
 as String,kitId: freezed == kitId ? _self.kitId : kitId // ignore: cast_nullable_to_non_nullable
 as String?,targetAmount: freezed == targetAmount ? _self.targetAmount : targetAmount // ignore: cast_nullable_to_non_nullable
 as double?,savedAmount: freezed == savedAmount ? _self.savedAmount : savedAmount // ignore: cast_nullable_to_non_nullable
-as double?,
+as double?,tuitionAmount: freezed == tuitionAmount ? _self.tuitionAmount : tuitionAmount // ignore: cast_nullable_to_non_nullable
+as double?,tuitionSavedAmount: freezed == tuitionSavedAmount ? _self.tuitionSavedAmount : tuitionSavedAmount // ignore: cast_nullable_to_non_nullable
+as double?,transportAmount: freezed == transportAmount ? _self.transportAmount : transportAmount // ignore: cast_nullable_to_non_nullable
+as double?,transportSavedAmount: freezed == transportSavedAmount ? _self.transportSavedAmount : transportSavedAmount // ignore: cast_nullable_to_non_nullable
+as double?,transportType: freezed == transportType ? _self.transportType : transportType // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -153,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String firstName,  String level,  String school,  String? kitId,  double? targetAmount,  double? savedAmount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String firstName,  String level,  String school,  String? kitId,  double? targetAmount,  double? savedAmount,  double? tuitionAmount,  double? tuitionSavedAmount,  double? transportAmount,  double? transportSavedAmount,  String? transportType)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FamilyChild() when $default != null:
-return $default(_that.id,_that.firstName,_that.level,_that.school,_that.kitId,_that.targetAmount,_that.savedAmount);case _:
+return $default(_that.id,_that.firstName,_that.level,_that.school,_that.kitId,_that.targetAmount,_that.savedAmount,_that.tuitionAmount,_that.tuitionSavedAmount,_that.transportAmount,_that.transportSavedAmount,_that.transportType);case _:
   return orElse();
 
 }
@@ -174,10 +179,10 @@ return $default(_that.id,_that.firstName,_that.level,_that.school,_that.kitId,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String firstName,  String level,  String school,  String? kitId,  double? targetAmount,  double? savedAmount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String firstName,  String level,  String school,  String? kitId,  double? targetAmount,  double? savedAmount,  double? tuitionAmount,  double? tuitionSavedAmount,  double? transportAmount,  double? transportSavedAmount,  String? transportType)  $default,) {final _that = this;
 switch (_that) {
 case _FamilyChild():
-return $default(_that.id,_that.firstName,_that.level,_that.school,_that.kitId,_that.targetAmount,_that.savedAmount);}
+return $default(_that.id,_that.firstName,_that.level,_that.school,_that.kitId,_that.targetAmount,_that.savedAmount,_that.tuitionAmount,_that.tuitionSavedAmount,_that.transportAmount,_that.transportSavedAmount,_that.transportType);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -191,10 +196,10 @@ return $default(_that.id,_that.firstName,_that.level,_that.school,_that.kitId,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String firstName,  String level,  String school,  String? kitId,  double? targetAmount,  double? savedAmount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String firstName,  String level,  String school,  String? kitId,  double? targetAmount,  double? savedAmount,  double? tuitionAmount,  double? tuitionSavedAmount,  double? transportAmount,  double? transportSavedAmount,  String? transportType)?  $default,) {final _that = this;
 switch (_that) {
 case _FamilyChild() when $default != null:
-return $default(_that.id,_that.firstName,_that.level,_that.school,_that.kitId,_that.targetAmount,_that.savedAmount);case _:
+return $default(_that.id,_that.firstName,_that.level,_that.school,_that.kitId,_that.targetAmount,_that.savedAmount,_that.tuitionAmount,_that.tuitionSavedAmount,_that.transportAmount,_that.transportSavedAmount,_that.transportType);case _:
   return null;
 
 }
@@ -206,7 +211,7 @@ return $default(_that.id,_that.firstName,_that.level,_that.school,_that.kitId,_t
 
 
 class _FamilyChild implements FamilyChild {
-  const _FamilyChild({required this.id, required this.firstName, required this.level, required this.school, this.kitId, this.targetAmount, this.savedAmount});
+  const _FamilyChild({required this.id, required this.firstName, required this.level, required this.school, this.kitId, this.targetAmount, this.savedAmount, this.tuitionAmount, this.tuitionSavedAmount, this.transportAmount, this.transportSavedAmount, this.transportType});
   
 
 @override final  String id;
@@ -216,6 +221,11 @@ class _FamilyChild implements FamilyChild {
 @override final  String? kitId;
 @override final  double? targetAmount;
 @override final  double? savedAmount;
+@override final  double? tuitionAmount;
+@override final  double? tuitionSavedAmount;
+@override final  double? transportAmount;
+@override final  double? transportSavedAmount;
+@override final  String? transportType;
 
 /// Create a copy of FamilyChild
 /// with the given fields replaced by the non-null parameter values.
@@ -227,16 +237,16 @@ _$FamilyChildCopyWith<_FamilyChild> get copyWith => __$FamilyChildCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FamilyChild&&(identical(other.id, id) || other.id == id)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.level, level) || other.level == level)&&(identical(other.school, school) || other.school == school)&&(identical(other.kitId, kitId) || other.kitId == kitId)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&(identical(other.savedAmount, savedAmount) || other.savedAmount == savedAmount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FamilyChild&&(identical(other.id, id) || other.id == id)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.level, level) || other.level == level)&&(identical(other.school, school) || other.school == school)&&(identical(other.kitId, kitId) || other.kitId == kitId)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&(identical(other.savedAmount, savedAmount) || other.savedAmount == savedAmount)&&(identical(other.tuitionAmount, tuitionAmount) || other.tuitionAmount == tuitionAmount)&&(identical(other.tuitionSavedAmount, tuitionSavedAmount) || other.tuitionSavedAmount == tuitionSavedAmount)&&(identical(other.transportAmount, transportAmount) || other.transportAmount == transportAmount)&&(identical(other.transportSavedAmount, transportSavedAmount) || other.transportSavedAmount == transportSavedAmount)&&(identical(other.transportType, transportType) || other.transportType == transportType));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,firstName,level,school,kitId,targetAmount,savedAmount);
+int get hashCode => Object.hash(runtimeType,id,firstName,level,school,kitId,targetAmount,savedAmount,tuitionAmount,tuitionSavedAmount,transportAmount,transportSavedAmount,transportType);
 
 @override
 String toString() {
-  return 'FamilyChild(id: $id, firstName: $firstName, level: $level, school: $school, kitId: $kitId, targetAmount: $targetAmount, savedAmount: $savedAmount)';
+  return 'FamilyChild(id: $id, firstName: $firstName, level: $level, school: $school, kitId: $kitId, targetAmount: $targetAmount, savedAmount: $savedAmount, tuitionAmount: $tuitionAmount, tuitionSavedAmount: $tuitionSavedAmount, transportAmount: $transportAmount, transportSavedAmount: $transportSavedAmount, transportType: $transportType)';
 }
 
 
@@ -247,7 +257,7 @@ abstract mixin class _$FamilyChildCopyWith<$Res> implements $FamilyChildCopyWith
   factory _$FamilyChildCopyWith(_FamilyChild value, $Res Function(_FamilyChild) _then) = __$FamilyChildCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String firstName, String level, String school, String? kitId, double? targetAmount, double? savedAmount
+ String id, String firstName, String level, String school, String? kitId, double? targetAmount, double? savedAmount, double? tuitionAmount, double? tuitionSavedAmount, double? transportAmount, double? transportSavedAmount, String? transportType
 });
 
 
@@ -264,7 +274,7 @@ class __$FamilyChildCopyWithImpl<$Res>
 
 /// Create a copy of FamilyChild
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? firstName = null,Object? level = null,Object? school = null,Object? kitId = freezed,Object? targetAmount = freezed,Object? savedAmount = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? firstName = null,Object? level = null,Object? school = null,Object? kitId = freezed,Object? targetAmount = freezed,Object? savedAmount = freezed,Object? tuitionAmount = freezed,Object? tuitionSavedAmount = freezed,Object? transportAmount = freezed,Object? transportSavedAmount = freezed,Object? transportType = freezed,}) {
   return _then(_FamilyChild(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
@@ -273,7 +283,12 @@ as String,school: null == school ? _self.school : school // ignore: cast_nullabl
 as String,kitId: freezed == kitId ? _self.kitId : kitId // ignore: cast_nullable_to_non_nullable
 as String?,targetAmount: freezed == targetAmount ? _self.targetAmount : targetAmount // ignore: cast_nullable_to_non_nullable
 as double?,savedAmount: freezed == savedAmount ? _self.savedAmount : savedAmount // ignore: cast_nullable_to_non_nullable
-as double?,
+as double?,tuitionAmount: freezed == tuitionAmount ? _self.tuitionAmount : tuitionAmount // ignore: cast_nullable_to_non_nullable
+as double?,tuitionSavedAmount: freezed == tuitionSavedAmount ? _self.tuitionSavedAmount : tuitionSavedAmount // ignore: cast_nullable_to_non_nullable
+as double?,transportAmount: freezed == transportAmount ? _self.transportAmount : transportAmount // ignore: cast_nullable_to_non_nullable
+as double?,transportSavedAmount: freezed == transportSavedAmount ? _self.transportSavedAmount : transportSavedAmount // ignore: cast_nullable_to_non_nullable
+as double?,transportType: freezed == transportType ? _self.transportType : transportType // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -283,7 +298,7 @@ as double?,
 /// @nodoc
 mixin _$Family {
 
- String get id; String get fullName; String get phone; String get city; SavingsPlan get plan; double get balance; double get targetAmount; List<FamilyChild> get children; FamilyStatus get status; DeliveryStatus get deliveryStatus; DateTime get registeredAt; String? get assignedAgentName; String? get rejectionReason; String? get district;
+ String get id; String get fullName; String get phone; String get city; SavingsPlan get plan; double get balance; double get targetAmount; List<FamilyChild> get children; FamilyStatus get status; DeliveryStatus get deliveryStatus; DateTime get registeredAt; String? get assignedAgentName; String? get rejectionReason; String? get district; String? get familyCode;
 /// Create a copy of Family
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -294,16 +309,16 @@ $FamilyCopyWith<Family> get copyWith => _$FamilyCopyWithImpl<Family>(this as Fam
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Family&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.city, city) || other.city == city)&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&const DeepCollectionEquality().equals(other.children, children)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryStatus, deliveryStatus) || other.deliveryStatus == deliveryStatus)&&(identical(other.registeredAt, registeredAt) || other.registeredAt == registeredAt)&&(identical(other.assignedAgentName, assignedAgentName) || other.assignedAgentName == assignedAgentName)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason)&&(identical(other.district, district) || other.district == district));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Family&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.city, city) || other.city == city)&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&const DeepCollectionEquality().equals(other.children, children)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryStatus, deliveryStatus) || other.deliveryStatus == deliveryStatus)&&(identical(other.registeredAt, registeredAt) || other.registeredAt == registeredAt)&&(identical(other.assignedAgentName, assignedAgentName) || other.assignedAgentName == assignedAgentName)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason)&&(identical(other.district, district) || other.district == district)&&(identical(other.familyCode, familyCode) || other.familyCode == familyCode));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,fullName,phone,city,plan,balance,targetAmount,const DeepCollectionEquality().hash(children),status,deliveryStatus,registeredAt,assignedAgentName,rejectionReason,district);
+int get hashCode => Object.hash(runtimeType,id,fullName,phone,city,plan,balance,targetAmount,const DeepCollectionEquality().hash(children),status,deliveryStatus,registeredAt,assignedAgentName,rejectionReason,district,familyCode);
 
 @override
 String toString() {
-  return 'Family(id: $id, fullName: $fullName, phone: $phone, city: $city, plan: $plan, balance: $balance, targetAmount: $targetAmount, children: $children, status: $status, deliveryStatus: $deliveryStatus, registeredAt: $registeredAt, assignedAgentName: $assignedAgentName, rejectionReason: $rejectionReason, district: $district)';
+  return 'Family(id: $id, fullName: $fullName, phone: $phone, city: $city, plan: $plan, balance: $balance, targetAmount: $targetAmount, children: $children, status: $status, deliveryStatus: $deliveryStatus, registeredAt: $registeredAt, assignedAgentName: $assignedAgentName, rejectionReason: $rejectionReason, district: $district, familyCode: $familyCode)';
 }
 
 
@@ -314,7 +329,7 @@ abstract mixin class $FamilyCopyWith<$Res>  {
   factory $FamilyCopyWith(Family value, $Res Function(Family) _then) = _$FamilyCopyWithImpl;
 @useResult
 $Res call({
- String id, String fullName, String phone, String city, SavingsPlan plan, double balance, double targetAmount, List<FamilyChild> children, FamilyStatus status, DeliveryStatus deliveryStatus, DateTime registeredAt, String? assignedAgentName, String? rejectionReason, String? district
+ String id, String fullName, String phone, String city, SavingsPlan plan, double balance, double targetAmount, List<FamilyChild> children, FamilyStatus status, DeliveryStatus deliveryStatus, DateTime registeredAt, String? assignedAgentName, String? rejectionReason, String? district, String? familyCode
 });
 
 
@@ -331,7 +346,7 @@ class _$FamilyCopyWithImpl<$Res>
 
 /// Create a copy of Family
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? fullName = null,Object? phone = null,Object? city = null,Object? plan = null,Object? balance = null,Object? targetAmount = null,Object? children = null,Object? status = null,Object? deliveryStatus = null,Object? registeredAt = null,Object? assignedAgentName = freezed,Object? rejectionReason = freezed,Object? district = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? fullName = null,Object? phone = null,Object? city = null,Object? plan = null,Object? balance = null,Object? targetAmount = null,Object? children = null,Object? status = null,Object? deliveryStatus = null,Object? registeredAt = null,Object? assignedAgentName = freezed,Object? rejectionReason = freezed,Object? district = freezed,Object? familyCode = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
@@ -347,6 +362,7 @@ as DeliveryStatus,registeredAt: null == registeredAt ? _self.registeredAt : regi
 as DateTime,assignedAgentName: freezed == assignedAgentName ? _self.assignedAgentName : assignedAgentName // ignore: cast_nullable_to_non_nullable
 as String?,rejectionReason: freezed == rejectionReason ? _self.rejectionReason : rejectionReason // ignore: cast_nullable_to_non_nullable
 as String?,district: freezed == district ? _self.district : district // ignore: cast_nullable_to_non_nullable
+as String?,familyCode: freezed == familyCode ? _self.familyCode : familyCode // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -429,10 +445,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String fullName,  String phone,  String city,  SavingsPlan plan,  double balance,  double targetAmount,  List<FamilyChild> children,  FamilyStatus status,  DeliveryStatus deliveryStatus,  DateTime registeredAt,  String? assignedAgentName,  String? rejectionReason,  String? district)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String fullName,  String phone,  String city,  SavingsPlan plan,  double balance,  double targetAmount,  List<FamilyChild> children,  FamilyStatus status,  DeliveryStatus deliveryStatus,  DateTime registeredAt,  String? assignedAgentName,  String? rejectionReason,  String? district,  String? familyCode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Family() when $default != null:
-return $default(_that.id,_that.fullName,_that.phone,_that.city,_that.plan,_that.balance,_that.targetAmount,_that.children,_that.status,_that.deliveryStatus,_that.registeredAt,_that.assignedAgentName,_that.rejectionReason,_that.district);case _:
+return $default(_that.id,_that.fullName,_that.phone,_that.city,_that.plan,_that.balance,_that.targetAmount,_that.children,_that.status,_that.deliveryStatus,_that.registeredAt,_that.assignedAgentName,_that.rejectionReason,_that.district,_that.familyCode);case _:
   return orElse();
 
 }
@@ -450,10 +466,10 @@ return $default(_that.id,_that.fullName,_that.phone,_that.city,_that.plan,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String fullName,  String phone,  String city,  SavingsPlan plan,  double balance,  double targetAmount,  List<FamilyChild> children,  FamilyStatus status,  DeliveryStatus deliveryStatus,  DateTime registeredAt,  String? assignedAgentName,  String? rejectionReason,  String? district)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String fullName,  String phone,  String city,  SavingsPlan plan,  double balance,  double targetAmount,  List<FamilyChild> children,  FamilyStatus status,  DeliveryStatus deliveryStatus,  DateTime registeredAt,  String? assignedAgentName,  String? rejectionReason,  String? district,  String? familyCode)  $default,) {final _that = this;
 switch (_that) {
 case _Family():
-return $default(_that.id,_that.fullName,_that.phone,_that.city,_that.plan,_that.balance,_that.targetAmount,_that.children,_that.status,_that.deliveryStatus,_that.registeredAt,_that.assignedAgentName,_that.rejectionReason,_that.district);}
+return $default(_that.id,_that.fullName,_that.phone,_that.city,_that.plan,_that.balance,_that.targetAmount,_that.children,_that.status,_that.deliveryStatus,_that.registeredAt,_that.assignedAgentName,_that.rejectionReason,_that.district,_that.familyCode);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -467,10 +483,10 @@ return $default(_that.id,_that.fullName,_that.phone,_that.city,_that.plan,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String fullName,  String phone,  String city,  SavingsPlan plan,  double balance,  double targetAmount,  List<FamilyChild> children,  FamilyStatus status,  DeliveryStatus deliveryStatus,  DateTime registeredAt,  String? assignedAgentName,  String? rejectionReason,  String? district)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String fullName,  String phone,  String city,  SavingsPlan plan,  double balance,  double targetAmount,  List<FamilyChild> children,  FamilyStatus status,  DeliveryStatus deliveryStatus,  DateTime registeredAt,  String? assignedAgentName,  String? rejectionReason,  String? district,  String? familyCode)?  $default,) {final _that = this;
 switch (_that) {
 case _Family() when $default != null:
-return $default(_that.id,_that.fullName,_that.phone,_that.city,_that.plan,_that.balance,_that.targetAmount,_that.children,_that.status,_that.deliveryStatus,_that.registeredAt,_that.assignedAgentName,_that.rejectionReason,_that.district);case _:
+return $default(_that.id,_that.fullName,_that.phone,_that.city,_that.plan,_that.balance,_that.targetAmount,_that.children,_that.status,_that.deliveryStatus,_that.registeredAt,_that.assignedAgentName,_that.rejectionReason,_that.district,_that.familyCode);case _:
   return null;
 
 }
@@ -482,7 +498,7 @@ return $default(_that.id,_that.fullName,_that.phone,_that.city,_that.plan,_that.
 
 
 class _Family implements Family {
-  const _Family({required this.id, required this.fullName, required this.phone, required this.city, required this.plan, required this.balance, required this.targetAmount, required final  List<FamilyChild> children, required this.status, required this.deliveryStatus, required this.registeredAt, this.assignedAgentName, this.rejectionReason, this.district}): _children = children;
+  const _Family({required this.id, required this.fullName, required this.phone, required this.city, required this.plan, required this.balance, required this.targetAmount, required final  List<FamilyChild> children, required this.status, required this.deliveryStatus, required this.registeredAt, this.assignedAgentName, this.rejectionReason, this.district, this.familyCode}): _children = children;
   
 
 @override final  String id;
@@ -505,6 +521,7 @@ class _Family implements Family {
 @override final  String? assignedAgentName;
 @override final  String? rejectionReason;
 @override final  String? district;
+@override final  String? familyCode;
 
 /// Create a copy of Family
 /// with the given fields replaced by the non-null parameter values.
@@ -516,16 +533,16 @@ _$FamilyCopyWith<_Family> get copyWith => __$FamilyCopyWithImpl<_Family>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Family&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.city, city) || other.city == city)&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&const DeepCollectionEquality().equals(other._children, _children)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryStatus, deliveryStatus) || other.deliveryStatus == deliveryStatus)&&(identical(other.registeredAt, registeredAt) || other.registeredAt == registeredAt)&&(identical(other.assignedAgentName, assignedAgentName) || other.assignedAgentName == assignedAgentName)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason)&&(identical(other.district, district) || other.district == district));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Family&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.city, city) || other.city == city)&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&const DeepCollectionEquality().equals(other._children, _children)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryStatus, deliveryStatus) || other.deliveryStatus == deliveryStatus)&&(identical(other.registeredAt, registeredAt) || other.registeredAt == registeredAt)&&(identical(other.assignedAgentName, assignedAgentName) || other.assignedAgentName == assignedAgentName)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason)&&(identical(other.district, district) || other.district == district)&&(identical(other.familyCode, familyCode) || other.familyCode == familyCode));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,fullName,phone,city,plan,balance,targetAmount,const DeepCollectionEquality().hash(_children),status,deliveryStatus,registeredAt,assignedAgentName,rejectionReason,district);
+int get hashCode => Object.hash(runtimeType,id,fullName,phone,city,plan,balance,targetAmount,const DeepCollectionEquality().hash(_children),status,deliveryStatus,registeredAt,assignedAgentName,rejectionReason,district,familyCode);
 
 @override
 String toString() {
-  return 'Family(id: $id, fullName: $fullName, phone: $phone, city: $city, plan: $plan, balance: $balance, targetAmount: $targetAmount, children: $children, status: $status, deliveryStatus: $deliveryStatus, registeredAt: $registeredAt, assignedAgentName: $assignedAgentName, rejectionReason: $rejectionReason, district: $district)';
+  return 'Family(id: $id, fullName: $fullName, phone: $phone, city: $city, plan: $plan, balance: $balance, targetAmount: $targetAmount, children: $children, status: $status, deliveryStatus: $deliveryStatus, registeredAt: $registeredAt, assignedAgentName: $assignedAgentName, rejectionReason: $rejectionReason, district: $district, familyCode: $familyCode)';
 }
 
 
@@ -536,7 +553,7 @@ abstract mixin class _$FamilyCopyWith<$Res> implements $FamilyCopyWith<$Res> {
   factory _$FamilyCopyWith(_Family value, $Res Function(_Family) _then) = __$FamilyCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String fullName, String phone, String city, SavingsPlan plan, double balance, double targetAmount, List<FamilyChild> children, FamilyStatus status, DeliveryStatus deliveryStatus, DateTime registeredAt, String? assignedAgentName, String? rejectionReason, String? district
+ String id, String fullName, String phone, String city, SavingsPlan plan, double balance, double targetAmount, List<FamilyChild> children, FamilyStatus status, DeliveryStatus deliveryStatus, DateTime registeredAt, String? assignedAgentName, String? rejectionReason, String? district, String? familyCode
 });
 
 
@@ -553,7 +570,7 @@ class __$FamilyCopyWithImpl<$Res>
 
 /// Create a copy of Family
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? fullName = null,Object? phone = null,Object? city = null,Object? plan = null,Object? balance = null,Object? targetAmount = null,Object? children = null,Object? status = null,Object? deliveryStatus = null,Object? registeredAt = null,Object? assignedAgentName = freezed,Object? rejectionReason = freezed,Object? district = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? fullName = null,Object? phone = null,Object? city = null,Object? plan = null,Object? balance = null,Object? targetAmount = null,Object? children = null,Object? status = null,Object? deliveryStatus = null,Object? registeredAt = null,Object? assignedAgentName = freezed,Object? rejectionReason = freezed,Object? district = freezed,Object? familyCode = freezed,}) {
   return _then(_Family(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
@@ -569,6 +586,7 @@ as DeliveryStatus,registeredAt: null == registeredAt ? _self.registeredAt : regi
 as DateTime,assignedAgentName: freezed == assignedAgentName ? _self.assignedAgentName : assignedAgentName // ignore: cast_nullable_to_non_nullable
 as String?,rejectionReason: freezed == rejectionReason ? _self.rejectionReason : rejectionReason // ignore: cast_nullable_to_non_nullable
 as String?,district: freezed == district ? _self.district : district // ignore: cast_nullable_to_non_nullable
+as String?,familyCode: freezed == familyCode ? _self.familyCode : familyCode // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

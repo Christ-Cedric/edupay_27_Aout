@@ -1,7 +1,7 @@
 /// Environnement d'exécution de l'app — pilote le choix mock ↔ backend réel.
 ///
 /// Sans `--dart-define`, l'app démarre par défaut sur le backend local de développement
-/// (`http://192.168.1.76:3000/api/v1`).
+/// (`http://192.168.11.124:3000/api/v1`).
 enum AppEnvironment { mock, development, staging, production }
 
 /// Configuration résolue à la compilation via `String.fromEnvironment`.
@@ -15,7 +15,7 @@ abstract final class AppEnvironmentConfig {
 
   static const _apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.1.76:3000',
+    defaultValue: 'http://192.168.11.113:3000',
   );
 
   static const apiVersion = String.fromEnvironment(
@@ -40,7 +40,7 @@ abstract final class AppEnvironmentConfig {
 
   /// URL de base du backend, préfixe de version inclus (`/api/v1`).
   static String get resolvedApiBaseUrl {
-    final baseUrl = _apiBaseUrl.isNotEmpty ? _apiBaseUrl : 'http://192.168.1.76:3000';
+    final baseUrl = _apiBaseUrl.isNotEmpty ? _apiBaseUrl : 'http://192.168.11.108:3000';
     final root = baseUrl.replaceFirst(RegExp(r'/+$'), '');
     final uri = Uri.tryParse(root);
     if (uri == null || !uri.hasScheme || uri.host.isEmpty) {

@@ -2,9 +2,10 @@
 // CORE/SERVICES/API_CLIENT.DART — Client HTTP centralisé avec auto-refresh
 // =============================================================================
 import 'dart:convert';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../storage/token_storage.dart';
-import '../config/app_environment.dart';
 
 class ApiException implements Exception {
   final int statusCode;
@@ -16,7 +17,11 @@ class ApiException implements Exception {
 }
 
 class ApiClient {
-  static String get _baseUrl => AppEnvironmentConfig.resolvedApiBaseUrl;
+  static String get _baseUrl {
+    if (kIsWeb) return 'http://192.168.11.108:3000/api/v1';
+    if (Platform.isAndroid) return 'http://192.168.11.124:3000/api/v1';
+    return 'http://192.168.11.108:3000/api/v1';
+  }
 
   static Future<Map<String, String>> _headers({bool auth = true}) async {
     final headers = {'Content-Type': 'application/json'};

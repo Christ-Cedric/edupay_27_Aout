@@ -77,7 +77,7 @@ class StatusTag extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: GoogleFonts.openSans(
+        style: GoogleFonts.montserrat(
           fontSize: 10,
           fontWeight: FontWeight.w700,
           color: color,
@@ -114,7 +114,7 @@ class InitialsAvatar extends StatelessWidget {
       child: Center(
         child: Text(
           initials,
-          style: GoogleFonts.openSans(
+          style: GoogleFonts.montserrat(
             fontSize: size * 0.35,
             fontWeight: FontWeight.w800,
             color: textColor,
@@ -194,14 +194,14 @@ class EduDataRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: GoogleFonts.openSans(
+            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
               fontSize: 11,
               color: AppColors.white70,
             ),
           ),
           Text(
             value,
-            style: GoogleFonts.openSans(
+            style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: valueColor ?? AppColors.white,
@@ -326,7 +326,7 @@ class KpiCard extends StatelessWidget {
           const SizedBox(height: 3),
           Text(
             label,
-            style: GoogleFonts.openSans(
+            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
               fontSize: 9,
               color: AppColors.white50,
             ),
@@ -367,7 +367,7 @@ class EduNotif extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.openSans(
+            style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: AppColors.white,
@@ -376,7 +376,7 @@ class EduNotif extends StatelessWidget {
           const SizedBox(height: 3),
           Text(
             subtitle,
-            style: GoogleFonts.openSans(
+            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
               fontSize: 9,
               color: AppColors.white50,
               height: 1.5,
@@ -400,7 +400,7 @@ class SectionLabel extends StatelessWidget {
       padding: const EdgeInsets.only(top: 12, bottom: 6),
       child: Text(
         text,
-        style: GoogleFonts.openSans(
+        style: GoogleFonts.montserrat(
           fontSize: 9,
           fontWeight: FontWeight.w700,
           color: AppColors.white50,
@@ -441,10 +441,10 @@ void showEduToast(BuildContext context, String message,
           Expanded(
             child: Text(
               message,
-              style: GoogleFonts.openSans(
+              style: GoogleFonts.montserrat(
                 color: AppColors.white,
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -504,11 +504,11 @@ class AgentBottomNav extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       items[i]['label'] as String,
-                      style: GoogleFonts.openSans(
+                      style: GoogleFonts.montserrat(
                         fontSize: 9,
                         color: isActive ? AppColors.gold : AppColors.white,
                         fontWeight:
-                            isActive ? FontWeight.w700 : FontWeight.w400,
+                            isActive ? FontWeight.w700 : FontWeight.w700,
                       ),
                     ),
                   ],

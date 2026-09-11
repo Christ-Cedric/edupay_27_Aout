@@ -739,7 +739,7 @@ class ResetPasswordPage extends StatefulWidget {
 }
 
 class _ResetPasswordPageState extends State<ResetPasswordPage> {
-  bool _success = false;
+  final bool _success = false;
 
   @override
   void initState() {

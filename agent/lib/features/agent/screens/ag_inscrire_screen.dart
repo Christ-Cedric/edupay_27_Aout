@@ -157,7 +157,7 @@ class _AgInscrireScreenState extends State<AgInscrireScreen>
                   // Titre section parent
                   Text(
                     'INFORMATIONS DU PARENT / TUTEUR',
-                    style: GoogleFonts.openSans(
+                    style: GoogleFonts.montserrat(
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
                       color: AppColors.green,
@@ -192,7 +192,7 @@ class _AgInscrireScreenState extends State<AgInscrireScreen>
                         value: _selectedPlan,
                         isExpanded: true,
                         dropdownColor: AppColors.cardBg,
-                        style: GoogleFonts.openSans(fontSize: 13, color: AppColors.white),
+                        style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.white),
                         items: const [
                           DropdownMenuItem(value: 'daily', child: Text('Quotidien (Tous les jours)')),
                           DropdownMenuItem(value: 'weekly', child: Text('Hebdomadaire (Chaque semaine)')),
@@ -225,7 +225,7 @@ class _AgInscrireScreenState extends State<AgInscrireScreen>
                         Expanded(
                           child: Text(
                             'Mode famille : vous ajouterez les enfants depuis la fiche client après l\'inscription.',
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                 fontSize: 10, color: AppColors.white70),
                           ),
                         ),
@@ -262,7 +262,7 @@ class _AgInscrireScreenState extends State<AgInscrireScreen>
       padding: const EdgeInsets.only(bottom: 5, top: 2),
       child: Text(
         text,
-        style: GoogleFonts.openSans(
+        style: GoogleFonts.montserrat(
           fontSize: 9,
           fontWeight: FontWeight.w700,
           color: AppColors.green,
@@ -279,11 +279,11 @@ class _AgInscrireScreenState extends State<AgInscrireScreen>
       child: TextField(
         controller: ctrl,
         keyboardType: keyboardType,
-        style: GoogleFonts.openSans(fontSize: 13, color: AppColors.white),
+        style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.white),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle:
-              GoogleFonts.openSans(fontSize: 13, color: AppColors.white35),
+              GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.white35),
           filled: true,
           fillColor: AppColors.white07,
           enabledBorder: OutlineInputBorder(

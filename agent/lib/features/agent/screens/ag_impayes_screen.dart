@@ -92,7 +92,7 @@ class AgImpayesScreen extends StatelessWidget {
                         children: [
                           Text(
                             '⚠ ${clients.length} client(s) en retard de paiement',
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: AppColors.red,
@@ -101,7 +101,7 @@ class AgImpayesScreen extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             'Contactez-les pour régulariser',
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                 fontSize: 10, color: AppColors.white50),
                           ),
                         ],
@@ -114,7 +114,7 @@ class AgImpayesScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(30),
                         child: Text(
                           'Aucun impayé ! Félicitations.',
-                          style: GoogleFonts.openSans(color: AppColors.white50),
+                          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, color: AppColors.white50),
                         ),
                       )
                     else
@@ -133,15 +133,15 @@ class AgImpayesScreen extends StatelessWidget {
                                     children: [
                                       Text(
                                         c.fullName,
-                                        style: GoogleFonts.openSans(
+                                        style: GoogleFonts.montserrat(
                                           fontSize: 12,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w700,
                                           color: AppColors.white,
                                         ),
                                       ),
                                       Text(
                                         'En retard de ${c.lateWeeks} sem.',
-                                        style: GoogleFonts.openSans(
+                                        style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                             fontSize: 10, color: AppColors.red),
                                       ),
                                     ],

@@ -23,10 +23,12 @@ void main() async {
     await Firebase.initializeApp();
   } catch (_) {}
   await initializeDateFormatting('fr_FR', null);
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+    ),
+  );
   runApp(
     MultiProvider(
       providers: [
@@ -107,8 +109,24 @@ class _SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: const Center(
-        child: CircularProgressIndicator(color: AppColors.green),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Logo de l'application en grand
+            Image.asset(
+              'assets/images/app_logo.png',
+              width: 240,
+              height: 260,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.school, size: 150, color: AppColors.green),
+            ),
+            const SizedBox(height: 50),
+            // Indicateur de chargement
+            const CircularProgressIndicator(color: AppColors.green),
+          ],
+        ),
       ),
     );
   }

@@ -119,7 +119,7 @@ class _AgDashboardScreenState extends State<AgDashboardScreen> {
                     // Salutation dynamique
                     RichText(
                       text: TextSpan(
-                        style: GoogleFonts.openSans(
+                        style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                             fontSize: 11, color: AppColors.white50),
                         children: [
                           const TextSpan(text: 'Bonjour '),
@@ -156,24 +156,24 @@ class _AgDashboardScreenState extends State<AgDashboardScreen> {
                         childAspectRatio: 1.8,
                         children: [
                           KpiCard(
-                            value: '${stats?['active_clients'] ?? stats?['clients']?['active'] ?? 0}',
+                            value: '${stats?['clients']?['active'] ?? 0}',
                             label: 'Clients actifs',
                           ),
                           KpiCard(
-                            value: '${stats?['new_this_month'] ?? stats?['clients']?['newThisMonth'] ?? 0}',
+                            value: '${stats?['clients']?['newThisMonth'] ?? 0}',
                             label: 'Inscriptions ce mois',
                             valueColor: AppColors.green,
                           ),
                           KpiCard(
                             value: stats != null
-                                ? _formatAmount(double.tryParse((stats['collected_this_month'] ?? stats['collections']?['amountThisMonth'])?.toString() ?? '0') ?? 0)
+                                ? _formatAmount(double.tryParse(stats['collections']?['amountThisMonth']?.toString() ?? '0') ?? 0)
                                 : '0F',
                             label: 'Collectes ce mois',
                           ),
                           KpiCard(
-                            value: '${stats?['late_count'] ?? stats?['impayes']?['count'] ?? 0}',
+                            value: '${stats?['impayes']?['count'] ?? 0}',
                             label: 'Impayés',
-                            valueColor: (int.tryParse((stats?['late_count'] ?? stats?['impayes']?['count'])?.toString() ?? '0') ?? 0) > 0
+                            valueColor: (int.tryParse(stats?['impayes']?['count']?.toString() ?? '0') ?? 0) > 0
                                 ? AppColors.red
                                 : AppColors.white,
                           ),
@@ -192,7 +192,7 @@ class _AgDashboardScreenState extends State<AgDashboardScreen> {
                     ),
                     const SizedBox(height: 8),
                     EduButton.yellow(
-                      'Encaisser une cotisation',
+                      '💵 Encaisser une cotisation',
                       onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -221,7 +221,7 @@ class _AgDashboardScreenState extends State<AgDashboardScreen> {
                           child: Center(
                             child: Text(
                               '⚠ Relancer les impayés (${stats?['impayes']?['count'] ?? 0})',
-                              style: GoogleFonts.openSans(
+                              style: GoogleFonts.montserrat(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.red,

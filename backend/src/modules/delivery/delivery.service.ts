@@ -1,4 +1,4 @@
-import type { Delivery, DeliveryIssue, DeliveryStatus } from '@prisma/client';
+import { Prisma, type Delivery, type DeliveryIssue, type DeliveryStatus } from '@prisma/client';
 import { prisma } from '../../shared/prisma.js';
 import { ApiError } from '../../shared/http/api-error.js';
 import { writeAudit } from '../../shared/audit/audit.js';
@@ -39,7 +39,8 @@ export async function assertKitChangeAllowed(childId: string): Promise<void> {
 /**
  * Un kit = une livraison (§7 #2 : kit par enfant, pas par famille). Crée les
  * lignes manquantes pour les objectifs de la saison courante qui ont déjà un
- * kit choisi — un enfant sans kit n'a logiquement rien à livrer.
+ * kit choisi ET dont l'épargne est complète — un enfant encore en cotisation
+ * n'a pas encore de kit à livrer.
  *
  * Une seule livraison par enfant à la fois : si l'enfant change de kit
  * avant que quoi que ce soit n'ait été physiquement préparé (livraison
@@ -53,13 +54,36 @@ export async function assertKitChangeAllowed(childId: string): Promise<void> {
 async function ensureDeliveriesForFamily(parentId: string): Promise<void> {
   const seasonId = await currentSeasonId();
   const goals = await prisma.savingsGoal.findMany({
-    where: { parentId, seasonId, childId: { not: null }, kitId: { not: null } },
-    select: { childId: true, kitId: true },
+    where: {
+      parentId,
+      seasonId,
+      childId: { not: null },
+      OR: [
+        { kitId: { not: null } },
+        { customAddedItems: { not: Prisma.DbNull } },
+      ],
+      AND: [
+        {
+          OR: [
+            { status: 'completed' },
+            { savedAmount: { gte: prisma.savingsGoal.fields.targetAmount } },
+          ],
+        },
+      ],
+    },
+    select: {
+      id: true,
+      childId: true,
+      kitId: true,
+      customAddedItems: true,
+    },
   });
 
   for (const goal of goals) {
     const childId = goal.childId!;
-    const kitId = goal.kitId!;
+    const kitId = goal.kitId ?? (await ensureCustomKitGoal(goal));
+    if (!kitId) continue;
+
     const existing = await prisma.delivery.findFirst({ where: { childId } });
 
     if (!existing) {
@@ -370,4 +394,64 @@ export async function listForAgent(
   });
   
   return deliveries.map(toDeliveryDto);
+}
+
+/**
+ * Crée un kit personnalisé pour un objectif de kit personnalisé existant
+ * (ajout d'articles en plus du kit de base) — appelé par l'admin lors de
+ * la création/réattribution d'un objectif.
+ */
+export async function ensureCustomKitGoal(
+  goal: { id: string; childId: string | null; kitId: string | null; customAddedItems: unknown },
+): Promise<string | null> {
+  if (goal.kitId) return goal.kitId;
+  if (!goal.customAddedItems || !Array.isArray(goal.customAddedItems) || goal.customAddedItems.length === 0) {
+    return null;
+  }
+
+  if (!goal.childId) return null;
+
+  const child = await prisma.child.findUnique({
+    where: { id: goal.childId },
+    select: { level: true },
+  });
+
+  const customItems = goal.customAddedItems.map((item) => {
+    const val = item as Record<string, unknown>;
+    return {
+      name: String(val.name ?? 'Article personnalisé'),
+      quantity: Number(val.quantity ?? 1),
+      price: Number(val.price ?? 0),
+    };
+  });
+
+  const totalPrice = customItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
+  const customKit = await prisma.kit.create({
+    data: {
+      tier: 'basic',
+      levelScope: child?.level?.trim() || 'CP1',
+      name: 'Kit Personnalisé',
+      totalPrice,
+      seasonId: await currentSeasonId(),
+      isActive: true,
+    },
+  });
+
+  await prisma.kitItem.createMany({
+    data: customItems.map((item) => ({
+      kitId: customKit.id,
+      category: 'Personnalisé',
+      label: item.name,
+      quantity: item.quantity,
+      unit: 'unité',
+      unitPrice: item.price,
+    })),
+  });
+
+  await prisma.savingsGoal.update({
+    where: { id: goal.id },
+    data: { kitId: customKit.id },
+  });
+
+  return customKit.id;
 }

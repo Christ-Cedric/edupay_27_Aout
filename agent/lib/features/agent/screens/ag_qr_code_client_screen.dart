@@ -2,7 +2,6 @@
 // FEATURES/AGENT/SCREENS/AG_QR_CODE_CLIENT_SCREEN.DART
 // Affichage QR code après inscription + export PDF
 // =============================================================================
-import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
@@ -49,18 +48,13 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
   void initState() {
     super.initState();
     _fadeCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
+        vsync: this, duration: const Duration(milliseconds: 600));
     _pulseCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
+        vsync: this, duration: const Duration(milliseconds: 1500))
+      ..repeat(reverse: true);
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
-    _pulseAnim = Tween<double>(
-      begin: 1.0,
-      end: 1.04,
-    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
+    _pulseAnim = Tween<double>(begin: 1.0, end: 1.04).animate(
+        CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
     _fadeCtrl.forward();
   }
 
@@ -89,9 +83,7 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                 pw.Container(
                   width: double.infinity,
                   padding: const pw.EdgeInsets.symmetric(
-                    vertical: 14,
-                    horizontal: 20,
-                  ),
+                      vertical: 14, horizontal: 20),
                   decoration: pw.BoxDecoration(
                     color: PdfColors.teal700,
                     borderRadius: pw.BorderRadius.circular(10),
@@ -123,13 +115,17 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                 // ── QR Code ──────────────────────────────────────────────
                 pw.Text(
                   'Scannez ce code pour encaisser la cotisation',
-                  style: pw.TextStyle(fontSize: 11, color: PdfColors.grey700),
+                  style: pw.TextStyle(
+                    fontSize: 11,
+                    color: PdfColors.grey700,
+                  ),
                 ),
                 pw.SizedBox(height: 12),
                 pw.Container(
                   padding: const pw.EdgeInsets.all(14),
                   decoration: pw.BoxDecoration(
-                    border: pw.Border.all(color: PdfColors.teal700, width: 2.5),
+                    border: pw.Border.all(
+                        color: PdfColors.teal700, width: 2.5),
                     borderRadius: pw.BorderRadius.circular(12),
                     color: PdfColors.white,
                   ),
@@ -182,10 +178,8 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                       _pdfRow('Code client', client.familyCode ?? ''),
                       _pdfRow('Téléphone', client.phone),
                       _pdfRow('Quartier / Adresse', client.address),
-                      _pdfRow(
-                        'Date d\'inscription',
-                        DateFormat('dd/MM/yyyy').format(DateTime.now()),
-                      ),
+                      _pdfRow('Date d\'inscription',
+                          DateFormat('dd/MM/yyyy').format(DateTime.now())),
                     ],
                   ),
                 ),
@@ -228,9 +222,11 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                           pw.SizedBox(height: 4),
                           if (client.children![i].school != null &&
                               client.children![i].school!.isNotEmpty)
-                            _pdfRowSmall('École', client.children![i].school!),
+                            _pdfRowSmall('École',
+                                client.children![i].school!),
                           if (client.children![i].kitId != null) ...[
-                            _pdfRowSmall('Kit d\'épargne', 'Kit Scolaire'),
+                            _pdfRowSmall('Kit d\'épargne',
+                                'Kit Scolaire'),
                             _pdfRowSmall(
                               'Objectif total',
                               '${client.children![i].targetAmount?.toInt() ?? 0} FCFA',
@@ -253,21 +249,17 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                     child: pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
-                        pw.Text(
-                          'PLAN D\'ÉPARGNE',
-                          style: pw.TextStyle(
-                            fontSize: 9,
-                            fontWeight: pw.FontWeight.bold,
-                            color: PdfColors.teal700,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
+                        pw.Text('PLAN D\'ÉPARGNE',
+                            style: pw.TextStyle(
+                              fontSize: 9,
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.teal700,
+                              letterSpacing: 1.0,
+                            )),
                         pw.SizedBox(height: 10),
                         _pdfRow('Plan', client.plan),
-                        _pdfRow(
-                          'Objectif total',
-                          '${client.targetAmount.toInt()} FCFA',
-                        ),
+                        _pdfRow('Objectif total',
+                            '${client.targetAmount.toInt()} FCFA'),
                       ],
                     ),
                   ),
@@ -276,7 +268,8 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                 pw.Spacer(),
                 pw.Text(
                   'EduPay - Épargne Scolaire | Burkina Faso',
-                  style: pw.TextStyle(fontSize: 8, color: PdfColors.grey500),
+                  style: pw.TextStyle(
+                      fontSize: 8, color: PdfColors.grey500),
                 ),
               ],
             );
@@ -294,11 +287,9 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
       );
     } catch (e) {
       if (mounted) {
-        showEduToast(
-          context,
-          'Erreur génération PDF: ${e.toString().substring(0, e.toString().length.clamp(0, 80))}',
-          isError: true,
-        );
+        showEduToast(context,
+            'Erreur génération PDF: ${e.toString().substring(0, e.toString().length.clamp(0, 80))}',
+            isError: true);
       }
     } finally {
       if (mounted) setState(() => _isGeneratingPdf = false);
@@ -315,7 +306,10 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
             width: 140,
             child: pw.Text(
               label,
-              style: pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
+              style: pw.TextStyle(
+                fontSize: 10,
+                color: PdfColors.grey700,
+              ),
             ),
           ),
           pw.Expanded(
@@ -343,7 +337,10 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
             width: 120,
             child: pw.Text(
               label,
-              style: pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
+              style: pw.TextStyle(
+                fontSize: 9,
+                color: PdfColors.grey600,
+              ),
             ),
           ),
           pw.Expanded(
@@ -360,6 +357,7 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -390,11 +388,7 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                       top: 0,
                       child: GestureDetector(
                         onTap: () => Navigator.pop(context),
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                          size: 24,
-                        ),
+                        child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
                       ),
                     ),
                   Column(
@@ -408,18 +402,12 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          widget.isFromRegistration
-                              ? Icons.check_circle_rounded
-                              : Icons.qr_code_rounded,
-                          color: Colors.white,
-                          size: 32,
-                        ),
+                            widget.isFromRegistration ? Icons.check_circle_rounded : Icons.qr_code_rounded,
+                            color: Colors.white, size: 32),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        widget.isFromRegistration
-                            ? 'Client inscrit !'
-                            : 'QR Code du client',
+                        widget.isFromRegistration ? 'Client inscrit !' : 'QR Code du client',
                         style: GoogleFonts.montserrat(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
@@ -429,10 +417,9 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                       const SizedBox(height: 4),
                       Text(
                         'Voici la carte QR de ${client.fullName}',
-                        style: GoogleFonts.openSans(
-                          fontSize: 12,
-                          color: Colors.white.withValues(alpha: 0.85),
-                        ),
+                        style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
+                            fontSize: 12,
+                            color: Colors.white.withValues(alpha: 0.85)),
                       ),
                     ],
                   ),
@@ -454,9 +441,7 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                       decoration: BoxDecoration(
                         color: AppColors.cardBg,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: AppColors.green.withValues(alpha: 0.3),
-                        ),
+                        border: Border.all(color: AppColors.green.withValues(alpha: 0.3)),
                         boxShadow: [
                           BoxShadow(
                             color: AppColors.green.withValues(alpha: 0.08),
@@ -481,16 +466,14 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                           const SizedBox(height: 2),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
-                            ),
+                                horizontal: 12, vertical: 4),
                             decoration: BoxDecoration(
                               color: AppColors.green.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               client.familyCode ?? '',
-                              style: GoogleFonts.openSans(
+                              style: GoogleFonts.montserrat(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.green,
@@ -510,9 +493,7 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.green.withValues(
-                                      alpha: 0.2,
-                                    ),
+                                    color: AppColors.green.withValues(alpha: 0.2),
                                     blurRadius: 20,
                                     spreadRadius: 2,
                                   ),
@@ -537,10 +518,8 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                           const SizedBox(height: 14),
                           Text(
                             'Scanner pour encaisser la cotisation',
-                            style: GoogleFonts.openSans(
-                              fontSize: 10,
-                              color: AppColors.white50,
-                            ),
+                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
+                                fontSize: 10, color: AppColors.white50),
                           ),
                         ],
                       ),
@@ -554,14 +533,15 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                       decoration: BoxDecoration(
                         color: AppColors.cardBg,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.borderDefault),
+                        border:
+                            Border.all(color: AppColors.borderDefault),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'IDENTIFIANTS DU CLIENT',
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
                               color: AppColors.green,
@@ -569,59 +549,21 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                             ),
                           ),
                           const SizedBox(height: 12),
-                          _infoRow(
-                            Icons.person_outline,
-                            'Nom complet',
-                            client.fullName,
-                          ),
-                          _infoRow(
-                            Icons.qr_code,
-                            'Code client',
-                            client.familyCode ?? '',
-                          ),
-                          _infoRow(
-                            Icons.phone_outlined,
-                            'Téléphone',
-                            client.phone,
-                          ),
-                          if (client.temporaryPassword != null) ...[
-                            _infoRow(
-                              Icons.lock_outline,
-                              'Mot de passe temporaire',
-                              client.temporaryPassword!,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(
-                                'Remettez ces identifiants au client pour sa première connexion dans l’application client.',
-                                style: GoogleFonts.openSans(
-                                  fontSize: 10,
-                                  color: AppColors.gold,
-                                  height: 1.35,
-                                ),
-                              ),
-                            ),
-                          ],
-                          _infoRow(
-                            Icons.location_on_outlined,
-                            'Adresse',
-                            client.address,
-                          ),
-                          if (client.children != null &&
-                              client.children!.isNotEmpty) ...[
-                            for (
-                              var i = 0;
-                              i < client.children!.length;
-                              i++
-                            ) ...[
+                          _infoRow(Icons.person_outline, 'Nom complet',
+                              client.fullName),
+                          _infoRow(Icons.qr_code, 'Code client',
+                              client.familyCode ?? ''),
+                          _infoRow(Icons.phone_outlined, 'Téléphone',
+                              client.phone),
+                          _infoRow(Icons.location_on_outlined,
+                              'Adresse', client.address),
+                          if (client.children != null && client.children!.isNotEmpty) ...[
+                            for (var i = 0; i < client.children!.length; i++) ...[
                               Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 8,
-                                  bottom: 4,
-                                ),
+                                padding: const EdgeInsets.only(top: 8, bottom: 4),
                                 child: Text(
                                   'ENFANT ${i + 1}',
-                                  style: GoogleFonts.openSans(
+                                  style: GoogleFonts.montserrat(
                                     fontSize: 9,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.green,
@@ -629,46 +571,34 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                                   ),
                                 ),
                               ),
-                              _infoRow(
-                                Icons.child_care_outlined,
-                                'Prénom',
-                                client.children![i].firstName,
-                              ),
+                              _infoRow(Icons.child_care_outlined, 'Prénom', client.children![i].firstName),
                               if (client.children![i].school != null)
+                                _infoRow(Icons.school_outlined, 'École', client.children![i].school!),
+                              if (client.children![i].targetAmount != null && client.children![i].targetAmount! > 0)
                                 _infoRow(
-                                  Icons.school_outlined,
-                                  'École',
-                                  client.children![i].school!,
-                                ),
-                              if (client.children![i].targetAmount != null &&
-                                  client.children![i].targetAmount! > 0)
-                                _infoRow(
-                                  Icons.savings_outlined,
-                                  'Objectif',
-                                  '${client.children![i].targetAmount!.toInt()} FCFA',
-                                  valueColor: AppColors.gold,
-                                ),
-                            ],
+                                    Icons.savings_outlined,
+                                    'Objectif',
+                                    '${client.children![i].targetAmount!.toInt()} FCFA',
+                                    valueColor: AppColors.gold),
+                            ]
                           ] else ...[
                             // Fallback pour rétrocompatibilité
                             _infoRow(
-                              Icons.savings_outlined,
-                              'Plan d\'épargne',
-                              'Plan ${client.plan}',
-                            ),
+                                Icons.savings_outlined,
+                                'Plan d\'épargne',
+                                'Plan ${client.plan}'),
                             _infoRow(
-                              Icons.attach_money,
-                              'Objectif total',
-                              '${client.targetAmount.toInt()} FCFA',
-                              valueColor: AppColors.gold,
-                            ),
+                                Icons.attach_money,
+                                'Objectif total',
+                                '${client.targetAmount.toInt()} FCFA',
+                                valueColor: AppColors.gold),
                           ],
                           _infoRow(
-                            Icons.calendar_today_outlined,
-                            'Inscrit le',
-                            DateFormat('dd/MM/yyyy').format(DateTime.now()),
-                            showDivider: false,
-                          ),
+                              Icons.calendar_today_outlined,
+                              'Inscrit le',
+                              DateFormat('dd/MM/yyyy')
+                                  .format(DateTime.now()),
+                              showDivider: false),
                         ],
                       ),
                     ),
@@ -682,28 +612,22 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                               color: AppColors.cardBg,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: AppColors.borderDefault,
-                              ),
+                                  color: AppColors.borderDefault),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    color: AppColors.green,
-                                    strokeWidth: 2,
-                                  ),
-                                ),
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                        color: AppColors.green,
+                                        strokeWidth: 2)),
                                 const SizedBox(width: 12),
-                                Text(
-                                  'Génération du PDF...',
-                                  style: GoogleFonts.openSans(
-                                    fontSize: 12,
-                                    color: AppColors.white70,
-                                  ),
-                                ),
+                                Text('Génération du PDF...',
+                                    style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
+                                        fontSize: 12,
+                                        color: AppColors.white70)),
                               ],
                             ),
                           )
@@ -718,8 +642,7 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const AgClientsScreen(),
-                            ),
+                                builder: (_) => const AgClientsScreen()),
                             (route) => false,
                           );
                         } else {
@@ -754,21 +677,18 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
               color: const Color(0xFF1565C0).withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
-            ),
+            )
           ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.picture_as_pdf_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
+            const Icon(Icons.picture_as_pdf_rounded,
+                color: Colors.white, size: 20),
             const SizedBox(width: 10),
             Text(
               'Afficher / Sauvegarder le PDF',
-              style: GoogleFonts.openSans(
+              style: GoogleFonts.montserrat(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -780,13 +700,8 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
     );
   }
 
-  Widget _infoRow(
-    IconData icon,
-    String label,
-    String value, {
-    Color? valueColor,
-    bool showDivider = true,
-  }) {
+  Widget _infoRow(IconData icon, String label, String value,
+      {Color? valueColor, bool showDivider = true}) {
     return Column(
       children: [
         Padding(
@@ -797,16 +712,14 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
               const SizedBox(width: 10),
               Text(
                 label,
-                style: GoogleFonts.openSans(
-                  fontSize: 11,
-                  color: AppColors.white50,
-                ),
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
+                    fontSize: 11, color: AppColors.white50),
               ),
               const Spacer(),
               Flexible(
                 child: Text(
                   value,
-                  style: GoogleFonts.openSans(
+                  style: GoogleFonts.montserrat(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: valueColor ?? AppColors.white,
@@ -817,7 +730,8 @@ class _AgQrCodeClientScreenState extends State<AgQrCodeClientScreen>
             ],
           ),
         ),
-        if (showDivider) const Divider(color: AppColors.divider, height: 1),
+        if (showDivider)
+          const Divider(color: AppColors.divider, height: 1),
       ],
     );
   }

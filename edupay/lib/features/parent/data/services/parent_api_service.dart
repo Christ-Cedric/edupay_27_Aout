@@ -31,7 +31,7 @@ class ParentApiService {
         .map(
           (item) => _withBackendKit(
             ChildProfile.fromJson(item as Map<String, dynamic>),
-            item as Map<String, dynamic>,
+            item,
           ),
         )
         .toList();
@@ -97,7 +97,7 @@ class ParentApiService {
   ) async {
     await _client.post(
       '${ApiRoutes.child(childId)}/transport',
-      body: {'amount': amount, if (type != null) 'type': type},
+      body: {'amount': amount, 'type': ?type},
     );
   }
 
@@ -161,10 +161,11 @@ class ParentApiService {
     // contexte serveur.
     if (_lastDeliveryChildId == null) await getDelivery();
     final childId = _lastDeliveryChildId;
-    if (childId == null)
+    if (childId == null) {
       throw StateError(
         'Aucune livraison disponible pour signaler un problème.',
       );
+    }
     final body = <String, dynamic>{
       'child_id': childId,
       'type': type.backendCode,
@@ -224,10 +225,11 @@ class ParentApiService {
         break;
       }
     }
-    if (item == null)
+    if (item == null) {
       throw StateError(
         'La réponse du serveur ne contient pas l’enfant attendu.',
       );
+    }
     return ChildProfile.fromJson(item);
   }
 

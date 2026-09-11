@@ -30,6 +30,9 @@ import {
   updateFamilyHandler,
   updateProfileHandler,
   assignChildKitHandler,
+  setSchoolingGoalHandler,
+  setTransportGoalHandler,
+  requestRefundHandler,
 } from './agent.controller.js';
 
 // Self-service terrain (app Agent) — un agent n'agit jamais que sur les
@@ -52,6 +55,9 @@ agentRouter.patch('/me/families/:id', asyncHandler(updateFamilyHandler));
 agentRouter.delete('/me/families/:id', asyncHandler(archiveFamilyHandler));
 agentRouter.post('/me/families/:id/children', asyncHandler(addChildHandler));
 agentRouter.post('/me/families/:id/children/:childId/kit', asyncHandler(assignChildKitHandler));
+agentRouter.post('/me/families/:id/children/:childId/schooling', asyncHandler(setSchoolingGoalHandler));
+agentRouter.post('/me/families/:id/children/:childId/transport', asyncHandler(setTransportGoalHandler));
+agentRouter.post('/me/families/:id/refund', asyncHandler(requestRefundHandler));
 agentRouter.get('/me/families/:id/contributions', asyncHandler(familyContributionsHandler));
 agentRouter.get('/me/families/:id/ledger', asyncHandler(familyLedgerHandler));
 agentRouter.get('/me/families/:id/notifications', asyncHandler(familyNotificationsHandler));

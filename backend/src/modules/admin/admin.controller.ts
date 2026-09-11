@@ -19,6 +19,7 @@ import {
   suspendSchema,
   updateChildSchema,
   updateFamilyProfileSchema,
+  assignDeliveryLocationSchema,
 } from './admin.schemas.js';
 import * as adminService from './admin.service.js';
 import { recordCashContributionSchema } from '../payments/payments.schemas.js';
@@ -154,8 +155,14 @@ export async function rejectFamilyHandler(req: Request, res: Response): Promise<
   ok(res, await adminService.rejectFamily(actorId(req), id, reason));
 }
 
-export async function listAuditLogsHandler(req: Request, res: Response): Promise<void> {
+export const listAuditLogsHandler = async (req: Request, res: Response): Promise<void> => {
   const query = paginationQuerySchema.parse(req.query);
   const { rows, total } = await adminService.listAuditLogs(query);
   list(res, rows, buildMeta(query, total));
+};
+
+export async function assignDeliveryLocationHandler(req: Request, res: Response): Promise<void> {
+  const { id } = idParamSchema.parse(req.params); // delivery ID
+  const { lat, lng, address, assigned_agent_id } = assignDeliveryLocationSchema.parse(req.body);
+  ok(res, await adminService.assignDeliveryLocation(actorId(req), id, { lat, lng, address, assigned_agent_id }));
 }

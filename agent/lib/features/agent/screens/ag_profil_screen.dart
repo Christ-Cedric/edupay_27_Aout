@@ -113,7 +113,7 @@ class _AgProfilScreenState extends State<AgProfilScreen> {
                         const SizedBox(height: 8),
                         Text(
                           agent?.fullName ?? 'Utilisateur Inconnu',
-                          style: GoogleFonts.openSans(
+                          style: GoogleFonts.montserrat(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             color: AppColors.white,
@@ -121,7 +121,7 @@ class _AgProfilScreenState extends State<AgProfilScreen> {
                         ),
                         Text(
                           'Agent terrain — ${agent?.zone ?? ''}',
-                          style: GoogleFonts.openSans(
+                          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                               fontSize: 10, color: AppColors.white50),
                         ),
                       ],
@@ -149,7 +149,7 @@ class _AgProfilScreenState extends State<AgProfilScreen> {
                                     Expanded(
                                       child: Text(
                                         'Données indisponibles — tirez pour réessayer',
-                                        style: GoogleFonts.openSans(fontSize: 11, color: AppColors.red),
+                                        style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 11, color: AppColors.red),
                                       ),
                                     ),
                                   ],
@@ -290,7 +290,7 @@ class _AgProfilScreenState extends State<AgProfilScreen> {
                     children: [
                       Text(
                         'Scanner QR Client',
-                        style: GoogleFonts.openSans(
+                        style: GoogleFonts.montserrat(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: AppColors.white,
@@ -306,7 +306,7 @@ class _AgProfilScreenState extends State<AgProfilScreen> {
                         ),
                         child: Text(
                           'NOUVEAU',
-                          style: GoogleFonts.openSans(
+                          style: GoogleFonts.montserrat(
                             fontSize: 7,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
@@ -319,7 +319,7 @@ class _AgProfilScreenState extends State<AgProfilScreen> {
                   const SizedBox(height: 2),
                   Text(
                     'Scanner la carte du client pour encaisser',
-                    style: GoogleFonts.openSans(
+                    style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                         fontSize: 10, color: AppColors.white50),
                   ),
                 ],
@@ -348,7 +348,7 @@ class _AgProfilScreenState extends State<AgProfilScreen> {
           children: [
             Text(
               label,
-              style: GoogleFonts.openSans(
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                   fontSize: 12, color: AppColors.white70),
             ),
             Icon(Icons.arrow_forward_ios, color: color, size: 14),
@@ -391,7 +391,7 @@ class _AgProfilScreenState extends State<AgProfilScreen> {
                 const SizedBox(height: 16),
                 ListTile(
                   leading: const Icon(Icons.chat, color: AppColors.green),
-                  title: Text('Message WhatsApp', style: GoogleFonts.openSans(color: AppColors.white)),
+                  title: Text('Message WhatsApp', style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, color: AppColors.white)),
                   onTap: () async {
                     Navigator.pop(context);
                     final String? whatsappUrl = data['whatsapp_url'];
@@ -410,7 +410,7 @@ class _AgProfilScreenState extends State<AgProfilScreen> {
                 const Divider(color: AppColors.divider),
                 ListTile(
                   leading: const Icon(Icons.phone, color: AppColors.gold),
-                  title: Text('Appel direct', style: GoogleFonts.openSans(color: AppColors.white)),
+                  title: Text('Appel direct', style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, color: AppColors.white)),
                   onTap: () async {
                     Navigator.pop(context);
                     final String? phoneNumber = data['phone_number'];

@@ -44,6 +44,7 @@ abstract interface class FamilyDataSource {
     required String familyId,
     required int amount,
     String? collectedByAgentId,
+    String? targetGoalType,
   });
 
   /// Ajoute un enfant à une famille existante — sans kit (choix séparé, par

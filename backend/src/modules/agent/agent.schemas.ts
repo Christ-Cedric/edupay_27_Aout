@@ -22,6 +22,24 @@ export const contributionIdParamSchema = z.object({
   id: z.string().min(1),
 });
 
+export const agentSetGoalSchema = z.object({
+  amount: z.number().int().positive(),
+  name: z.string().optional(),
+});
+
+export const agentSetSchoolingGoalSchema = z.object({
+  amount: z.number().int().positive(),
+  name: z.string().optional(),
+  frequency: z.enum(['daily', 'weekly', 'monthly']),
+  capacity: z.number().int().positive(),
+});
+
+export const agentRefundSchema = z.object({
+  amount: z.number().int().positive(),
+  reason: z.string().min(1),
+});
+
+
 // Filtres liste familles — sur-ensemble volontairement restreint de
 // `familiesQuerySchema` (admin) : un agent ne doit filtrer que par statut,
 // jamais par ville/recherche globale (il ne voit déjà que ses familles).

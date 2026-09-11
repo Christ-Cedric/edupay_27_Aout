@@ -4,6 +4,8 @@ import { list, ok } from '../../shared/http/respond.js';
 import { advanceStatusSchema, confirmByAgentSchema, scheduleDeliverySchema } from '../delivery/delivery.schemas.js';
 import { addChildSchema, enrollFamilySchema, updateFamilyProfileSchema, assignKitSchema } from '../admin/admin.schemas.js';
 import * as agentService from './agent.service.js';
+import * as adminService from '../admin/admin.service.js';
+import { prisma } from '../../shared/prisma.js';
 import {
   agentContributionSchema,
   agentDeliveriesQuerySchema,
@@ -13,6 +15,9 @@ import {
   familyCodeParamSchema,
   familyIdParamSchema,
   updateAgentProfileSchema,
+  agentSetGoalSchema,
+  agentRefundSchema,
+  agentSetSchoolingGoalSchema,
 } from './agent.schemas.js';
 
 function selfId(req: Request): string {
@@ -75,9 +80,107 @@ export async function addChildHandler(req: Request, res: Response): Promise<void
 export async function assignChildKitHandler(req: Request, res: Response): Promise<void> {
   const { id, childId } = req.params;
   if (!id || !childId) throw ApiError.badRequest('Paramètres manquants.');
+  
+  if (req.body.custom === true && Array.isArray(req.body.items)) {
+    const targetAmount = req.body.items.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0);
+    const seasonId = (await prisma.season.findFirst({ where: { isCurrent: true } }))?.id;
+    if (!seasonId) throw ApiError.badRequest('Aucune saison courante.');
+    
+    const existingGoal = await prisma.savingsGoal.findUnique({
+      where: { childId_seasonId_type: { childId, seasonId, type: 'supplies' } },
+    });
+    
+    if (existingGoal) {
+      await prisma.savingsGoal.update({
+        where: { id: existingGoal.id },
+        data: { targetAmount, name: 'Kit Personnalisé', customAddedItems: req.body.items },
+      });
+    } else {
+      await prisma.savingsGoal.create({
+        data: {
+          parentId: id,
+          childId,
+          seasonId,
+          type: 'supplies',
+          name: 'Kit Personnalisé',
+          targetAmount,
+          status: 'active',
+          customAddedItems: req.body.items,
+        },
+      });
+    }
+    ok(res, { success: true });
+    return;
+  }
+
   const input = assignKitSchema.parse(req.body);
   ok(res, await agentService.assignChildKit(selfId(req), id, childId, input));
 }
+
+export async function setSchoolingGoalHandler(req: Request, res: Response): Promise<void> {
+  const { id, childId } = req.params;
+  if (!id || !childId) throw ApiError.badRequest('Paramètres manquants.');
+  const input = agentSetSchoolingGoalSchema.parse(req.body);
+  if (input.amount < 25000) {
+    throw ApiError.badRequest('Le coût total de la scolarité doit être d\'au moins 25 000 FCFA.');
+  }
+
+  // Calcul du nombre total de jours du plan
+  let daysPerContribution = 1;
+  if (input.frequency === 'weekly') daysPerContribution = 7;
+  if (input.frequency === 'monthly') daysPerContribution = 30;
+
+  const numberOfContributions = Math.ceil(input.amount / input.capacity);
+  const totalDays = numberOfContributions * daysPerContribution;
+
+  // Calcul de la date de fin
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() + totalDays);
+
+  // Détermination de la limite du 15 Septembre de l'année scolaire en cours
+  const now = new Date();
+  let targetYear = now.getFullYear();
+  if (now.getMonth() >= 9) { // Octobre (9) ou plus
+    targetYear++;
+  }
+  const deadline = new Date(targetYear, 8, 15); // Mois 8 = Septembre
+
+  if (endDate > deadline) {
+    throw ApiError.badRequest(`La durée du plan choisi dépasse la limite du 15 septembre ${targetYear}. Veuillez choisir une capacité de cotisation plus élevée ou une fréquence plus courte pour respecter la limite.`);
+  }
+
+  ok(res, await adminService.setChildGoal(
+    selfId(req), id, childId, 'registration', input.amount, input.name, 
+    { frequency: input.frequency, capacity: input.capacity }
+  ));
+}
+
+export async function setTransportGoalHandler(req: Request, res: Response): Promise<void> {
+  const { id, childId } = req.params;
+  if (!id || !childId) throw ApiError.badRequest('Paramètres manquants.');
+  const input = agentSetSchoolingGoalSchema.parse(req.body);
+  ok(res, await adminService.setChildGoal(
+    selfId(req), id, childId, 'transport', input.amount, input.name,
+    { frequency: input.frequency, capacity: input.capacity }
+  ));
+}
+
+export async function requestRefundHandler(req: Request, res: Response): Promise<void> {
+  const { id } = familyIdParamSchema.parse(req.params);
+  const input = agentRefundSchema.parse(req.body);
+  
+  // Directly create the refund in Prisma for agent requests.
+  const refund = await prisma.refund.create({
+    data: {
+      parentId: id,
+      amount: input.amount,
+      reason: input.reason,
+      status: 'requested',
+    },
+  });
+  ok(res, refund);
+}
+
 
 export async function archiveFamilyHandler(req: Request, res: Response): Promise<void> {
   const { id } = familyIdParamSchema.parse(req.params);

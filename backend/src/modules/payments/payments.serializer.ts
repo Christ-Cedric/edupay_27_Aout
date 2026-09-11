@@ -20,6 +20,7 @@ export function toContributionDto(
     collected_by_agent_id: c.collectedByAgentId,
     provider: c.provider,
     provider_reference: c.providerReference,
+    target_goal_type: c.targetGoalType ?? null,
     created_at: c.createdAt.toISOString(),
     confirmed_at: c.confirmedAt?.toISOString() ?? null,
     allocations: allocations.map((allocation) => ({

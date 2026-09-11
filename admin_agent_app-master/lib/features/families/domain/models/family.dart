@@ -25,11 +25,23 @@ sealed class FamilyChild with _$FamilyChild {
     String? kitId,
     double? targetAmount,
     double? savedAmount,
+    // Objectif scolarité (frais de scolarité) — null si non renseigné.
+    double? tuitionAmount,
+    double? tuitionSavedAmount,
+    // Objectif transport — null si non renseigné.
+    double? transportAmount,
+    double? transportSavedAmount,
+    String? transportType,
   }) = _FamilyChild;
 }
 
 extension FamilyChildProgress on FamilyChild {
   bool get hasKitThisSeason => kitId != null;
+
+  double get kitPrice => targetAmount ?? 0;
+
+  double get totalCost =>
+      (targetAmount ?? 0) + (tuitionAmount ?? 0) + (transportAmount ?? 0);
 
   double get progress {
     final target = targetAmount;
@@ -57,6 +69,7 @@ sealed class Family with _$Family {
     String? assignedAgentName,
     String? rejectionReason,
     String? district,
+    String? familyCode,
   }) = _Family;
 }
 

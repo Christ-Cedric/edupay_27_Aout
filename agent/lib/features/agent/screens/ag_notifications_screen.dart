@@ -81,7 +81,7 @@ class _AgNotificationsScreenState extends State<AgNotificationsScreen> {
                               Center(
                                 child: Text(
                                   'Aucune notification',
-                                  style: GoogleFonts.openSans(
+                                  style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                       color: AppColors.white50, fontSize: 13),
                                 ),
                               ),
@@ -150,7 +150,7 @@ class _NotificationTile extends StatelessWidget {
                         Expanded(
                           child: Text(
                             notif.shortLabel,
-                            style: GoogleFonts.openSans(
+                            style: GoogleFonts.montserrat(
                                 fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.white),
                           ),
                         ),
@@ -165,12 +165,12 @@ class _NotificationTile extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       notif.body,
-                      style: GoogleFonts.openSans(fontSize: 11, color: AppColors.white70),
+                      style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 11, color: AppColors.white70),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       DateFormat('dd/MM/yyyy HH:mm').format(notif.createdAt),
-                      style: GoogleFonts.openSans(fontSize: 9, color: AppColors.white50),
+                      style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 9, color: AppColors.white50),
                     ),
                   ],
                 ),

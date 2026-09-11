@@ -62,8 +62,9 @@ class _EduPayAdminAppState extends ConsumerState<EduPayAdminApp> {
       // défaut. Évite qu'un build oublié sans `--dart-define=APP_ENV=...`
       // (démo, TestFlight) paraisse fonctionnel sans jamais parler au serveur.
       builder: (context, child) {
-        if (!AppEnvironmentConfig.usesMockData || child == null)
+        if (!AppEnvironmentConfig.usesMockData || child == null) {
           return child ?? const SizedBox.shrink();
+        }
         return Banner(
           message: 'MODE DÉMO',
           location: BannerLocation.topEnd,

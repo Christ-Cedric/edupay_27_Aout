@@ -61,6 +61,14 @@ class _RecordContributionForm extends ConsumerStatefulWidget {
 class _RecordContributionFormState
     extends ConsumerState<_RecordContributionForm> {
   final _amountController = TextEditingController();
+  String? _selectedCategory; // null = Global, 'registration' = Scolarité, 'supplies' = Fournitures, 'transport' = Déplacement
+
+  static const _categories = [
+    (label: 'Global (Auto)', value: null, icon: Icons.all_inclusive),
+    (label: 'Scolarité', value: 'registration', icon: Icons.school_outlined),
+    (label: 'Fournitures', value: 'supplies', icon: Icons.backpack_outlined),
+    (label: 'Déplacement', value: 'transport', icon: Icons.directions_bus_outlined),
+  ];
 
   @override
   void initState() {
@@ -94,7 +102,11 @@ class _RecordContributionFormState
 
     await ref
         .read(recordContributionControllerProvider.notifier)
-        .record(familyId: widget.familyId, amount: amount);
+        .record(
+          familyId: widget.familyId,
+          amount: amount,
+          targetGoalType: _selectedCategory,
+        );
     if (!mounted) return;
 
     final state = ref.read(recordContributionControllerProvider);
@@ -138,6 +150,48 @@ class _RecordContributionFormState
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          const Text(
+            'CATÉGORIE DE COTISATION',
+            style: AppTextStyles.sectionLabel,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _categories.map((cat) {
+              final isSelected = _selectedCategory == cat.value;
+              return ChoiceChip(
+                showCheckmark: false,
+                avatar: Icon(
+                  cat.icon,
+                  size: 16,
+                  color: isSelected ? Colors.white : AppColors.textSecondary,
+                ),
+                label: Text(
+                  cat.label,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                ),
+                selected: isSelected,
+                selectedColor: AppColors.green,
+                backgroundColor: AppColors.surface,
+                side: BorderSide(
+                  color: isSelected ? AppColors.green : AppColors.surfaceBorder,
+                ),
+                onSelected: submitting || remaining <= 0
+                    ? null
+                    : (_) {
+                        setState(() {
+                          _selectedCategory = cat.value;
+                        });
+                      },
+              );
+            }).toList(),
           ),
           const SizedBox(height: AppSpacing.lg),
           AppTextField(

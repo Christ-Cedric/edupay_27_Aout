@@ -10,6 +10,8 @@ import '../domain/models/savings_plan.dart';
 import 'family_data_source.dart';
 
 FamilyChild _parseChild(Map<String, dynamic> json) {
+  final schoolingGoal = json['schooling_goal'] as Map<String, dynamic>?;
+  final transportGoal = json['transport_goal'] as Map<String, dynamic>?;
   return FamilyChild(
     id: json['id'] as String,
     firstName: json['first_name'] as String,
@@ -20,6 +22,12 @@ FamilyChild _parseChild(Map<String, dynamic> json) {
     kitId: json['kit_id'] as String?,
     targetAmount: (json['target_amount'] as num?)?.toDouble(),
     savedAmount: (json['saved_amount'] as num?)?.toDouble(),
+    // Objectifs scolarité et transport (renseignés par le parent côté Client).
+    tuitionAmount: (schoolingGoal?['target_amount'] as num?)?.toDouble(),
+    tuitionSavedAmount: (schoolingGoal?['saved_amount'] as num?)?.toDouble(),
+    transportAmount: (transportGoal?['target_amount'] as num?)?.toDouble(),
+    transportSavedAmount: (transportGoal?['saved_amount'] as num?)?.toDouble(),
+    transportType: transportGoal?['name'] as String?,
   );
 }
 
@@ -42,6 +50,7 @@ Family _parseFamily(Map<String, dynamic> json) {
     assignedAgentName: json['assigned_agent_name'] as String?,
     rejectionReason: json['rejection_reason'] as String?,
     district: json['district'] as String?,
+    familyCode: json['family_code'] as String?,
   );
 }
 
@@ -153,6 +162,7 @@ class RestFamilyDataSource implements FamilyDataSource {
     required String familyId,
     required int amount,
     String? collectedByAgentId,
+    String? targetGoalType,
   }) async {
     try {
       await _client.post(
@@ -160,6 +170,7 @@ class RestFamilyDataSource implements FamilyDataSource {
         body: {
           'amount': amount,
           'collected_by_agent_id': ?collectedByAgentId,
+          'targetGoalType': ?targetGoalType,
         },
       );
     } on ApiException catch (e) {

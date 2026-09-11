@@ -105,7 +105,7 @@ class _TypeCard extends StatelessWidget {
           color: palette.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: reached ? palette.hairline : color.withOpacity(0.3),
+            color: reached ? palette.hairline : color.withValues(alpha: 0.3),
             width: 1.5,
           ),
         ),
@@ -115,7 +115,7 @@ class _TypeCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: reached ? palette.hairline : color.withOpacity(0.1),
+                color: reached ? palette.hairline : color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(

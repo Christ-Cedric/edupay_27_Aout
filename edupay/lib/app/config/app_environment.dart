@@ -36,6 +36,6 @@ class AppEnvironmentConfig {
     if (apiBaseUrl.isNotEmpty) return apiBaseUrl;
     // Le monolithe expose toutes ses routes sous /api/v1. API_BASE_URL doit
     // donc contenir ce préfixe lorsqu'il est fourni manuellement.
-    return 'http://192.168.1.71:3000/api/v1';
+    return 'http://192.168.11.113:3000/api/v1';
   }
 }

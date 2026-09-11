@@ -67,7 +67,7 @@ class AgRecuScreen extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 'Reçu envoyé à $clientName par WhatsApp',
-                style: GoogleFonts.openSans(
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                     fontSize: 12, color: AppColors.white50),
                 textAlign: TextAlign.center,
               ),
@@ -141,10 +141,10 @@ class AgRecuScreen extends StatelessWidget {
         children: [
           Text(label,
               style:
-                  GoogleFonts.openSans(fontSize: 11, color: AppColors.white70)),
+                  GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 11, color: AppColors.white70)),
           Text(
             value,
-            style: GoogleFonts.openSans(
+            style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: valueColor ?? AppColors.white,

@@ -60,14 +60,19 @@ class _AgRapportScreenState extends State<AgRapportScreen> {
         return createdAt != null && createdAt.year == now.year && createdAt.month == now.month;
       }).length;
 
+      if (!mounted) return;
       setState(() {
         _dashboard = dashboard;
         _contributionsThisMonth = count;
       });
     } catch (_) {
-      setState(() => _loadError = true);
+      if (mounted) {
+        setState(() => _loadError = true);
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 

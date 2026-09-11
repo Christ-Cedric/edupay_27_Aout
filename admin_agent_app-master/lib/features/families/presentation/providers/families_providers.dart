@@ -127,6 +127,7 @@ class RecordContributionController extends _$RecordContributionController {
     required String familyId,
     required int amount,
     String? collectedByAgentId,
+    String? targetGoalType,
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -136,6 +137,7 @@ class RecordContributionController extends _$RecordContributionController {
             familyId: familyId,
             amount: amount,
             collectedByAgentId: collectedByAgentId,
+            targetGoalType: targetGoalType,
           );
       ref.invalidate(familyDetailProvider(familyId));
       ref.invalidate(familiesListProvider);

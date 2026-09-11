@@ -54,6 +54,7 @@ class _FakeFamilyRepository implements FamilyRepository {
     required String familyId,
     required int amount,
     String? collectedByAgentId,
+    String? targetGoalType,
   }) => throw UnimplementedError();
 
   @override

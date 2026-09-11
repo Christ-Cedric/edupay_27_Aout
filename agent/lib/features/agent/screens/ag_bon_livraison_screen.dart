@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:signature/signature.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/services/api_client.dart';
@@ -44,6 +45,17 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
   void dispose() {
     _sigController.dispose();
     super.dispose();
+  }
+
+  Future<void> _openMap(double lat, double lng) async {
+    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        showEduToast(context, 'Impossible d\'ouvrir la carte', isError: true);
+      }
+    }
   }
 
   Future<void> _loadLivraisonDetails() async {
@@ -119,10 +131,10 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
           decoration: BoxDecoration(
             color: AppColors.cardBg,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.green.withOpacity(0.4)),
+            border: Border.all(color: AppColors.green.withValues(alpha: 0.4)),
             boxShadow: [
               BoxShadow(
-                color: AppColors.green.withOpacity(0.12),
+                color: AppColors.green.withValues(alpha: 0.12),
                 blurRadius: 30,
               ),
             ],
@@ -135,7 +147,7 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: AppColors.green.withOpacity(0.15),
+                  color: AppColors.green.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.green, width: 2),
                 ),
@@ -158,7 +170,7 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
 
               Text(
                 'Le kit scolaire a bien été remis à la famille.',
-                style: GoogleFonts.openSans(
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                   fontSize: 12,
                   color: AppColors.white70,
                 ),
@@ -196,9 +208,9 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.green.withOpacity(0.08),
+                  color: AppColors.green.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.green.withOpacity(0.2)),
+                  border: Border.all(color: AppColors.green.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -207,7 +219,7 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
                     const SizedBox(width: 6),
                     Text(
                       'Client notifié automatiquement par WhatsApp',
-                      style: GoogleFonts.openSans(
+                      style: GoogleFonts.montserrat(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: AppColors.green,
@@ -241,7 +253,7 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
             width: 90,
             child: Text(
               label,
-              style: GoogleFonts.openSans(
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                 fontSize: 10,
                 color: AppColors.white50,
               ),
@@ -250,7 +262,7 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
           Expanded(
             child: Text(
               value,
-              style: GoogleFonts.openSans(
+              style: GoogleFonts.montserrat(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: AppColors.white,
@@ -334,7 +346,7 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
                             const SizedBox(height: 4),
                             Text(
                               'Livraison à domicile — validez sur place',
-                              style: GoogleFonts.openSans(
+                              style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                   fontSize: 11, color: AppColors.white50),
                             ),
                             const SizedBox(height: 14),
@@ -374,6 +386,57 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
                               ),
                             ),
 
+                            const SectionLabel('LOCALISATION ET ITINÉRAIRE'),
+                            EduCard(
+                              child: _livraison!.location != null &&
+                                      _livraison!.location!.lat != 0 &&
+                                      _livraison!.location!.lng != 0
+                                  ? Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.location_on, color: AppColors.gold, size: 20),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                'Localisation assignée par l\'admin',
+                                                style: GoogleFonts.montserrat(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: AppColors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 12),
+                                        EduButton.outlined(
+                                          '📍 Démarrer l\'itinéraire GPS',
+                                          onPressed: () => _openMap(
+                                            _livraison!.location!.lat,
+                                            _livraison!.location!.lng,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Row(
+                                      children: [
+                                        const Icon(Icons.location_off, color: AppColors.white50, size: 20),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            'Aucune localisation assignée par l\'administrateur pour ce client.',
+                                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
+                                              fontSize: 11,
+                                              color: AppColors.white50,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+
                             // Badge "Épargne complète"
                             if (_livraison!.isDelivered == false)
                               Container(
@@ -382,10 +445,10 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 8, horizontal: 12),
                                 decoration: BoxDecoration(
-                                  color: AppColors.green.withOpacity(0.08),
+                                  color: AppColors.green.withValues(alpha: 0.08),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                      color: AppColors.green.withOpacity(0.3)),
+                                      color: AppColors.green.withValues(alpha: 0.3)),
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -394,7 +457,7 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
                                         style: TextStyle(fontSize: 12)),
                                     Text(
                                       'Épargne complète — Kit scolaire à remettre',
-                                      style: GoogleFonts.openSans(
+                                      style: GoogleFonts.montserrat(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
                                         color: AppColors.green,
@@ -440,7 +503,7 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
                                           Expanded(
                                             child: Text(
                                               articleStr,
-                                              style: GoogleFonts.openSans(
+                                              style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                                 fontSize: 12,
                                                 color: _checked[i] ||
                                                         _livraison!.isDelivered
@@ -499,7 +562,7 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
                                 if (!_livraison!.isDelivered) ...[
                                   Text(
                                     'Signature du client',
-                                    style: GoogleFonts.openSans(
+                                    style: GoogleFonts.montserrat(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
                                       color: AppColors.white70,
@@ -549,7 +612,7 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
                                         Center(
                                           child: Text(
                                             '✅ Livraison déjà confirmée',
-                                            style: GoogleFonts.openSans(
+                                            style: GoogleFonts.montserrat(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w700,
                                               color: AppColors.green,
@@ -560,7 +623,7 @@ class _AgBonLivraisonScreenState extends State<AgBonLivraisonScreen> {
                                         Center(
                                           child: Text(
                                             '💬 Client notifié par WhatsApp',
-                                            style: GoogleFonts.openSans(
+                                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, 
                                               fontSize: 10,
                                               color: AppColors.white50,
                                             ),
