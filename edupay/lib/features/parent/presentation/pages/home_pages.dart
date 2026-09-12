@@ -106,15 +106,39 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    // Barre de progression verte éclatante
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: LinearProgressIndicator(
+                        value: (state.progress / 100).clamp(0.0, 1.0),
+                        minHeight: 10,
+                        backgroundColor: Colors.white.withValues(alpha: .12),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Color(0xFF00C853),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Objectif rentrée',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: .85),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
+                        RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: .8),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            children: [
+                              const TextSpan(text: 'Objectif '),
+                              TextSpan(
+                                text: '${_money(state.totalGoal)} F',
+                                style: const TextStyle(
+                                  color: Color(0xFF00C853),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Text(
@@ -127,100 +151,13 @@ class HomePage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final maxWidth = constraints.maxWidth;
-                        final fillWidth = maxWidth * (state.progress / 100).clamp(0.0, 1.0);
-                        return Container(
-                          height: 24,
-                          width: maxWidth,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: .12),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Stack(
-                            children: [
-                              if (state.progress > 0)
-                                Container(
-                                  width: fillWidth,
-                                  height: 24,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFF82F4B1),
-                                        Color(0xFF30C5D2),
-                                      ],
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xFF30C5D2).withValues(alpha: 0.4),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Objectif : ${_money(state.totalGoal)} FCFA',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: .8),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () => context.push('/app/statistics'),
-                          borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: .1),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: .2),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Plus de détails',
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: .9),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  Icons.arrow_forward_rounded,
-                                  color: Colors.white.withValues(alpha: .9),
-                                  size: 12,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                     const SizedBox(height: 18),
                     SizedBox(
                       width: double.infinity,
                       height: 48,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
+                          backgroundColor: const Color(0xFFFFD600),
                           foregroundColor: const Color(0xFF071426),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -231,26 +168,15 @@ class HomePage extends StatelessWidget {
                         onPressed: state.goalReached
                             ? null
                             : () => context.push('/app/contribute/type'),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.account_balance_wallet_outlined,
-                              color: Color(0xFF00C853),
-                              size: 20,
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              state.goalReached
-                                  ? 'Objectif atteint 🎉'
-                                  : 'Cotiser maintenant',
-                              style: const TextStyle(
-                                color: Color(0xFF071426),
-                                fontWeight: FontWeight.w800,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          state.goalReached
+                              ? 'Objectif atteint 🎉'
+                              : 'Cotiser maintenant',
+                          style: const TextStyle(
+                            color: Color(0xFF071426),
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                          ),
                         ),
                       ),
                     ),
