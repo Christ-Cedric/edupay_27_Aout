@@ -15,7 +15,7 @@ abstract final class AppEnvironmentConfig {
 
   static const _apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.11.113:3000',
+    defaultValue: 'https://edupay-27-aout.onrender.com',
   );
 
   static const apiVersion = String.fromEnvironment(
@@ -40,7 +40,7 @@ abstract final class AppEnvironmentConfig {
 
   /// URL de base du backend, préfixe de version inclus (`/api/v1`).
   static String get resolvedApiBaseUrl {
-    final baseUrl = _apiBaseUrl.isNotEmpty ? _apiBaseUrl : 'http://192.168.11.108:3000';
+    final baseUrl = _apiBaseUrl.isNotEmpty ? _apiBaseUrl : 'https://edupay-27-aout.onrender.com';
     final root = baseUrl.replaceFirst(RegExp(r'/+$'), '');
     final uri = Uri.tryParse(root);
     if (uri == null || !uri.hasScheme || uri.host.isEmpty) {

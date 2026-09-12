@@ -18,9 +18,9 @@ class ApiException implements Exception {
 
 class ApiClient {
   static String get _baseUrl {
-    if (kIsWeb) return 'http://192.168.11.108:3000/api/v1';
-    if (Platform.isAndroid) return 'http://192.168.11.124:3000/api/v1';
-    return 'http://192.168.11.108:3000/api/v1';
+    const customUrl = String.fromEnvironment('API_BASE_URL', defaultValue: '');
+    if (customUrl.isNotEmpty) return customUrl;
+    return 'https://edupay-27-aout.onrender.com/api/v1';
   }
 
   static Future<Map<String, String>> _headers({bool auth = true}) async {

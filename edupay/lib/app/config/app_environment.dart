@@ -34,8 +34,7 @@ class AppEnvironmentConfig {
   /// `--dart-define=API_BASE_URL=http://10.0.2.2:3000`).
   static String get resolvedApiBaseUrl {
     if (apiBaseUrl.isNotEmpty) return apiBaseUrl;
-    // Le monolithe expose toutes ses routes sous /api/v1. API_BASE_URL doit
-    // donc contenir ce préfixe lorsqu'il est fourni manuellement.
-    return 'http://192.168.11.113:3000/api/v1';
+    // Le monolithe expose toutes ses routes sous /api/v1.
+    return 'https://edupay-27-aout.onrender.com/api/v1';
   }
 }
