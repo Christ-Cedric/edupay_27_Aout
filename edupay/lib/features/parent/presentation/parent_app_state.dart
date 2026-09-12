@@ -403,7 +403,8 @@ class ParentAppState extends ChangeNotifier {
       final data = await _useCases.loadDashboard();
       // Locally entered data stays authoritative until the backend confirms it.
       profile ??= data.profile;
-      if (data.children.isNotEmpty) {
+      plan = data.profile.plan;
+      if (data.children.isNotEmpty || children.isEmpty) {
         children = data.children;
       }
       contributions = data.contributions;
@@ -416,11 +417,11 @@ class ParentAppState extends ChangeNotifier {
       // pages) sans attendre que l'utilisateur ouvre l'écran Notifications.
       unawaited(loadNotifications());
       // Au retour dans l'app, on infère que le contrat a déjà été signé si des
-      // données ne peuvent exister qu'après signature (cotisations, ou épargne
-      // déjà constituée) : impossible de cotiser sans avoir signé. Cela verrouille
-      // la suppression des enfants comme après une signature dans la session.
+      // données ne peuvent exister qu'après signature (cotisations, statut actif,
+      // ou épargne déjà constituée) :
       if (!signed &&
-          (contributions.isNotEmpty ||
+          (data.profile.status == 'active' ||
+              contributions.isNotEmpty ||
               children.any((child) => child.savedAmount > 0))) {
         signed = true;
       }
@@ -983,7 +984,7 @@ class ParentAppState extends ChangeNotifier {
       final quotaResult = applyQuotaPayment(baseQuota, effective);
       final amountToCredit = quotaResult.quotasValidatedNow > 0
           ? quotaResult.quotasValidatedNow * quotaResult.state.quotaValue
-          : effective;
+          : 0;
       final result = await _useCases.makePayment(
         children: children,
         amount: amountToCredit,

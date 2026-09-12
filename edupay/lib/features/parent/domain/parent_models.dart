@@ -131,6 +131,7 @@ class ParentProfile {
     required this.district,
     this.familyCode,
     this.status,
+    this.plan = SavingsPlan.weekly,
   });
 
   final String fullName;
@@ -144,6 +145,9 @@ class ParentProfile {
   /// la transition `pendingValidation` → `active` (voir `AuthStatus.pendingApproval`).
   final String? status;
 
+  /// Rythme de souscription (journalier, hebdomadaire, mensuel)
+  final SavingsPlan plan;
+
   /// Contenu brut du QR — le code famille tel quel, sans enrobage JSON.
   /// Doit rester strictement identique au format que génère l'app agent
   /// (`AgQrCodeClientScreen._qrData`) : c'est ce texte brut que le scanner
@@ -151,15 +155,24 @@ class ParentProfile {
   /// sans dépendre du chemin de repli JSON.
   String get qrPayload => familyCode ?? '';
 
-  factory ParentProfile.fromJson(Map<String, dynamic> json) => ParentProfile(
-    fullName: json['fullName'] as String? ?? json['full_name'] as String? ?? '',
-    phone: json['phone'] as String? ?? '',
-    city: json['city'] as String? ?? '',
-    district: json['district'] as String? ?? '',
-    familyCode:
-        (json['familyCode'] as String?) ?? (json['family_code'] as String?),
-    status: json['status'] as String?,
-  );
+  factory ParentProfile.fromJson(Map<String, dynamic> json) {
+    final rawPlan = json['plan'] as String?;
+    final plan = switch (rawPlan) {
+      'daily' => SavingsPlan.daily,
+      'monthly' => SavingsPlan.monthly,
+      _ => SavingsPlan.weekly,
+    };
+    return ParentProfile(
+      fullName: json['fullName'] as String? ?? json['full_name'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
+      city: json['city'] as String? ?? '',
+      district: json['district'] as String? ?? '',
+      familyCode:
+          (json['familyCode'] as String?) ?? (json['family_code'] as String?),
+      status: json['status'] as String?,
+      plan: plan,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     'full_name': fullName,
@@ -214,49 +227,62 @@ class ChildProfile {
   /// Type de moyen de déplacement (ex: Vélo, Moto, Transport scolaire...).
   final String? transportType;
 
-  factory ChildProfile.fromJson(Map<String, dynamic> json) => ChildProfile(
-    id: json['id'] as String?,
-    firstName:
-        json['firstName'] as String? ?? json['first_name'] as String? ?? '',
-    level: json['level'] as String? ?? '',
-    school: json['school'] as String? ?? '',
-    kitSelection: json['kit_selection'] != null
-        ? ChildKitSelection.fromJson(
-            json['kit_selection'] as Map<String, dynamic>,
-          )
-        : null,
-    savedAmount:
-        (json['savedAmount'] as num? ?? json['saved_amount'] as num? ?? 0)
-            .toInt(),
-    targetAmount:
-        (json['targetAmount'] as num? ?? json['target_amount'] as num?)
-            ?.toInt(),
-    kitSavedAmount:
-        (json['kitSavedAmount'] as num? ??
-                json['kit_saved_amount'] as num? ??
-                0)
-            .toInt(),
-    tuitionAmount:
-        (json['tuitionAmount'] as num? ?? json['tuition_amount'] as num? ?? 0)
-            .toInt(),
-    tuitionSavedAmount:
-        (json['tuitionSavedAmount'] as num? ??
-                json['tuition_saved_amount'] as num? ??
-                0)
-            .toInt(),
-    transportAmount:
-        (json['transportAmount'] as num? ??
-                json['transport_amount'] as num? ??
-                0)
-            .toInt(),
-    transportSavedAmount:
-        (json['transportSavedAmount'] as num? ??
-                json['transport_saved_amount'] as num? ??
-                0)
-            .toInt(),
-    transportType:
-        json['transportType'] as String? ?? json['transport_type'] as String?,
-  );
+  factory ChildProfile.fromJson(Map<String, dynamic> json) {
+    final schooling = json['schooling_goal'] as Map<String, dynamic>?;
+    final transport = json['transport_goal'] as Map<String, dynamic>?;
+
+    final tuitionTarget = schooling?['target_amount'] as num? ??
+        json['tuitionAmount'] as num? ??
+        json['tuition_amount'] as num? ??
+        0;
+    final tuitionSaved = schooling?['saved_amount'] as num? ??
+        json['tuitionSavedAmount'] as num? ??
+        json['tuition_saved_amount'] as num? ??
+        0;
+
+    final transportTarget = transport?['target_amount'] as num? ??
+        json['transportAmount'] as num? ??
+        json['transport_amount'] as num? ??
+        0;
+    final transportSaved = transport?['saved_amount'] as num? ??
+        json['transportSavedAmount'] as num? ??
+        json['transport_saved_amount'] as num? ??
+        0;
+    final transportName = transport?['name'] as String? ??
+        json['transportType'] as String? ??
+        json['transport_type'] as String?;
+
+    final kitSaved = json['kitSavedAmount'] as num? ??
+        json['kit_saved_amount'] as num? ??
+        json['saved_amount'] as num? ??
+        json['savedAmount'] as num? ??
+        0;
+
+    return ChildProfile(
+      id: json['id'] as String?,
+      firstName:
+          json['firstName'] as String? ?? json['first_name'] as String? ?? '',
+      level: json['level'] as String? ?? '',
+      school: json['school'] as String? ?? '',
+      kitSelection: json['kit_selection'] != null
+          ? ChildKitSelection.fromJson(
+              json['kit_selection'] as Map<String, dynamic>,
+            )
+          : null,
+      savedAmount:
+          (json['savedAmount'] as num? ?? json['saved_amount'] as num? ?? 0)
+              .toInt(),
+      targetAmount:
+          (json['targetAmount'] as num? ?? json['target_amount'] as num?)
+              ?.toInt(),
+      kitSavedAmount: kitSaved.toInt(),
+      tuitionAmount: tuitionTarget.toInt(),
+      tuitionSavedAmount: tuitionSaved.toInt(),
+      transportAmount: transportTarget.toInt(),
+      transportSavedAmount: transportSaved.toInt(),
+      transportType: transportName,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     'first_name': firstName,

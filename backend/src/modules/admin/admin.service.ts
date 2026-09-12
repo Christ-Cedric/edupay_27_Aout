@@ -495,6 +495,12 @@ function toFamilyDto(f: FamilyRow, currentSeason: CurrentSeason) {
       // changement du `Kit` partagé, juste ce qui a été ajouté/retiré pour lui.
       custom_added_items: suppliesGoal?.customAddedItems ?? null,
       custom_removed_items: suppliesGoal?.customRemovedItems ?? null,
+      kit_saved_amount: suppliesGoal?.savedAmount ?? null,
+      tuition_amount: schoolingGoal?.targetAmount ?? null,
+      tuition_saved_amount: schoolingGoal?.savedAmount ?? null,
+      transport_amount: transportGoal?.targetAmount ?? null,
+      transport_saved_amount: transportGoal?.savedAmount ?? null,
+      transport_type: transportGoal?.name ?? null,
       schooling_goal: schoolingGoal
         ? {
             id: schoolingGoal.id,

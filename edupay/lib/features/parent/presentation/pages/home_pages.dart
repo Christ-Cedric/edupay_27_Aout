@@ -31,7 +31,7 @@ class HomePage extends StatelessWidget {
       onRefresh: state.loadHomeData,
       children: [
         Text(
-          'Bonjour ${state.displayName.isNotEmpty ? state.displayName : "Cédric Yameogo"}',
+          'Bonjour ${state.displayName.isNotEmpty ? state.displayName : "Parent"}',
           style: TextStyle(
             color: palette.textPrimary,
             fontSize: 20,
