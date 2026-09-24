@@ -217,6 +217,12 @@ class KitsCatalogScreen extends ConsumerWidget {
                 onPressed: () => context.push('/admin/settings/kits/supplies'),
               ),
               const SizedBox(height: AppSpacing.sm),
+              AppButton(
+                label: 'Moyens de déplacement (Engins)',
+                variant: AppButtonVariant.outline,
+                onPressed: () => context.push('/admin/vehicles'),
+              ),
+              const SizedBox(height: AppSpacing.sm),
               Consumer(
                 builder: (context, ref, _) {
                   final importing = ref.watch(
