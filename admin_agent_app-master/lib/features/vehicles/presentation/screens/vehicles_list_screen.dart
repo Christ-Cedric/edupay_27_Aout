@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -69,6 +71,23 @@ class _VehicleCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final firstImage = vehicle.images.isNotEmpty ? vehicle.images.first : null;
+    ImageProvider? imageProvider;
+    if (firstImage != null) {
+      if (firstImage.startsWith('data:image')) {
+        try {
+          final base64String = firstImage.split(',').last;
+          imageProvider = MemoryImage(base64Decode(base64String));
+        } catch (_) {}
+      } else if (firstImage.startsWith('http://') || firstImage.startsWith('https://')) {
+        imageProvider = NetworkImage(firstImage);
+      } else {
+        try {
+          imageProvider = MemoryImage(base64Decode(firstImage));
+        } catch (_) {
+          imageProvider = NetworkImage(firstImage);
+        }
+      }
+    }
 
     return AppCard(
       child: Column(
@@ -83,15 +102,15 @@ class _VehicleCard extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: AppColors.surfaceBorder,
                   borderRadius: BorderRadius.circular(12),
-                  image: firstImage != null
+                  image: imageProvider != null
                       ? DecorationImage(
-                          image: NetworkImage(firstImage),
+                          image: imageProvider,
                           fit: BoxFit.cover,
                           onError: (_, __) {},
                         )
                       : null,
                 ),
-                child: firstImage == null
+                child: imageProvider == null
                     ? const Icon(
                         Icons.two_wheeler,
                         color: AppColors.gold,

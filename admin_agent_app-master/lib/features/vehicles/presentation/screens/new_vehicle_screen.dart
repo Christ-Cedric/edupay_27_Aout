@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -35,7 +38,42 @@ class _NewVehicleScreenState extends ConsumerState<NewVehicleScreen> {
     super.dispose();
   }
 
-  void _addImage() {
+  Future<void> _pickAndUploadImages() async {
+    try {
+      final picked = await FilePicker.pickFile(
+        type: FileType.image,
+      );
+
+      if (picked == null) return;
+
+      final bytes = await picked.readAsBytes();
+      if (bytes.isNotEmpty) {
+        final ext = (picked.extension ?? 'png').toLowerCase();
+        final mime = (ext == 'jpg' || ext == 'jpeg')
+            ? 'image/jpeg'
+            : (ext == 'webp')
+                ? 'image/webp'
+                : 'image/png';
+        final dataUrl = 'data:$mime;base64,${base64Encode(bytes)}';
+        setState(() {
+          _images.add(dataUrl);
+        });
+        if (mounted) {
+          showAppToast(context, 'Image ajoutée avec succès');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showAppToast(
+          context,
+          'Erreur lors du choix de l\'image: $e',
+          type: AppToastType.error,
+        );
+      }
+    }
+  }
+
+  void _addImageFromUrl() {
     final url = _imageUrlController.text.trim();
     if (url.isNotEmpty) {
       setState(() {
@@ -49,6 +87,16 @@ class _NewVehicleScreenState extends ConsumerState<NewVehicleScreen> {
     setState(() {
       _images.removeAt(index);
     });
+  }
+
+  ImageProvider _getImageProvider(String src) {
+    if (src.startsWith('data:image')) {
+      try {
+        final base64String = src.split(',').last;
+        return MemoryImage(base64Decode(base64String));
+      } catch (_) {}
+    }
+    return NetworkImage(src);
   }
 
   Future<void> _submit() async {
@@ -134,7 +182,7 @@ class _NewVehicleScreenState extends ConsumerState<NewVehicleScreen> {
                 const Spacer(),
                 Switch(
                   value: _isAvailable,
-                  activeColor: AppColors.gold,
+                  activeTrackColor: AppColors.gold,
                   onChanged: submitting
                       ? null
                       : (val) => setState(() => _isAvailable = val),
@@ -144,21 +192,27 @@ class _NewVehicleScreenState extends ConsumerState<NewVehicleScreen> {
             const SizedBox(height: AppSpacing.md),
             const Text('Images de l\'engin', style: AppTextStyles.bodyStrong),
             const SizedBox(height: AppSpacing.xs),
+            AppButton(
+              label: '📁 Choisir & Uploader des images',
+              variant: AppButtonVariant.outline,
+              onPressed: submitting ? null : _pickAndUploadImages,
+            ),
+            const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
                 Expanded(
                   child: AppTextField(
                     label: '',
                     controller: _imageUrlController,
-                    hintText: 'Coller l\'URL de l\'image (https://...)',
+                    hintText: 'Ou coller l\'URL de l\'image (https://...)',
                     enabled: !submitting,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 IconButton(
-                  onPressed: submitting ? null : _addImage,
+                  onPressed: submitting ? null : _addImageFromUrl,
                   icon: const Icon(Icons.add_photo_alternate, color: AppColors.gold),
-                  tooltip: 'Ajouter l\'image',
+                  tooltip: 'Ajouter l\'URL',
                 ),
               ],
             ),
@@ -172,7 +226,7 @@ class _NewVehicleScreenState extends ConsumerState<NewVehicleScreen> {
                     Chip(
                       backgroundColor: AppColors.surfaceBorder,
                       avatar: CircleAvatar(
-                        backgroundImage: NetworkImage(_images[i]),
+                        backgroundImage: _getImageProvider(_images[i]),
                       ),
                       label: Text('Image ${i + 1}', style: const TextStyle(color: Colors.white)),
                       deleteIcon: const Icon(Icons.close, size: 16, color: Colors.redAccent),
