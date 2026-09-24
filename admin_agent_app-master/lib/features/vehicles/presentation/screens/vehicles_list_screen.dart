@@ -48,7 +48,7 @@ class VehiclesListScreen extends ConsumerWidget {
               AppButton(
                 label: '+ Ajouter un moyen de déplacement',
                 variant: AppButtonVariant.green,
-                onPressed: () => context.push('/admin/vehicles/new'),
+                onPressed: () => context.push('/admin/settings/vehicles/new'),
               ),
             ],
           );
@@ -199,7 +199,7 @@ class _VehicleCard extends ConsumerWidget {
               ),
               const SizedBox(width: AppSpacing.md),
               TapTarget(
-                onTap: () => context.push('/admin/vehicles/${vehicle.id}/edit'),
+                onTap: () => context.push('/admin/settings/vehicles/${vehicle.id}/edit'),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: Text(

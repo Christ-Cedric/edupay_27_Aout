@@ -220,7 +220,7 @@ class KitsCatalogScreen extends ConsumerWidget {
               AppButton(
                 label: 'Moyens de déplacement (Engins)',
                 variant: AppButtonVariant.outline,
-                onPressed: () => context.push('/admin/vehicles'),
+                onPressed: () => context.push('/admin/settings/vehicles'),
               ),
               const SizedBox(height: AppSpacing.sm),
               Consumer(

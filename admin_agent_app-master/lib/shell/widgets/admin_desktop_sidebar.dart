@@ -283,8 +283,8 @@ class AdminDesktopSidebar extends ConsumerWidget {
                 _SidebarNavItem(
                   icon: Icons.two_wheeler_rounded,
                   label: 'Moyens de déplacement',
-                  route: '/admin/vehicles',
-                  isActive: location.startsWith('/admin/vehicles'),
+                  route: '/admin/settings/vehicles',
+                  isActive: location.startsWith('/admin/settings/vehicles'),
                 ),
                 _SidebarNavItem(
                   icon: Icons.analytics_rounded,
