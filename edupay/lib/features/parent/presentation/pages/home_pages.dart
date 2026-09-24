@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../shared/widgets/action_button.dart';
 import '../../../../shared/widgets/app_card.dart';
+import '../../../../shared/widgets/app_progress_bar.dart';
 import '../../../../shared/widgets/edupay_logo.dart';
 import '../../domain/parent_models.dart';
 import '../../domain/savings_engine.dart';
@@ -106,17 +107,11 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Barre de progression verte éclatante
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: LinearProgressIndicator(
-                        value: (state.progress / 100).clamp(0.0, 1.0),
-                        minHeight: 10,
-                        backgroundColor: Colors.white.withValues(alpha: .12),
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF00C853),
-                        ),
-                      ),
+                    AppProgressBar(
+                      progress: (state.progress / 100).clamp(0.0, 1.0),
+                      height: 10,
+                      backgroundColor: Colors.white.withValues(alpha: .12),
+                      color: palette.accentGreen,
                     ),
                     const SizedBox(height: 10),
                     Row(
@@ -513,23 +508,18 @@ class _ChildGoalCard extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: LinearProgressIndicator(
-                        value: child.totalCost > 0
-                            ? (child.savedAmount / child.totalCost).clamp(
-                                0.0,
-                                1.0,
-                              )
-                            : 0.0,
-                        minHeight: 5,
-                        backgroundColor: palette.isDark
-                            ? Colors.white.withValues(alpha: .08)
-                            : const Color(0xFFEDF2F7),
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF00C853),
-                        ),
-                      ),
+                    child: AppProgressBar(
+                      progress: child.totalCost > 0
+                          ? (child.savedAmount / child.totalCost).clamp(
+                              0.0,
+                              1.0,
+                            )
+                          : 0.0,
+                      height: 6,
+                      backgroundColor: palette.isDark
+                          ? Colors.white.withValues(alpha: .08)
+                          : const Color(0xFFEDF2F7),
+                      color: palette.accentGreen,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -650,16 +640,15 @@ class SavingsPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  LinearProgressIndicator(
-                    value: state.children[index].totalCost > 0
+                  AppProgressBar(
+                    progress: state.children[index].totalCost > 0
                         ? (state.children[index].savedAmount /
                                   state.children[index].totalCost)
                               .clamp(0.0, 1.0)
                         : 0.0,
-                    minHeight: 7,
-                    borderRadius: BorderRadius.circular(8),
+                    height: 8,
                     backgroundColor: palette.onSurface(.10),
-                    valueColor: AlwaysStoppedAnimation(palette.accentGreen),
+                    color: palette.accentGreen,
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -762,8 +751,8 @@ class _ContributePageState extends State<ContributePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // PrÃƒÂ©-remplit le montant avec la quote-part prÃƒÂ©vue (une seule fois, pour ne
-    // pas ÃƒÂ©craser une saisie du parent ÃƒÂ  chaque reconstruction).
+    // Pré-remplit le montant avec la quote-part prévue (une seule fois, pour ne
+    // pas écraser une saisie du parent à chaque reconstruction).
     if (!_initialized) {
       _initialized = true;
       final state = ParentScope.of(context);
@@ -780,7 +769,7 @@ class _ContributePageState extends State<ContributePage> {
     super.dispose();
   }
 
-  /// Montant saisi (quote-part par dÃƒÂ©faut, bornÃƒÂ© au reste global).
+  /// Montant saisi (quote-part par défaut, borné au reste global).
   int _amountFor(ParentAppState state, SavingsPlanComputation plan) {
     final typed = int.tryParse(_amountController.text.trim());
     if (typed == null || typed <= 0) return plan.perPeriodAmount;
@@ -796,7 +785,7 @@ class _ContributePageState extends State<ContributePage> {
         : state.savingsPlan;
 
     // Objectif atteint : plus aucune cotisation possible, on affiche seulement
-    // un message d'information ÃƒÂ  la place du formulaire de paiement.
+    // un message d'information à la place du formulaire de paiement.
     if (plan.goalReached) {
       return ParentPageScaffold(
         children: [
@@ -812,8 +801,8 @@ class _ContributePageState extends State<ContributePage> {
 
     return ParentPageScaffold(
       children: [
-        // RÃƒÂ¨gle mÃƒÂ©tier : l'ÃƒÂ©cran de paiement affiche clairement la quote-part
-        // prÃƒÂ©vue, le dÃƒÂ©jÃƒÂ  cotisÃƒÂ© et le reste ÃƒÂ  payer.
+        // Règle métier : l'écran de paiement affiche clairement la quote-part
+        // prévue, le déjà cotisé et le reste à payer.
         _QuotePartCard(
           quotePart: quotePart,
           period: state.plan.period,
@@ -832,13 +821,13 @@ class _ContributePageState extends State<ContributePage> {
           const _ArrearsBanner(),
         ],
         const SizedBox(height: 20),
-        const SectionLabel('Montant ÃƒÂ  payer'),
+        const SectionLabel('Montant à payer'),
         const SizedBox(height: 8),
         _AmountField(controller: _amountController, quotePart: quotePart),
         const SizedBox(height: 6),
         Text(
-          'Vous pouvez payer plus que la quote-part : le surplus est dÃƒÂ©duit de '
-          'vos prochaines ÃƒÂ©chÃƒÂ©ances.',
+          'Vous pouvez payer plus que la quote-part : le surplus est déduit de '
+          'vos prochaines échéances.',
           style: TextStyle(
             color: palette.onSurface(.5),
             fontSize: 12,
@@ -877,8 +866,8 @@ class _ContributePageState extends State<ContributePage> {
   }
 }
 
-/// RÃƒÂ©capitulatif chiffrÃƒÂ© affichÃƒÂ© en tÃƒÂªte de l'ÃƒÂ©cran de paiement (rÃƒÂ¨gle mÃƒÂ©tier) :
-/// quote-part prÃƒÂ©vue pour l'ÃƒÂ©chÃƒÂ©ance, montant dÃƒÂ©jÃƒÂ  cotisÃƒÂ© et reste ÃƒÂ  payer.
+/// Récapitulatif chiffré affiché en tête de l'écran de paiement (règle métier) :
+/// quote-part prévue pour l'échéance, montant déjà cotisé et reste à payer.
 class _QuotePartCard extends StatelessWidget {
   const _QuotePartCard({
     required this.quotePart,
@@ -901,7 +890,7 @@ class _QuotePartCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'QUOTE-PART DE LÃ¢â‚¬â„¢Ãƒâ€°CHÃƒâ€°ANCE',
+            'QUOTE-PART DE L’ÉCHÉANCE',
             style: TextStyle(
               color: palette.accentYellow,
               fontWeight: FontWeight.w800,
@@ -920,17 +909,17 @@ class _QuotePartCard extends StatelessWidget {
             ),
           ),
           Text(
-            'ÃƒÂ  cotiser par $period',
+            'à cotiser par $period',
             style: TextStyle(color: palette.onSurface(.55), fontSize: 12),
           ),
           Divider(height: 24, color: palette.hairline),
           _QuoteRow(
-            label: 'DÃƒÂ©jÃƒÂ  cotisÃƒÂ©',
+            label: 'Déjà cotisé',
             value: '${_money(alreadySaved)} F',
           ),
           const SizedBox(height: 8),
           _QuoteRow(
-            label: 'Reste ÃƒÂ  payer',
+            label: 'Reste à payer',
             value: '${_money(remaining)} F',
             valueColor: palette.accentGreen,
           ),
@@ -940,9 +929,9 @@ class _QuotePartCard extends StatelessWidget {
   }
 }
 
-/// Reliquat en attente (rÃƒÂ¨gle mÃƒÂ©tier Ã‚Â§ quotas) : montant dÃƒÂ©jÃƒÂ  versÃƒÂ© mais pas
-/// encore suffisant pour complÃƒÂ©ter un quota Ã¢â‚¬â€ reportÃƒÂ© automatiquement, aucun
-/// montant versÃƒÂ© n'est perdu.
+/// Reliquat en attente (règle métier § quotas) : montant déjà versé mais pas
+/// encore suffisant pour compléter un quota — reporté automatiquement, aucun
+/// montant versé n'est perdu.
 class _PendingBalanceBanner extends StatelessWidget {
   const _PendingBalanceBanner({
     required this.balance,
@@ -970,8 +959,8 @@ class _PendingBalanceBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${_money(balance)} FCFA dÃƒÂ©jÃƒÂ  versÃƒÂ©s, en attente de complÃƒÂ©ter '
-                  'la quote-part (${_money(quotaValue)} FCFA). ReportÃƒÂ© '
+                  '${_money(balance)} FCFA déjà versés, en attente de compléter '
+                  'la quote-part (${_money(quotaValue)} FCFA). Reporté '
                   'automatiquement, rien n\'est perdu.',
                   style: TextStyle(
                     color: palette.onSurface(.6),
@@ -988,7 +977,7 @@ class _PendingBalanceBanner extends StatelessWidget {
   }
 }
 
-/// Alerte de retard de paiement (rÃƒÂ¨gle mÃƒÂ©tier Ã‚Â§6).
+/// Alerte de retard de paiement (règle métier §6).
 class _ArrearsBanner extends StatelessWidget {
   const _ArrearsBanner();
 
@@ -1016,8 +1005,8 @@ class _ArrearsBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Plusieurs ÃƒÂ©chÃƒÂ©ances n\'ont pas ÃƒÂ©tÃƒÂ© couvertes. Cotisez dÃƒÂ¨s que '
-                  'possible pour rÃƒÂ©gulariser votre dossier.',
+                  'Plusieurs échéances n\'ont pas été couvertes. Cotisez dès que '
+                  'possible pour régulariser votre dossier.',
                   style: TextStyle(
                     color: palette.onSurface(.6),
                     fontSize: 12,
@@ -1062,7 +1051,7 @@ class _QuoteRow extends StatelessWidget {
   }
 }
 
-/// Champ de saisie du montant (par dÃƒÂ©faut la quote-part), avec un rappel Ã‚Â« + Ã‚Â».
+/// Champ de saisie du montant (par défaut la quote-part), avec un rappel « + ».
 class _AmountField extends StatelessWidget {
   const _AmountField({required this.controller, required this.quotePart});
   final TextEditingController controller;
@@ -1084,15 +1073,15 @@ class _AmountField extends StatelessWidget {
         prefixIcon: Icon(Icons.payments_outlined, color: palette.accentGreen),
         suffixText: 'FCFA',
         hintText: '$quotePart',
-        helperText: 'Quote-part prÃƒÂ©vue : ${_money(quotePart)} FCFA',
+        helperText: 'Quote-part prévue : ${_money(quotePart)} FCFA',
       ),
     );
   }
 }
 
-// Le mÃƒÂ©canisme USSD a ÃƒÂ©tÃƒÂ© retirÃƒÂ© : le paiement est gÃƒÂ©rÃƒÂ© cÃƒÂ´tÃƒÂ© serveur.
+// Le mécanisme USSD a été retiré : le paiement est géré côté serveur.
 
-/// Message affichÃƒÂ© quand l'objectif de cotisation est entiÃƒÂ¨rement financÃƒÂ©.
+/// Message affiché quand l'objectif de cotisation est entièrement financé.
 class _GoalReachedBanner extends StatelessWidget {
   const _GoalReachedBanner({required this.total});
   final int total;
@@ -1106,7 +1095,7 @@ class _GoalReachedBanner extends StatelessWidget {
           Icon(Icons.verified, color: palette.accentGreen, size: 54),
           const SizedBox(height: 12),
           const Text(
-            'Objectif atteint Ã°Å¸Å½â€°',
+            'Objectif atteint ðŸŽ‰',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: 'Montserrat',
@@ -1117,8 +1106,8 @@ class _GoalReachedBanner extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Vous avez atteint votre objectif de cotisation '
-            '(${_money(total)} FCFA). Aucune cotisation supplÃƒÂ©mentaire '
-            "n'est nÃƒÂ©cessaire.",
+            '(${_money(total)} FCFA). Aucune cotisation supplémentaire '
+            "n'est nécessaire.",
             textAlign: TextAlign.center,
             style: TextStyle(color: palette.onSurface(.6), height: 1.4),
           ),
@@ -1142,11 +1131,11 @@ class PaymentSuccessPage extends StatelessWidget {
       icon: Icons.check,
       iconBackground: palette.accentGreen,
       iconColor: Colors.white,
-      title: 'Paiement confirmÃƒÂ© !',
-      subtitle: 'Votre reÃƒÂ§u a ÃƒÂ©tÃƒÂ© envoyÃƒÂ© par WhatsApp',
+      title: 'Paiement confirmé !',
+      subtitle: 'Votre reçu a été envoyé par WhatsApp',
       details: [
         _StatusDetail(
-          label: 'NÃ‚Â° ReÃƒÂ§u',
+          label: 'N° Reçu',
           value: contribution?.reference ?? 'EP-RC-2026-0148',
         ),
         _StatusDetail(
@@ -1195,7 +1184,7 @@ class HistoryPage extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Total cotisÃƒÂ© (${state.contributions.where((c) => c.success).length} paiement'
+                    'Total cotisé (${state.contributions.where((c) => c.success).length} paiement'
                     '${state.contributions.where((c) => c.success).length > 1 ? 's' : ''})',
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
@@ -1230,7 +1219,7 @@ class HistoryPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Vos paiements apparaÃƒÂ®tront ici dÃƒÂ¨s votre premiÃƒÂ¨re cotisation.',
+                  'Vos paiements apparaîtront ici dès votre première cotisation.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: palette.onSurface(.55), fontSize: 13),
                 ),
@@ -1353,32 +1342,32 @@ class RefundSuccessPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = ParentScope.of(context);
     final palette = context.palette;
-    // Montant et rÃƒÂ©fÃƒÂ©rence RÃƒâ€°ELS renvoyÃƒÂ©s par le serveur ÃƒÂ  la crÃƒÂ©ation de la
-    // demande (`ParentAppState.requestRefund`) Ã¢â‚¬â€ jamais recalculÃƒÂ©s ici.
+    // Montant et référence RÉELS renvoyés par le serveur à la création de la
+    // demande (`ParentAppState.requestRefund`) — jamais recalculés ici.
     final refund = state.lastRefundRequest;
     return _StatusConfirmationScreen(
       icon: Icons.hourglass_top_rounded,
       iconBackground: palette.accentYellow,
       iconColor: palette.danger,
-      title: 'Demande envoyÃƒÂ©e',
+      title: 'Demande envoyée',
       subtitle: refund != null
           ? 'Votre remboursement de ${_money(refund.amount)} FCFA est en cours de traitement'
           : 'Votre demande est en cours de traitement.',
       details: [
         _StatusDetail(
-          label: 'NÃ‚Â° dossier',
-          value: refund?.reference ?? 'Ã¢â‚¬â€',
+          label: 'N° dossier',
+          value: refund?.reference ?? '—',
         ),
         _StatusDetail(
           label: 'Montant',
-          value: refund != null ? '${_money(refund.amount)} FCFA' : 'Ã¢â‚¬â€',
+          value: refund != null ? '${_money(refund.amount)} FCFA' : '—',
         ),
         _StatusDetail(
           label: 'Statut',
           value: 'En attente',
           valueColor: palette.accentYellow,
         ),
-        const _StatusDetail(label: 'DÃƒÂ©lai max.', value: '7 jours ouvrables'),
+        const _StatusDetail(label: 'Délai max.', value: '7 jours ouvrables'),
       ],
     );
   }
@@ -1447,7 +1436,7 @@ class _StatusConfirmationScreen extends StatelessWidget {
             ),
             const SizedBox(height: 19),
             ActionButton(
-              label: 'Retour ÃƒÂ  lÃ¢â‚¬â„¢accueil',
+              label: 'Retour à l’accueil',
               onPressed: () => context.go('/app/home'),
             ),
             const Spacer(),
@@ -1643,7 +1632,7 @@ Future<void> _confirmPayment(
 String _paymentMethodLabel(PaymentMethod method) => switch (method) {
   PaymentMethod.orangeMoney => 'Orange Money',
   PaymentMethod.moovMoney => 'Moov Money',
-  PaymentMethod.cashAgent => 'paiement en espÃƒÂ¨ces',
+  PaymentMethod.cashAgent => 'paiement en espèces',
 };
 
 Future<void> _confirmRefund(BuildContext context, ParentAppState state) async {
@@ -1652,7 +1641,7 @@ Future<void> _confirmRefund(BuildContext context, ParentAppState state) async {
     builder: (dialogContext) => AlertDialog(
       title: const Text('Confirmer le remboursement'),
       content: const Text(
-        'Votre demande sera envoyÃƒÂ©e et pourra ÃƒÂªtre traitÃƒÂ©e sous 7 jours ouvrables.',
+        'Votre demande sera envoyée et pourra être traitée sous 7 jours ouvrables.',
       ),
       actions: [
         TextButton(
@@ -1677,7 +1666,7 @@ Future<void> _confirmRefund(BuildContext context, ParentAppState state) async {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text(
-          'Ãƒâ€°chec de lÃ¢â‚¬â„¢envoi de la demande. VÃƒÂ©rifiez votre connexion et rÃƒÂ©essayez.',
+          'Échec de l’envoi de la demande. Vérifiez votre connexion et réessayez.',
         ),
       ),
     );
@@ -1783,8 +1772,8 @@ String _money(int value) {
   return buffer.toString();
 }
 
-/// RÃƒÂ´le visuel d'une notification (couleur/tonalitÃƒÂ©), dÃƒÂ©rivÃƒÂ© du `type` rÃƒÂ©el
-/// renvoyÃƒÂ© par le backend (`notifications.service.ts::NotificationType`).
+/// Rôle visuel d'une notification (couleur/tonalité), dérivé du `type` réel
+/// renvoyé par le backend (`notifications.service.ts::NotificationType`).
 enum _NotifTone { success, info, warning }
 
 (IconData, _NotifTone) _iconAndToneForType(String type) => switch (type) {
@@ -1867,7 +1856,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           Center(
             child: TextButton(
               onPressed: state.loadNotifications,
-              child: const Text('RÃƒÂ©essayer'),
+              child: const Text('Réessayer'),
             ),
           ),
         ] else if (state.notifications.isEmpty) ...[

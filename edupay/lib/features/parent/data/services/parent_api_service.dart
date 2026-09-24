@@ -37,6 +37,18 @@ class ParentApiService {
         .toList();
   }
 
+  Future<List<TransportVehicle>> getVehicles() async {
+    try {
+      final response = await _client.get('/vehicles?available=true');
+      final items = response['data'] as List<dynamic>? ?? const [];
+      return items
+          .map((item) => TransportVehicle.fromJson(item as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
   Future<List<Contribution>> getContributions() async {
     final response = await _client.get(ApiRoutes.contributions);
     final items = response['data'] as List<dynamic>? ?? const [];

@@ -1,0 +1,114 @@
+name: edupay-ecosystem
+
+services:
+  # 1. Base de données PostgreSQL 16
+  postgres:
+    image: postgres:16-alpine
+    container_name: edupay-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: edupay
+      POSTGRES_PASSWORD: edupay
+      POSTGRES_DB: edupay
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U edupay -d edupay"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - edupay-network
+
+  # 2. Cache Redis 7
+  redis:
+    image: redis:7-alpine
+    container_name: edupay-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - edupay-network
+
+  # 3. Backend Node.js / TypeScript API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: edupay-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: "postgresql://edupay:edupay@postgres:5432/edupay?schema=public"
+      REDIS_URL: "redis://redis:6379"
+      JWT_ACCESS_SECRET: "edupay-secret-access-token-key-2026"
+      JWT_REFRESH_SECRET: "edupay-secret-refresh-token-key-2026"
+      JWT_SCOPE_SECRET: "edupay-scope-secret-key-2026"
+      OTP_DEV_EXPOSE: "true"
+      SEED_ADMIN_PHONE: "+22676691911"
+      SEED_ADMIN_PASSWORD: "change-me-admin"
+      SEED_ADMIN_NAME: "DERRA Bassirou"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - edupay-network
+
+  # 4. Web App Parent (EduPay)
+  edupay-web:
+    build:
+      context: ./edupay
+      dockerfile: Dockerfile
+    container_name: edupay-parent-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - edupay-network
+
+  # 5. Web App Agent
+  agent-web:
+    build:
+      context: ./agent
+      dockerfile: Dockerfile
+    container_name: edupay-agent-web
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    networks:
+      - edupay-network
+
+  # 6. Web App Admin
+  admin-web:
+    build:
+      context: ./admin_agent_app-master
+      dockerfile: Dockerfile
+    container_name: edupay-admin-web
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    depends_on:
+      - backend
+    networks:
+      - edupay-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  edupay-network:
+    driver: bridge

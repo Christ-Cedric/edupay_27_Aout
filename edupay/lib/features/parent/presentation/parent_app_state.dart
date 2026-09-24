@@ -109,6 +109,7 @@ class ParentAppState extends ChangeNotifier {
   ParentProfile? profile;
   List<ChildProfile> children = [];
   List<Contribution> contributions = [];
+  List<TransportVehicle> availableVehicles = [];
   SavingsPlan plan = SavingsPlan.weekly;
   PaymentMethod paymentMethod = PaymentMethod.orangeMoney;
   AuthFlow authFlow = AuthFlow.signUp;
@@ -357,33 +358,59 @@ class ParentAppState extends ChangeNotifier {
   }
 
   /// Définit le montant de la scolarité pour un enfant donné et l'enregistre.
-  Future<void> setChildTuition(int childIndex, int amount) async {
+  /// En cas d'ajout (isCumulative), additionne le reste dû de l'ancien objectif au nouveau montant.
+  Future<void> setChildTuition(
+    int childIndex,
+    int amount, {
+    bool isCumulative = false,
+  }) async {
     if (childIndex < 0 || childIndex >= children.length) return;
     final child = children[childIndex];
+    int effectiveAmount = amount;
+    if (isCumulative && child.tuitionAmount > 0) {
+      effectiveAmount = calculateCumulativeGoalTotal(
+        oldTargetAmount: child.tuitionAmount,
+        oldSavedAmount: child.tuitionSavedAmount,
+        newGoalAmount: amount,
+      );
+    }
     if (child.id != null) {
-      await _useCases.setChildTuition(child.id!, amount);
+      await _useCases.setChildTuition(child.id!, effectiveAmount);
     }
     final updated = [...children];
-    updated[childIndex] = updated[childIndex].copyWith(tuitionAmount: amount);
+    updated[childIndex] = updated[childIndex].copyWith(tuitionAmount: effectiveAmount);
     children = updated;
     notifyListeners();
   }
 
-  /// Définit le moyen de déplacement et son montant pour un enfant donné et l'enregistre.
+  /// Définit le moyen de déplacement, son montant et sa date de fin personnalisée
+  /// pour un enfant donné et l'enregistre.
+  /// En cas d'ajout (isCumulative), additionne le reste dû de l'ancien objectif au nouveau montant.
   Future<void> setChildTransport(
     int childIndex,
     int amount,
-    String? type,
-  ) async {
+    String? type, {
+    DateTime? deadline,
+    bool isCumulative = false,
+  }) async {
     if (childIndex < 0 || childIndex >= children.length) return;
     final child = children[childIndex];
+    int effectiveAmount = amount;
+    if (isCumulative && child.transportAmount > 0) {
+      effectiveAmount = calculateCumulativeGoalTotal(
+        oldTargetAmount: child.transportAmount,
+        oldSavedAmount: child.transportSavedAmount,
+        newGoalAmount: amount,
+      );
+    }
     if (child.id != null) {
-      await _useCases.setChildTransport(child.id!, amount, type);
+      await _useCases.setChildTransport(child.id!, effectiveAmount, type);
     }
     final updated = [...children];
     updated[childIndex] = updated[childIndex].copyWith(
-      transportAmount: amount,
+      transportAmount: effectiveAmount,
       transportType: type,
+      transportDeadline: deadline ?? child.transportDeadline,
     );
     children = updated;
     notifyListeners();
@@ -490,6 +517,13 @@ class ParentAppState extends ChangeNotifier {
     } catch (_) {
       // Best-effort : l'état local reste marqué lu même si la sync échoue.
     }
+  }
+
+  Future<void> loadVehicles() async {
+    try {
+      availableVehicles = await repository.getVehicles();
+      notifyListeners();
+    } catch (_) {}
   }
 
   void startAuth(AuthFlow flow) {

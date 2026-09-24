@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../shared/widgets/app_card.dart';
+import '../../../../shared/widgets/app_progress_bar.dart';
 import '../parent_scope.dart';
 import 'page_scaffold.dart';
 
@@ -150,39 +151,11 @@ class _CategoryStatCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final maxWidth = constraints.maxWidth;
-              final fillWidth = maxWidth * progress;
-              return Container(
-                height: 24,
-                width: maxWidth,
-                decoration: BoxDecoration(
-                  color: palette.onSurface(.08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Stack(
-                  children: [
-                    if (progress > 0)
-                      Container(
-                        width: fillWidth,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          gradient: LinearGradient(colors: gradientColors),
-                          boxShadow: [
-                            BoxShadow(
-                              color: gradientColors.last.withValues(alpha: 0.4),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            },
+          AppProgressBar(
+            progress: progress,
+            height: 12,
+            gradient: LinearGradient(colors: gradientColors),
+            backgroundColor: palette.onSurface(.08),
           ),
           const SizedBox(height: 12),
           Row(

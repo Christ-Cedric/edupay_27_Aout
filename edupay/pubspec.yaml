@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  go_router: ^17.3.0
+  go_router: ^18.0.1
 
   # Transport HTTP vers le backend EduPay (Node/Express)
   http: ^1.2.2
@@ -23,6 +23,9 @@ dependencies:
   # Android et échoue sur le chemin Windows contenant un espace
   # (« C:\Users\Cedric Yam\... » → 'C:\Users\Cedric' n'est pas reconnu).
   flutter_secure_storage: 8.1.0
+
+  # Formatage de dates et monnaies
+  intl: ^0.20.2
 
   # Icônes Cupertino
   cupertino_icons: ^1.0.8
@@ -40,7 +43,7 @@ dependencies:
 
   # Signature manuscrite (confirmation de réception) : canvas de dessin +
   # export PNG encodé en base64 envoyé au backend.
-  signature: ^5.5.0
+  signature: ^6.4.0
 
   # Notifications push (FCM) — token enregistré via POST /notifications/device-token.
   firebase_core: ^4.1.1

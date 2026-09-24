@@ -582,3 +582,18 @@ model DeviceToken {
   @@index([userId])
   @@map("device_tokens")
 }
+
+// Moyens de déplacement (engins : motos, vélos, tricycles...) gérés par l'admin.
+model TransportVehicle {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Int      @map("price") // Montant en FCFA
+  images      Json?    @map("images") // Liste d'URLs d'images ou base64 Data URIs (string[])
+  isAvailable Boolean  @default(true) @map("is_available")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("transport_vehicles")
+}
+

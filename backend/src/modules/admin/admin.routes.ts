@@ -5,6 +5,7 @@ import { authorize } from '../../shared/middleware/authorize.js';
 import { seasonsRouter } from '../seasons/seasons.routes.js';
 import { kitsRouter } from '../kits/kits.routes.js';
 import { suppliesRouter } from '../supplies/supplies.routes.js';
+import { vehiclesAdminRouter } from '../vehicles/vehicles.routes.js';
 import { refundsRouter } from '../refunds/refunds.routes.js';
 import { listNotificationsHandler } from '../notifications/notifications.controller.js';
 import {
@@ -73,6 +74,7 @@ adminRouter.patch('/deliveries/:id/assign', asyncHandler(assignDeliveryLocationH
 adminRouter.use('/seasons', seasonsRouter);
 adminRouter.use('/kits', kitsRouter);
 adminRouter.use('/supplies', suppliesRouter);
+adminRouter.use('/vehicles', vehiclesAdminRouter);
 adminRouter.use('/refunds', refundsRouter);
 
 adminRouter.get('/agents', asyncHandler(listAgentsHandler));

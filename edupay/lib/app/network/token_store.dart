@@ -18,7 +18,7 @@ class TokenStore {
             // redémarrage, ce qui fait échouer silencieusement la lecture
             // du refresh token et renvoie l'utilisateur à l'écran de
             // connexion alors qu'il était déjà connecté).
-            aOptions: AndroidOptions(encryptedSharedPreferences: true),
+            aOptions: AndroidOptions(),
           );
 
   static const _refreshKey = 'edupay_refresh_token';

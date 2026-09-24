@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../shared/widgets/action_button.dart';
 import '../../../../shared/widgets/app_card.dart';
+import '../../../../shared/widgets/app_progress_bar.dart';
 import '../../domain/parent_models.dart';
 import '../../domain/parent_use_cases.dart';
+import '../../domain/savings_engine.dart';
 import '../../domain/school_catalogue.dart';
 import '../parent_scope.dart';
 import 'page_scaffold.dart';
@@ -358,6 +361,41 @@ class _SavingsDetailPageState extends State<SavingsDetailPage> {
               ],
             ),
             const SizedBox(height: 6),
+            Builder(
+              builder: (context) {
+                final rem = (child.suppliesCost - child.kitSavedAmount).clamp(0, child.suppliesCost);
+                final days = kSubscriptionDeadline.difference(DateTime.now()).inDays;
+                final daysRemaining = days > 0 ? days : 0;
+                final daily = daysRemaining > 0 ? (rem / daysRemaining).ceil() : rem;
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: palette.accentGreen.withValues(alpha: .08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: palette.accentGreen.withValues(alpha: .2)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Échéance : 15 sept. ($daysRemaining j restants)',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.onSurface(.75)),
+                      ),
+                      Text(
+                        '${_money(daily)} FCFA / jour',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: palette.accentGreen,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
             for (final category in byCategory.keys)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -446,6 +484,43 @@ class _SavingsDetailPageState extends State<SavingsDetailPage> {
                     ),
                   ],
                 ),
+                if (child.tuitionAmount > 0) ...[
+                  Builder(
+                    builder: (context) {
+                      final rem = (child.tuitionAmount - child.tuitionSavedAmount).clamp(0, child.tuitionAmount);
+                      final days = kSubscriptionDeadline.difference(DateTime.now()).inDays;
+                      final daysRemaining = days > 0 ? days : 0;
+                      final daily = daysRemaining > 0 ? (rem / daysRemaining).ceil() : rem;
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        margin: const EdgeInsets.only(top: 10, bottom: 4),
+                        decoration: BoxDecoration(
+                          color: palette.accentYellow.withValues(alpha: .08),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: palette.accentYellow.withValues(alpha: .2)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Échéance : 15 sept. ($daysRemaining j restants)',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.onSurface(.75)),
+                            ),
+                            Text(
+                              '${_money(daily)} FCFA / jour',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: palette.accentYellow,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
                 const SizedBox(height: 12),
                 Text(
                   child.tuitionAmount > 0
@@ -511,6 +586,44 @@ class _SavingsDetailPageState extends State<SavingsDetailPage> {
                     ),
                   ],
                 ),
+                if (child.transportAmount > 0) ...[
+                  Builder(
+                    builder: (context) {
+                      final deadline = child.transportDeadline ?? kSubscriptionDeadline;
+                      final rem = (child.transportAmount - child.transportSavedAmount).clamp(0, child.transportAmount);
+                      final days = deadline.difference(DateTime.now()).inDays;
+                      final daysRemaining = days > 0 ? days : 0;
+                      final daily = daysRemaining > 0 ? (rem / daysRemaining).ceil() : rem;
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        margin: const EdgeInsets.only(top: 10, bottom: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF00B4D8).withValues(alpha: .08),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFF00B4D8).withValues(alpha: .2)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Fin : ${DateFormat("dd/MM/yyyy").format(deadline)} ($daysRemaining j)',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.onSurface(.75)),
+                            ),
+                            Text(
+                              '${_money(daily)} FCFA / jour',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF00B4D8),
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
                 const SizedBox(height: 12),
                 Text(
                   child.transportAmount > 0
@@ -704,12 +817,11 @@ class SavingsOverviewPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              LinearProgressIndicator(
-                value: globalProgress,
-                minHeight: 8,
-                borderRadius: BorderRadius.circular(8),
+              AppProgressBar(
+                progress: globalProgress,
+                height: 8,
                 backgroundColor: palette.onSurface(.08),
-                valueColor: AlwaysStoppedAnimation(palette.accentGreen),
+                color: palette.accentGreen,
               ),
               const SizedBox(height: 8),
               Row(
@@ -806,12 +918,11 @@ class _ChildSavingsCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          LinearProgressIndicator(
-            value: progress,
-            minHeight: 7,
-            borderRadius: BorderRadius.circular(8),
+          AppProgressBar(
+            progress: progress,
+            height: 8,
             backgroundColor: palette.onSurface(.10),
-            valueColor: AlwaysStoppedAnimation(palette.accentGreen),
+            color: palette.accentGreen,
           ),
           const SizedBox(height: 6),
           Row(

@@ -15,6 +15,9 @@ class RestParentRepository implements ParentRepository {
   Future<List<ChildProfile>> getChildren() => _service.getChildren();
 
   @override
+  Future<List<TransportVehicle>> getVehicles() => _service.getVehicles();
+
+  @override
   Future<List<dynamic>> fetchKitsForClass(String classLabel) =>
       _service.fetchKitsForClass(classLabel);
 

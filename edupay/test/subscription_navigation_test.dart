@@ -15,6 +15,8 @@ class _Repository implements ParentRepository {
   @override
   Future<List<ChildProfile>> getChildren() async => const [];
   @override
+  Future<List<TransportVehicle>> getVehicles() async => const [];
+  @override
   Future<List<dynamic>> fetchKitsForClass(String classLabel) async => const [];
   @override
   Future<List<Contribution>> getContributions() async => const [];

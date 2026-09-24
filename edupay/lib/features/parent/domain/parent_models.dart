@@ -29,6 +29,39 @@ extension SavingsGoalTypeExt on SavingsGoalType {
   String get backendCode => name;
 }
 
+class TransportVehicle {
+  const TransportVehicle({
+    required this.id,
+    required this.name,
+    this.description,
+    required this.price,
+    this.images = const [],
+    this.isAvailable = true,
+  });
+
+  final String id;
+  final String name;
+  final String? description;
+  final int price;
+  final List<String> images;
+  final bool isAvailable;
+
+  factory TransportVehicle.fromJson(Map<String, dynamic> json) {
+    List<String> parsedImages = [];
+    if (json['images'] != null && json['images'] is List) {
+      parsedImages = (json['images'] as List).map((e) => e.toString()).toList();
+    }
+    return TransportVehicle(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      description: json['description'] as String?,
+      price: (json['price'] as num? ?? 0).toInt(),
+      images: parsedImages,
+      isAvailable: json['is_available'] as bool? ?? json['isAvailable'] as bool? ?? true,
+    );
+  }
+}
+
 extension SchoolKitLabel on SchoolKit {
   String get title => switch (this) {
     SchoolKit.basic => 'Kit Basique',
@@ -197,6 +230,7 @@ class ChildProfile {
     this.transportAmount = 0,
     this.transportSavedAmount = 0,
     this.transportType,
+    this.transportDeadline,
   });
 
   /// Identifiant opaque attribué par le backend. Il est indispensable pour
@@ -227,6 +261,9 @@ class ChildProfile {
   /// Type de moyen de déplacement (ex: Vélo, Moto, Transport scolaire...).
   final String? transportType;
 
+  /// Date de fin personnalisée pour l'objectif de déplacement (choisie par le parent).
+  final DateTime? transportDeadline;
+
   factory ChildProfile.fromJson(Map<String, dynamic> json) {
     final schooling = json['schooling_goal'] as Map<String, dynamic>?;
     final transport = json['transport_goal'] as Map<String, dynamic>?;
@@ -251,6 +288,11 @@ class ChildProfile {
     final transportName = transport?['name'] as String? ??
         json['transportType'] as String? ??
         json['transport_type'] as String?;
+
+    final rawDeadline = transport?['deadline'] as String? ??
+        json['transport_deadline'] as String? ??
+        json['transportDeadline'] as String?;
+    final parsedDeadline = rawDeadline != null ? DateTime.tryParse(rawDeadline) : null;
 
     final kitSaved = json['kitSavedAmount'] as num? ??
         json['kit_saved_amount'] as num? ??
@@ -281,6 +323,7 @@ class ChildProfile {
       transportAmount: transportTarget.toInt(),
       transportSavedAmount: transportSaved.toInt(),
       transportType: transportName,
+      transportDeadline: parsedDeadline,
     );
   }
 
@@ -297,6 +340,8 @@ class ChildProfile {
     'transport_amount': transportAmount,
     'transport_saved_amount': transportSavedAmount,
     if (transportType != null) 'transport_type': transportType,
+    if (transportDeadline != null)
+      'transport_deadline': transportDeadline!.toIso8601String(),
   };
 
   ChildProfile copyWith({
@@ -309,6 +354,7 @@ class ChildProfile {
     int? transportAmount,
     int? transportSavedAmount,
     String? transportType,
+    DateTime? transportDeadline,
   }) => ChildProfile(
     id: id,
     firstName: firstName,
@@ -323,6 +369,7 @@ class ChildProfile {
     transportAmount: transportAmount ?? this.transportAmount,
     transportSavedAmount: transportSavedAmount ?? this.transportSavedAmount,
     transportType: transportType ?? this.transportType,
+    transportDeadline: transportDeadline ?? this.transportDeadline,
   );
 }
 

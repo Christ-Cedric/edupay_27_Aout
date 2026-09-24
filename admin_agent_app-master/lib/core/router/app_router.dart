@@ -45,6 +45,9 @@ import '../../features/settings/presentation/screens/season_settings_screen.dart
 import '../../features/supplies/presentation/screens/edit_supply_screen.dart';
 import '../../features/supplies/presentation/screens/new_supply_screen.dart';
 import '../../features/supplies/presentation/screens/supplies_list_screen.dart';
+import '../../features/vehicles/presentation/screens/edit_vehicle_screen.dart';
+import '../../features/vehicles/presentation/screens/new_vehicle_screen.dart';
+import '../../features/vehicles/presentation/screens/vehicles_list_screen.dart';
 import '../../shell/admin_shell.dart';
 import 'auth_guard.dart';
 import 'route_paths.dart';
@@ -284,6 +287,22 @@ GoRouter appRouter(Ref ref) {
                         path: ':kitId/edit',
                         builder: (context, state) => EditKitScreen(
                           kitId: state.pathParameters['kitId']!,
+                        ),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'vehicles',
+                    builder: (context, state) => const VehiclesListScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'new',
+                        builder: (context, state) => const NewVehicleScreen(),
+                      ),
+                      GoRoute(
+                        path: ':id/edit',
+                        builder: (context, state) => EditVehicleScreen(
+                          vehicleId: state.pathParameters['id']!,
                         ),
                       ),
                     ],

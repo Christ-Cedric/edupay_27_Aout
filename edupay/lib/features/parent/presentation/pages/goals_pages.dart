@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../shared/widgets/action_button.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../domain/parent_models.dart';
+import '../../domain/savings_engine.dart';
 import '../parent_app_state.dart';
 import '../parent_scope.dart';
 import 'page_scaffold.dart';
@@ -579,6 +581,16 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
     'Autre moyen',
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ParentScope.of(context).loadVehicles();
+      }
+    });
+  }
+
   Future<void> _showTransportDialog(
     BuildContext context,
     int index,
@@ -593,14 +605,34 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
             _transportTypes.contains(child.transportType)
         ? child.transportType!
         : _transportTypes.first;
+    DateTime? selectedDeadline = child.transportDeadline ?? kSubscriptionDeadline;
+    bool isCumulative = child.transportAmount > 0;
     final palette = context.palette;
 
-    final result = await showDialog<(int, String)?>(
+    final result = await showDialog<(int, String, DateTime?, bool)?>(
       context: context,
       barrierDismissible: true,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) {
+            final now = DateTime.now();
+            final targetDate = selectedDeadline ?? kSubscriptionDeadline;
+            final diffDays = targetDate.difference(now).inDays;
+            final daysRemaining = diffDays > 0 ? diffDays : 1;
+
+            final enteredAmount = int.tryParse(controller.text.trim()) ?? 0;
+            final totalToFinance = isCumulative && child.transportAmount > 0
+                ? calculateCumulativeGoalTotal(
+                    oldTargetAmount: child.transportAmount,
+                    oldSavedAmount: child.transportSavedAmount,
+                    newGoalAmount: enteredAmount,
+                  )
+                : enteredAmount;
+
+            final dailyContribution = daysRemaining > 0
+                ? (totalToFinance / daysRemaining).ceil()
+                : totalToFinance;
+
             return Dialog(
               backgroundColor: Colors.transparent,
               insetPadding: const EdgeInsets.symmetric(
@@ -608,7 +640,7 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                 vertical: 24,
               ),
               child: Container(
-                constraints: const BoxConstraints(maxWidth: 420),
+                constraints: const BoxConstraints(maxWidth: 440),
                 padding: const EdgeInsets.fromLTRB(22, 16, 22, 24),
                 decoration: BoxDecoration(
                   color: palette.surface,
@@ -624,6 +656,7 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Bouton de fermeture en haut à droite
                       Align(
@@ -642,17 +675,19 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                         ),
                       ),
                       // Illustration / Badge flottant centré
-                      Container(
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF00B4D8).withValues(alpha: .08),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.directions_bike_rounded,
-                          color: Color(0xFF00B4D8),
-                          size: 28,
+                      Center(
+                        child: Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00B4D8).withValues(alpha: .08),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.directions_bike_rounded,
+                            color: Color(0xFF00B4D8),
+                            size: 28,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 18),
@@ -670,7 +705,7 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                       const SizedBox(height: 6),
                       // Sous-titre descriptif
                       Text(
-                        '${child.level} · ${child.school}\nChoisissez le moyen de déplacement et fixez le budget à épargner.',
+                        '${child.level} · ${child.school}\nChoisissez le moyen, le montant et votre date de fin.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: palette.onSurface(.6),
@@ -679,6 +714,93 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                         ),
                       ),
                       const SizedBox(height: 18),
+                      if (state.availableVehicles.isNotEmpty) ...[
+                        Text(
+                          '🛵 Engins disponibles au catalogue :',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: palette.onSurface(.85),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: 135,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: state.availableVehicles.length,
+                            separatorBuilder: (_, __) => const SizedBox(width: 8),
+                            itemBuilder: (ctx, vIdx) {
+                              final vehicle = state.availableVehicles[vIdx];
+                              final isSelected = currentType == vehicle.name;
+                              final firstImg = vehicle.images.isNotEmpty ? vehicle.images.first : null;
+                              return InkWell(
+                                onTap: () {
+                                  setDialogState(() {
+                                    currentType = vehicle.name;
+                                    controller.text = vehicle.price.toString();
+                                  });
+                                },
+                                borderRadius: BorderRadius.circular(14),
+                                child: Container(
+                                  width: 140,
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? const Color(0xFF00B4D8).withValues(alpha: .15)
+                                        : palette.surfaceSoft,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? const Color(0xFF00B4D8)
+                                          : palette.hairline,
+                                      width: isSelected ? 2 : 1,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      if (firstImg != null)
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: Image.network(
+                                            firstImg,
+                                            height: 52,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) => const Center(
+                                              child: Icon(Icons.two_wheeler, size: 36),
+                                            ),
+                                          ),
+                                        )
+                                      else
+                                        const Center(
+                                          child: Icon(Icons.two_wheeler, size: 36, color: Color(0xFF00B4D8)),
+                                        ),
+                                      const Spacer(),
+                                      Text(
+                                        vehicle.name,
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Text(
+                                        '${_money(vehicle.price)} FCFA',
+                                        style: const TextStyle(
+                                          color: Color(0xFF00B4D8),
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                      ],
                       // Encadrement des options de déplacement
                       Container(
                         decoration: BoxDecoration(
@@ -729,6 +851,9 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
+                        onChanged: (_) {
+                          setDialogState(() {});
+                        },
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontFamily: 'Montserrat',
@@ -767,6 +892,157 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 14),
+
+                      // Option d'ajout cumulatif si objectif existant
+                      if (child.transportAmount > 0) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: palette.surfaceSoft,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: palette.hairline),
+                          ),
+                          child: CheckboxListTile(
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                            value: isCumulative,
+                            title: Text(
+                              'Ajouter comme nouvel objectif (cumuler au reste dû : ${_money((child.transportAmount - child.transportSavedAmount).clamp(0, child.transportAmount))} FCFA)',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                            ),
+                            activeColor: const Color(0xFF00B4D8),
+                            onChanged: (val) {
+                              if (val != null) {
+                                setDialogState(() => isCumulative = val);
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                      ],
+
+                      // Date de fin de l'objectif : 📅 [ Choisir une date ]
+                      Text(
+                        'Date de fin de l’objectif : 📅',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: palette.onSurface(.8),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      InkWell(
+                        onTap: () async {
+                          final currentInitial = selectedDeadline != null &&
+                                  selectedDeadline!.isAfter(now)
+                              ? selectedDeadline!
+                              : now.add(const Duration(days: 30));
+                          final picked = await showDatePicker(
+                            context: dialogContext,
+                            initialDate: currentInitial,
+                            firstDate: now.add(const Duration(days: 1)),
+                            lastDate: now.add(const Duration(days: 365 * 3)),
+                            builder: (context, childWidget) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: ColorScheme.light(
+                                    primary: const Color(0xFF00B4D8),
+                                    onPrimary: Colors.white,
+                                    surface: palette.surface,
+                                    onSurface: palette.onSurface(1),
+                                  ),
+                                ),
+                                child: childWidget!,
+                              );
+                            },
+                          );
+                          if (picked != null) {
+                            setDialogState(() => selectedDeadline = picked);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: palette.surfaceSoft,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: palette.hairline),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                selectedDeadline != null
+                                    ? DateFormat('dd MMMM yyyy', 'fr_FR').format(selectedDeadline!)
+                                    : 'Choisir une date',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13.5,
+                                  color: selectedDeadline != null
+                                      ? palette.onSurface(1)
+                                      : palette.onSurface(.45),
+                                ),
+                              ),
+                              const Icon(
+                                Icons.calendar_month_rounded,
+                                color: Color(0xFF00B4D8),
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Bloc de calcul dynamique de la cotisation
+                      if (enteredAmount > 0) ...[
+                        const SizedBox(height: 14),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00B4D8).withValues(alpha: .08),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: const Color(0xFF00B4D8).withValues(alpha: .3),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    'Cotisation calculée :',
+                                    style: TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${_money(dailyContribution)} FCFA / jour',
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w900,
+                                      color: Color(0xFF00B4D8),
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Durée restante : $daysRemaining jour(s) · Total à financer : ${_money(totalToFinance)} FCFA',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: palette.onSurface(.65),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+
                       const SizedBox(height: 22),
                       // Bouton pilule Confirm
                       SizedBox(
@@ -789,7 +1065,9 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                           onPressed: () {
                             final amount =
                                 int.tryParse(controller.text.trim()) ?? 0;
-                            Navigator.of(ctx).pop((amount, currentType));
+                            Navigator.of(ctx).pop(
+                              (amount, currentType, selectedDeadline, isCumulative),
+                            );
                           },
                           child: const Text('Confirmer'),
                         ),
@@ -805,13 +1083,20 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
     );
 
     if (result != null && context.mounted) {
-      final (amount, type) = result;
-      await state.setChildTransport(index, amount, amount > 0 ? type : null);
+      final (amount, type, deadline, isCumulative) = result;
+      await state.setChildTransport(
+        index,
+        amount,
+        amount > 0 ? type : null,
+        deadline: deadline,
+        isCumulative: isCumulative,
+      );
+      final updatedChild = state.children[index];
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             amount > 0
-                ? 'Moyen de déplacement ($type : ${_money(amount)} FCFA) enregistré pour ${child.firstName}.'
+                ? 'Moyen de déplacement ($type : ${_money(updatedChild.transportAmount)} FCFA) enregistré pour ${child.firstName}.'
                 : 'Moyen de déplacement réinitialisé pour ${child.firstName}.',
           ),
         ),

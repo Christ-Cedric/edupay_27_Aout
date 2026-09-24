@@ -18,6 +18,8 @@ import '../providers/dashboard_providers.dart';
 import '../widgets/dashboard_alerts_section.dart';
 import '../widgets/dashboard_kpi_section.dart';
 
+import 'admin_desktop_dashboard_view.dart';
+
 /// Numéro WhatsApp du support (même contact que "Message WhatsApp" côté
 /// profil agent) — pas de canal support dédié distinct dans ce projet.
 const _supportWhatsAppNumber = '22656095425';
@@ -73,22 +75,32 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             .length ??
         0;
 
+    final isDesktop = MediaQuery.sizeOf(context).width >= 960;
+
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(
-        title: 'Admin - EduP@y',
-        backgroundColor: AppColors.green,
-        foregroundColor: AppColors.navy,
-        trailing: IconButton(
-          icon: _NotificationBellIcon(unreadCount: unreadNotifications),
-          onPressed: () => context.push('/admin/dashboard/notifications'),
-        ),
-      ),
+      appBar: isDesktop
+          ? null
+          : AppHeader(
+              title: 'Admin - EduP@y',
+              backgroundColor: AppColors.green,
+              foregroundColor: AppColors.navy,
+              trailing: IconButton(
+                icon: _NotificationBellIcon(unreadCount: unreadNotifications),
+                onPressed: () => context.push('/admin/dashboard/notifications'),
+              ),
+            ),
       body: summaryAsync.when(
-        data: (summary) => RefreshIndicator(
-          onRefresh: _refresh,
-          child: _DashboardBody(summary: summary, lastUpdated: _lastUpdated),
-        ),
+        data: (summary) => isDesktop
+            ? AdminDesktopDashboardView(
+                summary: summary,
+                lastUpdated: _lastUpdated,
+                onRefresh: _refresh,
+              )
+            : RefreshIndicator(
+                onRefresh: _refresh,
+                child: _DashboardBody(summary: summary, lastUpdated: _lastUpdated),
+              ),
         loading: () => const LoadingScreen(),
         error: (error, stackTrace) => ErrorScreen(
           onRetry: () => ref.invalidate(dashboardSummaryProvider),

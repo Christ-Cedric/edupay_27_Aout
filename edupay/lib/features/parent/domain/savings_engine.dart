@@ -23,6 +23,27 @@ import 'school_catalogue.dart';
 /// à 100 % au plus tard à cette date.
 final DateTime kSubscriptionDeadline = DateTime(2026, 9, 15);
 
+/// Résultat du calcul d'épargne pour une catégorie donnée (Scolarité, Fournitures, Déplacement).
+class CategorySavingsComputation {
+  const CategorySavingsComputation({
+    required this.category,
+    required this.targetAmount,
+    required this.savedAmount,
+    required this.remainingAmount,
+    required this.deadline,
+    required this.daysRemaining,
+    required this.dailyAmount,
+  });
+
+  final SavingsGoalType category;
+  final int targetAmount;
+  final int savedAmount;
+  final int remainingAmount;
+  final DateTime deadline;
+  final int daysRemaining;
+  final int dailyAmount;
+}
+
 /// Résultat immuable d'un calcul de plan d'épargne à un instant donné.
 class SavingsPlanComputation {
   const SavingsPlanComputation({
@@ -36,6 +57,7 @@ class SavingsPlanComputation {
     required this.hasChildren,
     required this.goalReached,
     required this.expired,
+    this.categoryComputations,
   });
 
   final SavingsPlan frequency;
@@ -64,10 +86,149 @@ class SavingsPlanComputation {
   /// Vrai si la date limite est atteinte/dépassée alors qu'il reste à payer.
   final bool expired;
 
+  /// Détail des calculs par catégorie (Scolarité, Fournitures, Déplacement).
+  final Map<SavingsGoalType, CategorySavingsComputation>? categoryComputations;
+
   /// Progression globale en pourcentage (0–100).
   int get progressPercent => totalGoal == 0
       ? 0
       : ((totalSaved / totalGoal) * 100).round().clamp(0, 100);
+}
+
+/// Règle métier : En cas d'ajout d'un nouvel objectif dans la même catégorie :
+/// Nouveau total à financer = Reste ancien objectif + Montant nouvel objectif
+int calculateCumulativeGoalTotal({
+  required int oldTargetAmount,
+  required int oldSavedAmount,
+  required int newGoalAmount,
+}) {
+  final oldRemaining = (oldTargetAmount - oldSavedAmount).clamp(0, oldTargetAmount);
+  return oldRemaining + newGoalAmount;
+}
+
+/// Règle métier : Nouvelle cotisation = Nouveau total à financer ÷ Nombre de jours restants
+int calculateNewContribution({
+  required int newTotalToFinance,
+  required int daysRemaining,
+}) {
+  if (newTotalToFinance <= 0) return 0;
+  if (daysRemaining <= 0) return newTotalToFinance;
+  return (newTotalToFinance / daysRemaining).ceil();
+}
+
+/// Calcule le détail de l'épargne pour une catégorie donnée :
+/// - Scolarité : date limite au 15 septembre
+/// - Fournitures : date limite au 15 septembre, montant quotidien = reste / jours restants
+/// - Moyen de déplacement : date limite personnalisée, montant quotidien = reste / jours restants
+CategorySavingsComputation computeCategorySavings({
+  required List<ChildProfile> children,
+  required SavingsGoalType category,
+  DateTime? now,
+  DateTime? customDeadline,
+}) {
+  final reference = now ?? DateTime.now();
+
+  DateTime deadline;
+  switch (category) {
+    case SavingsGoalType.registration:
+      deadline = customDeadline ?? kSubscriptionDeadline;
+      break;
+    case SavingsGoalType.supplies:
+    case SavingsGoalType.exam:
+    case SavingsGoalType.canteen:
+    case SavingsGoalType.uniform:
+      deadline = customDeadline ?? kSubscriptionDeadline;
+      break;
+    case SavingsGoalType.transport:
+      if (customDeadline != null) {
+        deadline = customDeadline;
+      } else {
+        DateTime? earliest;
+        for (final c in children) {
+          if (c.transportDeadline != null) {
+            if (earliest == null || c.transportDeadline!.isBefore(earliest)) {
+              earliest = c.transportDeadline;
+            }
+          }
+        }
+        deadline = earliest ?? kSubscriptionDeadline;
+      }
+      break;
+  }
+
+  var targetAmount = 0;
+  var savedAmount = 0;
+
+  for (final child in children) {
+    int cost = 0;
+    int saved = 0;
+    switch (category) {
+      case SavingsGoalType.registration:
+        cost = child.tuitionAmount;
+        saved = child.tuitionSavedAmount;
+        break;
+      case SavingsGoalType.supplies:
+      case SavingsGoalType.exam:
+      case SavingsGoalType.canteen:
+      case SavingsGoalType.uniform:
+        cost = child.suppliesCost;
+        saved = child.kitSavedAmount;
+        break;
+      case SavingsGoalType.transport:
+        cost = child.transportAmount;
+        saved = child.transportSavedAmount;
+        break;
+    }
+    targetAmount += cost;
+    savedAmount += saved.clamp(0, cost);
+  }
+
+  final remainingAmount = (targetAmount - savedAmount).clamp(0, targetAmount);
+  final diffDays = deadline.difference(reference).inDays;
+  final daysRemaining = diffDays > 0 ? diffDays : 0;
+
+  final int dailyAmount;
+  if (remainingAmount <= 0) {
+    dailyAmount = 0;
+  } else if (daysRemaining <= 0) {
+    dailyAmount = remainingAmount;
+  } else {
+    dailyAmount = (remainingAmount / daysRemaining).ceil();
+  }
+
+  return CategorySavingsComputation(
+    category: category,
+    targetAmount: targetAmount,
+    savedAmount: savedAmount,
+    remainingAmount: remainingAmount,
+    deadline: deadline,
+    daysRemaining: daysRemaining,
+    dailyAmount: dailyAmount,
+  );
+}
+
+/// Calcule la somme des cotisations pour toutes les catégories principales.
+Map<SavingsGoalType, CategorySavingsComputation> computeAllCategoriesSavings({
+  required List<ChildProfile> children,
+  DateTime? now,
+}) {
+  return {
+    SavingsGoalType.registration: computeCategorySavings(
+      children: children,
+      category: SavingsGoalType.registration,
+      now: now,
+    ),
+    SavingsGoalType.supplies: computeCategorySavings(
+      children: children,
+      category: SavingsGoalType.supplies,
+      now: now,
+    ),
+    SavingsGoalType.transport: computeCategorySavings(
+      children: children,
+      category: SavingsGoalType.transport,
+      now: now,
+    ),
+  };
 }
 
 /// Calcule le plan d'épargne courant à partir de l'état des enfants.
@@ -82,8 +243,22 @@ SavingsPlanComputation computeSavingsPlan({
   DateTime? deadline,
   SavingsGoalType? targetGoalType,
 }) {
-  final effectiveDeadline = deadline ?? kSubscriptionDeadline;
+  var effectiveDeadline = deadline ?? kSubscriptionDeadline;
   final reference = now ?? DateTime.now();
+
+  if (targetGoalType == SavingsGoalType.transport && deadline == null) {
+    DateTime? earliest;
+    for (final c in children) {
+      if (c.transportDeadline != null) {
+        if (earliest == null || c.transportDeadline!.isBefore(earliest)) {
+          earliest = c.transportDeadline;
+        }
+      }
+    }
+    if (earliest != null) {
+      effectiveDeadline = earliest;
+    }
+  }
 
   var totalGoal = 0;
   var totalSavedTowardGoal = 0;
@@ -153,6 +328,10 @@ SavingsPlanComputation computeSavingsPlan({
     hasChildren: hasChildren,
     goalReached: goalReached,
     expired: expired,
+    categoryComputations: computeAllCategoriesSavings(
+      children: children,
+      now: reference,
+    ),
   );
 }
 

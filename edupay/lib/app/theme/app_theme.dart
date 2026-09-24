@@ -37,6 +37,13 @@ class AppTheme {
       ),
       iconTheme: IconThemeData(color: p.textPrimary),
       dividerColor: p.hairline,
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: p.accentGreen,
+        linearTrackColor: p.isDark
+            ? Colors.white.withValues(alpha: .10)
+            : p.onSurface(.08),
+        borderRadius: BorderRadius.circular(100),
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           minimumSize: const Size.fromHeight(52),

@@ -6,6 +6,7 @@ import { catalogRouter } from './modules/catalog/catalog.routes.js';
 import { notificationsRouter } from './modules/notifications/notifications.routes.js';
 import { parentsRouter } from './modules/parents/parents.routes.js';
 import { paymentsRouter } from './modules/payments/payments.routes.js';
+import { vehiclesPublicRouter } from './modules/vehicles/vehicles.routes.js';
 import { docsRouter } from './shared/openapi/docs.router.js';
 
 // Monté sous /api/v1 (contrat §1). Chaque module ajoute son sous-routeur.
@@ -22,6 +23,7 @@ apiRouter.use('/auth', authRouter);
 apiRouter.use('/admin', adminRouter);
 apiRouter.use('/agent', agentRouter);
 apiRouter.use('/catalog', catalogRouter);
+apiRouter.use('/vehicles', vehiclesPublicRouter);
 apiRouter.use('/notifications', notificationsRouter);
 apiRouter.use('/parents', parentsRouter);
 // Public (pas d'auth JWT) : webhook de la passerelle de paiement.

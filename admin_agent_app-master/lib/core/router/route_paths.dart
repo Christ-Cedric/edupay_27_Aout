@@ -11,6 +11,7 @@ abstract final class RoutePaths {
   static const adminFamilies = '/admin/families';
   static const adminFinances = '/admin/finances';
   static const adminSettings = '/admin/settings';
+  static const adminVehicles = '/admin/vehicles';
 
   /// Galerie de composants du design-system — outil de développement,
   /// uniquement enregistré en debug (voir [app_router]).

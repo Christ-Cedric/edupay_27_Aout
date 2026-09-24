@@ -188,4 +188,90 @@ void main() {
       expect(shares.fold(0, (a, b) => a + b), 1000);
     });
   });
+
+  group('Règles de calcul par catégorie', () {
+    final refDate = DateTime(2026, 8, 15); // 31 jours avant le 15 septembre 2026
+
+    test('Fournitures : montant total divisé par jours restants avant le 15 septembre', () {
+      final child = _child(name: 'Awa', kit: SchoolKit.basic); // 12 000 FCFA
+      final cat = computeCategorySavings(
+        children: [child],
+        category: SavingsGoalType.supplies,
+        now: refDate,
+      );
+
+      expect(cat.targetAmount, 12000);
+      expect(cat.daysRemaining, 31);
+      expect(cat.deadline, DateTime(2026, 9, 15));
+      // 12000 / 31 = 387.09 -> 388 F / jour
+      expect(cat.dailyAmount, 388);
+    });
+
+    test('Scolarité : date fixée au 15 septembre', () {
+      const child = ChildProfile(
+        firstName: 'Boris',
+        level: 'CM2',
+        school: 'Centre',
+        tuitionAmount: 62000,
+        savedAmount: 0,
+      );
+      final cat = computeCategorySavings(
+        children: [child],
+        category: SavingsGoalType.registration,
+        now: refDate,
+      );
+
+      expect(cat.targetAmount, 62000);
+      expect(cat.deadline, DateTime(2026, 9, 15));
+      expect(cat.daysRemaining, 31);
+      // 62000 / 31 = 2000 F / jour
+      expect(cat.dailyAmount, 2000);
+    });
+
+    test('Moyen de déplacement : date personnalisée et montant quotidien sur durée restante', () {
+      final customDeadline = DateTime(2026, 9, 4); // 20 jours après le 15 août
+      final child = ChildProfile(
+        firstName: 'Fatou',
+        level: 'CM2',
+        school: 'Centre',
+        transportAmount: 30000,
+        transportSavedAmount: 10000, // Reste 20 000
+        transportDeadline: customDeadline,
+        savedAmount: 10000,
+      );
+
+      final cat = computeCategorySavings(
+        children: [child],
+        category: SavingsGoalType.transport,
+        now: refDate,
+      );
+
+      expect(cat.targetAmount, 30000);
+      expect(cat.savedAmount, 10000);
+      expect(cat.remainingAmount, 20000);
+      expect(cat.deadline, customDeadline);
+      expect(cat.daysRemaining, 20);
+      // 20 000 / 20 = 1000 F / jour
+      expect(cat.dailyAmount, 1000);
+    });
+
+    test('Ajout nouvel objectif même catégorie : Nouveau total = Reste ancien + Montant nouvel objectif', () {
+      // Ancien objectif : 50 000 FCFA, Déjà cotisé : 20 000 FCFA => Reste = 30 000 FCFA
+      // Nouvel objectif ajouté : 15 000 FCFA
+      final newTotal = calculateCumulativeGoalTotal(
+        oldTargetAmount: 50000,
+        oldSavedAmount: 20000,
+        newGoalAmount: 15000,
+      );
+      expect(newTotal, 30000 + 15000); // 45 000 FCFA
+
+      // Recalcul sur 30 jours restants
+      final newContribution = calculateNewContribution(
+        newTotalToFinance: newTotal,
+        daysRemaining: 30,
+      );
+      // 45 000 / 30 = 1500 F / jour
+      expect(newContribution, 1500);
+    });
+  });
 }

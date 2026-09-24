@@ -35,6 +35,8 @@ abstract final class ApiRoutes {
   static const adminKitsImport = '/admin/kits/import';
   static const adminSupplies = '/admin/supplies';
   static String adminSupply(String id) => '/admin/supplies/$id';
+  static const adminVehicles = '/admin/vehicles';
+  static String adminVehicle(String id) => '/admin/vehicles/$id';
   static const adminRefunds = '/admin/refunds';
   static String adminRefund(String id) => '/admin/refunds/$id';
   static String adminApproveRefund(String id) => '/admin/refunds/$id/approve';

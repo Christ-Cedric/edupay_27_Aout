@@ -3,6 +3,7 @@ import 'parent_models.dart';
 abstract class ParentRepository {
   Future<ParentProfile> getProfile();
   Future<List<ChildProfile>> getChildren();
+  Future<List<TransportVehicle>> getVehicles();
 
   /// Kits standards réels du backend pour une classe (voir
   /// `SchoolCatalogue.applyBackendKits`) — remplace le catalogue statique

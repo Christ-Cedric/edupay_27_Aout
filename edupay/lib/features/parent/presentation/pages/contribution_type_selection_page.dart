@@ -89,7 +89,6 @@ class _TypeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final plan = state.savingsPlanFor(goalType);
-    final remaining = plan.globalRemaining;
     final reached = plan.goalReached || plan.totalGoal == 0;
 
     return InkWell(
