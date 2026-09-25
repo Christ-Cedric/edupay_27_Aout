@@ -4,6 +4,7 @@ abstract class ParentRepository {
   Future<ParentProfile> getProfile();
   Future<List<ChildProfile>> getChildren();
   Future<List<TransportVehicle>> getVehicles();
+  Future<AppSeason?> getCurrentSeason() async => null;
 
   /// Kits standards réels du backend pour une classe (voir
   /// `SchoolCatalogue.applyBackendKits`) — remplace le catalogue statique

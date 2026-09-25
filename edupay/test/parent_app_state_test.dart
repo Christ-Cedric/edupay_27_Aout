@@ -85,16 +85,16 @@ void main() {
           frequency: SavingsPlan.daily,
         );
 
-      // Règle §4 : un paiement inférieur au quota ne valide rien tout de suite.
+      // Un paiement inférieur au quota crédite l'épargne (800 F) et conserve le solde de quota
       await state.pay(amount: 800);
-      expect(state.children.single.savedAmount, 0);
+      expect(state.children.single.savedAmount, 800);
       expect(state.quotasAcquired, 0);
       expect(state.pendingQuotaBalance, 800);
 
-      // Le reliquat cumulé (800 + 1500 = 2300) complète un quota (2000),
-      // reliquat restant 300 — aucun montant versé n'est perdu.
+      // Le versement cumulé (800 + 1500 = 2300) complète 1 quota (2000 F),
+      // avec un reliquat de 300 F, et l'épargne atteint 2300 F.
       await state.pay(amount: 1500);
-      expect(state.children.single.savedAmount, 2000);
+      expect(state.children.single.savedAmount, 2300);
       expect(state.quotasAcquired, 1);
       expect(state.pendingQuotaBalance, 300);
       state.dispose();
@@ -323,6 +323,63 @@ void main() {
       state.dispose();
     },
   );
+
+  test(
+    'USSD mobile money payment increments progress bar immediately and records successful contribution',
+    () async {
+      final state = ParentAppState(_Repository(), authSession: _AuthSession())
+        ..children = const [
+          ChildProfile(
+            firstName: 'Awa',
+            level: 'CM2',
+            school: 'Centre',
+            kitSelection: ChildKitSelection.standard(SchoolKit.basic),
+            savedAmount: 0,
+            kitSavedAmount: 0,
+            tuitionAmount: 50000,
+            tuitionSavedAmount: 0,
+          ),
+        ]
+        ..paymentMethod = PaymentMethod.orangeMoney
+        ..plan = SavingsPlan.daily;
+
+      expect(state.progress, 0);
+      expect(state.totalSaved, 0);
+
+      // Paiement USSD de 5 000 F ciblant les fournitures (kit basic = 12 000 F)
+      await state.pay(amount: 5000, targetGoalType: SavingsGoalType.supplies);
+
+      // Vérifications immédiates :
+      // 1. Statut de paiement réussi
+      expect(state.paymentState.status, RequestStatus.success);
+      // 2. Reçu enregistré comme réussi
+      expect(state.contributions.first.success, isTrue);
+      expect(state.contributions.first.amount, 5000);
+      // 3. Montant épargné pour le kit et total incrémenté
+      expect(state.children.single.kitSavedAmount, 5000);
+      expect(state.children.single.savedAmount, 5000);
+      expect(state.totalSaved, 5000);
+      // 4. Progression incrémentée
+      expect(state.progress, greaterThan(0));
+
+      // 2ème paiement USSD de 7 000 F complétant les 12 000 F du kit
+      await state.pay(amount: 7000, targetGoalType: SavingsGoalType.supplies);
+
+      expect(state.children.single.kitSavedAmount, 12000);
+      expect(state.children.single.savedAmount, 12000);
+      expect(state.totalSaved, 12000);
+
+      // 3ème paiement USSD de 10 000 F sur la scolarité (ne touche pas au kit)
+      await state.pay(amount: 10000, targetGoalType: SavingsGoalType.registration);
+
+      expect(state.children.single.kitSavedAmount, 12000);
+      expect(state.children.single.tuitionSavedAmount, 10000);
+      expect(state.children.single.savedAmount, 22000);
+      expect(state.totalSaved, 22000);
+
+      state.dispose();
+    },
+  );
 }
 
 class _Repository implements ParentRepository {
@@ -334,6 +391,9 @@ class _Repository implements ParentRepository {
 
   @override
   Future<List<TransportVehicle>> getVehicles() async => const [];
+
+  @override
+  Future<AppSeason?> getCurrentSeason() async => null;
 
   @override
   Future<List<dynamic>> fetchKitsForClass(String classLabel) async => const [];

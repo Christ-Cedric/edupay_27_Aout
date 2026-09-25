@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,71 @@ import '../../domain/savings_engine.dart';
 import '../parent_app_state.dart';
 import '../parent_scope.dart';
 import 'page_scaffold.dart';
+
+Widget _buildVehicleImage(String? src, {double height = 52}) {
+  if (src != null && src.isNotEmpty) {
+    if (src.startsWith('data:image')) {
+      try {
+        final commaIndex = src.indexOf(',');
+        if (commaIndex != -1) {
+          final base64Str = src.substring(commaIndex + 1);
+          final bytes = base64Decode(base64Str);
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.memory(
+              bytes,
+              height: height,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (ctx, err, stack) => _vehicleIconFallback(height),
+            ),
+          );
+        }
+      } catch (_) {}
+    } else if (src.startsWith('http://') || src.startsWith('https://')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          src,
+          height: height,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (ctx, err, stack) => _vehicleIconFallback(height),
+        ),
+      );
+    } else if (src.startsWith('assets/')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.asset(
+          src,
+          height: height,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (ctx, err, stack) => _vehicleIconFallback(height),
+        ),
+      );
+    }
+  }
+  return _vehicleIconFallback(height);
+}
+
+Widget _vehicleIconFallback(double height) {
+  return Container(
+    height: height,
+    width: double.infinity,
+    decoration: BoxDecoration(
+      color: const Color(0xFF00B4D8).withValues(alpha: .12),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: const Center(
+      child: Icon(
+        Icons.two_wheeler,
+        size: 32,
+        color: Color(0xFF00B4D8),
+      ),
+    ),
+  );
+}
 
 String _money(int value) {
   final raw = value.toString();
@@ -573,14 +639,6 @@ class TransportGoalPage extends StatefulWidget {
 }
 
 class _TransportGoalPageState extends State<TransportGoalPage> {
-  static const List<String> _transportTypes = [
-    'Vélo',
-    'Transport scolaire',
-    'Moto / Scooter',
-    'Abonnement bus',
-    'Autre moyen',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -600,12 +658,9 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
     final controller = TextEditingController(
       text: child.transportAmount > 0 ? child.transportAmount.toString() : '',
     );
-    String currentType =
-        child.transportType != null &&
-            _transportTypes.contains(child.transportType)
-        ? child.transportType!
-        : _transportTypes.first;
-    DateTime? selectedDeadline = child.transportDeadline ?? kSubscriptionDeadline;
+    String currentType = child.transportType ?? 'Transport';
+    DateTime? selectedDeadline =
+        child.transportDeadline ?? kSubscriptionDeadline;
     bool isCumulative = child.transportAmount > 0;
     final palette = context.palette;
 
@@ -680,7 +735,9 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00B4D8).withValues(alpha: .08),
+                            color: const Color(
+                              0xFF00B4D8,
+                            ).withValues(alpha: .08),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -729,11 +786,14 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: state.availableVehicles.length,
-                            separatorBuilder: (_, __) => const SizedBox(width: 8),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 8),
                             itemBuilder: (ctx, vIdx) {
                               final vehicle = state.availableVehicles[vIdx];
                               final isSelected = currentType == vehicle.name;
-                              final firstImg = vehicle.images.isNotEmpty ? vehicle.images.first : null;
+                              final firstImg = vehicle.images.isNotEmpty
+                                  ? vehicle.images.first
+                                  : null;
                               return InkWell(
                                 onTap: () {
                                   setDialogState(() {
@@ -747,7 +807,9 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? const Color(0xFF00B4D8).withValues(alpha: .15)
+                                        ? const Color(
+                                            0xFF00B4D8,
+                                          ).withValues(alpha: .15)
                                         : palette.surfaceSoft,
                                     borderRadius: BorderRadius.circular(14),
                                     border: Border.all(
@@ -758,29 +820,17 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                                     ),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      if (firstImg != null)
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: Image.network(
-                                            firstImg,
-                                            height: 52,
-                                            width: double.infinity,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) => const Center(
-                                              child: Icon(Icons.two_wheeler, size: 36),
-                                            ),
-                                          ),
-                                        )
-                                      else
-                                        const Center(
-                                          child: Icon(Icons.two_wheeler, size: 36, color: Color(0xFF00B4D8)),
-                                        ),
+                                      _buildVehicleImage(firstImg, height: 52),
                                       const Spacer(),
                                       Text(
                                         vehicle.name,
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 11,
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -801,49 +851,7 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                         ),
                         const SizedBox(height: 14),
                       ],
-                      // Encadrement des options de déplacement
-                      Container(
-                        decoration: BoxDecoration(
-                          color: palette.surfaceSoft,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: palette.hairline),
-                        ),
-                        child: Column(
-                          children: [
-                            for (
-                              var j = 0;
-                              j < _transportTypes.length;
-                              j++
-                            ) ...[
-                              RadioListTile<String>(
-                                dense: true,
-                                value: _transportTypes[j],
-                                groupValue: currentType,
-                                activeColor: const Color(0xFF00B4D8),
-                                title: Text(
-                                  _transportTypes[j],
-                                  style: const TextStyle(
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                onChanged: (val) {
-                                  if (val != null) {
-                                    setDialogState(() => currentType = val);
-                                  }
-                                },
-                              ),
-                              if (j < _transportTypes.length - 1)
-                                Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: palette.hairline.withValues(alpha: .5),
-                                ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+
                       // Champ de saisie moderne
                       TextField(
                         controller: controller,
@@ -897,7 +905,10 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                       // Option d'ajout cumulatif si objectif existant
                       if (child.transportAmount > 0) ...[
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: palette.surfaceSoft,
                             borderRadius: BorderRadius.circular(12),
@@ -909,7 +920,10 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                             value: isCumulative,
                             title: Text(
                               'Ajouter comme nouvel objectif (cumuler au reste dû : ${_money((child.transportAmount - child.transportSavedAmount).clamp(0, child.transportAmount))} FCFA)',
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             activeColor: const Color(0xFF00B4D8),
                             onChanged: (val) {
@@ -934,7 +948,8 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                       const SizedBox(height: 6),
                       InkWell(
                         onTap: () async {
-                          final currentInitial = selectedDeadline != null &&
+                          final currentInitial =
+                              selectedDeadline != null &&
                                   selectedDeadline!.isAfter(now)
                               ? selectedDeadline!
                               : now.add(const Duration(days: 30));
@@ -963,7 +978,10 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                         },
                         borderRadius: BorderRadius.circular(14),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
                           decoration: BoxDecoration(
                             color: palette.surfaceSoft,
                             borderRadius: BorderRadius.circular(14),
@@ -974,7 +992,18 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                             children: [
                               Text(
                                 selectedDeadline != null
-                                    ? DateFormat('dd MMMM yyyy', 'fr_FR').format(selectedDeadline!)
+                                    ? () {
+                                        try {
+                                          return DateFormat(
+                                            'dd MMMM yyyy',
+                                            'fr_FR',
+                                          ).format(selectedDeadline!);
+                                        } catch (_) {
+                                          return DateFormat(
+                                            'dd/MM/yyyy',
+                                          ).format(selectedDeadline!);
+                                        }
+                                      }()
                                     : 'Choisir une date',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
@@ -1000,17 +1029,22 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00B4D8).withValues(alpha: .08),
+                            color: const Color(
+                              0xFF00B4D8,
+                            ).withValues(alpha: .08),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: const Color(0xFF00B4D8).withValues(alpha: .3),
+                              color: const Color(
+                                0xFF00B4D8,
+                              ).withValues(alpha: .3),
                             ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     'Cotisation calculée :',
@@ -1065,9 +1099,12 @@ class _TransportGoalPageState extends State<TransportGoalPage> {
                           onPressed: () {
                             final amount =
                                 int.tryParse(controller.text.trim()) ?? 0;
-                            Navigator.of(ctx).pop(
-                              (amount, currentType, selectedDeadline, isCumulative),
-                            );
+                            Navigator.of(ctx).pop((
+                              amount,
+                              currentType,
+                              selectedDeadline,
+                              isCumulative,
+                            ));
                           },
                           child: const Text('Confirmer'),
                         ),

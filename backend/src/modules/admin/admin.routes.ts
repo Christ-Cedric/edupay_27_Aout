@@ -8,6 +8,7 @@ import { suppliesRouter } from '../supplies/supplies.routes.js';
 import { vehiclesAdminRouter } from '../vehicles/vehicles.routes.js';
 import { refundsRouter } from '../refunds/refunds.routes.js';
 import { listNotificationsHandler } from '../notifications/notifications.controller.js';
+import { listPaymentGatewaysHandler, updatePaymentGatewayHandler } from '../payments/payment-gateway.controller.js';
 import {
   addChildHandler,
   approveFamilyHandler,
@@ -66,6 +67,8 @@ adminRouter.get('/audit-logs', asyncHandler(listAuditLogsHandler));
 // — même service générique que parents/agent, il manquait juste sa route ici.
 adminRouter.get('/notifications', asyncHandler(listNotificationsHandler));
 adminRouter.get('/contributions', asyncHandler(listContributionsHandler));
+adminRouter.get('/payment-gateways', asyncHandler(listPaymentGatewaysHandler));
+adminRouter.patch('/payment-gateways/:name', asyncHandler(updatePaymentGatewayHandler));
 
 // Livraison
 adminRouter.patch('/deliveries/:id/assign', asyncHandler(assignDeliveryLocationHandler));

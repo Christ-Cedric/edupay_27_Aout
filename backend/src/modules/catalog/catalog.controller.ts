@@ -1,7 +1,8 @@
 import type { Request, Response } from 'express';
-import { list } from '../../shared/http/respond.js';
+import { list, ok } from '../../shared/http/respond.js';
 import * as kitsService from '../kits/kits.service.js';
 import * as suppliesService from '../supplies/supplies.service.js';
+import * as seasonsService from '../seasons/seasons.service.js';
 
 const FREQUENCIES = [
   { frequency: 'daily', label: 'Journalier' },
@@ -30,4 +31,9 @@ export async function articlesHandler(_req: Request, res: Response): Promise<voi
  * choisis et de l'échéance de la saison, jamais un montant de base fixe. */
 export async function plansHandler(_req: Request, res: Response): Promise<void> {
   list(res, [...FREQUENCIES]);
+}
+
+/** Saison courante active — consultation publique pour le calcul dynamique des échéances. */
+export async function currentSeasonHandler(_req: Request, res: Response): Promise<void> {
+  ok(res, await seasonsService.getCurrentSeason());
 }

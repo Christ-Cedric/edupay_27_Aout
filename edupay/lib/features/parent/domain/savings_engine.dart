@@ -19,9 +19,14 @@ import 'school_catalogue.dart';
 /// Le moteur est **pur** (aucun effet de bord, `now`/`deadline` injectables)
 /// donc entièrement testable et réutilisable hors de la couche présentation.
 
-/// Date limite fixe de la campagne : tous les objectifs doivent être financés
-/// à 100 % au plus tard à cette date.
-final DateTime kSubscriptionDeadline = DateTime(2026, 9, 15);
+/// Date limite de la campagne / saison active : dérivée de la saison active
+/// définie par l'administrateur en base de données.
+DateTime kSubscriptionDeadline = DateTime(2026, 9, 15);
+
+/// Met à jour l'échéance globale sur la base de la saison active
+void setSeasonDeadline(DateTime deadline) {
+  kSubscriptionDeadline = deadline;
+}
 
 /// Résultat du calcul d'épargne pour une catégorie donnée (Scolarité, Fournitures, Déplacement).
 class CategorySavingsComputation {
@@ -269,7 +274,8 @@ SavingsPlanComputation computeSavingsPlan({
 
     if (targetGoalType == null) {
       cost = child.totalCost;
-      saved = child.savedAmount;
+      final categorySum = child.kitSavedAmount + child.tuitionSavedAmount + child.transportSavedAmount;
+      saved = categorySum > child.savedAmount ? categorySum : child.savedAmount;
     } else {
       switch (targetGoalType) {
         case SavingsGoalType.supplies:

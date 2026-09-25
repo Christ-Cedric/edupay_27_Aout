@@ -22,7 +22,7 @@ dependencies:
   # dont le hook de build natif (native assets) s'exécute même pour un build
   # Android et échoue sur le chemin Windows contenant un espace
   # (« C:\Users\Cedric Yam\... » → 'C:\Users\Cedric' n'est pas reconnu).
-  flutter_secure_storage: 8.1.0
+  flutter_secure_storage: ^11.2.0
 
   # Formatage de dates et monnaies
   intl: ^0.20.2
@@ -79,6 +79,7 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^6.0.0
+  test: ^1.31.1
 
 
 # Configuration de génération du logo de l'application

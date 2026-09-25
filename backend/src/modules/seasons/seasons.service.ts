@@ -15,6 +15,16 @@ export async function listSeasons() {
   return seasons.map(toSeasonDto);
 }
 
+export async function getCurrentSeason() {
+  const season = await prisma.season.findFirst({ where: { isCurrent: true } });
+  if (!season) {
+    const latest = await prisma.season.findFirst({ orderBy: { launchDate: 'desc' } });
+    if (!latest) throw ApiError.notFound('Aucune saison configurée sur la plateforme.');
+    return toSeasonDto(latest);
+  }
+  return toSeasonDto(season);
+}
+
 export async function getSeason(id: string) {
   return toSeasonDto(await getSeasonOrThrow(id));
 }

@@ -8,6 +8,8 @@ export type NotificationType =
   | 'contribution_received'
   | 'contribution_failed'
   | 'goal_completed'
+  | 'goal_threshold_70'       // 70 % atteint → commande déclenchable
+  | 'goal_completed_admin'   // 100 % atteint → alerte admin spécifique
   | 'delivery_confirmed'
   | 'delivery_issue'
   | 'late_reminder'

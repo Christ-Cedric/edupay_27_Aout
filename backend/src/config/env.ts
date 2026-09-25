@@ -46,6 +46,10 @@ const schema = z.object({
   LIGDICASH_AUTH_TOKEN: z.string().optional(),
   LIGDICASH_WEBHOOK_SECRET: z.string().optional(),
   LIGDICASH_BASE_URL: z.string().url().default('https://app.ligdicash.com/pay/v01'),
+  PAYMENT_GATEWAY_SANDBOX: z
+    .string()
+    .optional()
+    .transform((v) => v === 'true' || v === '1'),
 
   // WhatsApp Business Cloud API — canal réel des notifications (reçu,
   // livraison, relance retard, OTP client). Optionnelles : sans elles,

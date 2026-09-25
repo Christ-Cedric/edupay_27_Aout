@@ -909,7 +909,12 @@ class CustomKitPage extends StatelessWidget {
         ActionButton(
           label: 'Enregistrer ce kit',
           icon: Icons.check_rounded,
-          onPressed: total > 0 ? () => context.pop() : null,
+          onPressed: total > 0
+              ? () async {
+                  await state.persistChildKit(childIndex);
+                  if (context.mounted) context.pop();
+                }
+              : null,
           isLarge: true,
         ),
         const SizedBox(height: 12),

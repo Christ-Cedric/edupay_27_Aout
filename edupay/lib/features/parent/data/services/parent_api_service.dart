@@ -1,6 +1,7 @@
 import '../../../../app/network/api_client.dart';
 import '../../../../app/network/api_routes.dart';
 import '../../domain/parent_models.dart';
+import '../../domain/school_catalogue.dart';
 
 /// Maps the REST contract to app models. It has no dependency on widgets and
 /// can be exercised with a fake [ApiClient] before a real HTTP transport exists.
@@ -69,6 +70,17 @@ class ParentApiService {
         ),
       );
 
+  Future<AppSeason?> getCurrentSeason() async {
+    try {
+      final response = await _client.get('/catalog/current-season');
+      final data = response['data'] ?? response;
+      if (data is Map<String, dynamic>) {
+        return AppSeason.fromJson(data);
+      }
+    } catch (_) {}
+    return null;
+  }
+
   Future<ChildProfile> saveChild(ChildProfile child) async {
     // Le backend renvoie la famille complète après création, et non l'enfant
     // isolé. On récupère donc sa représentation canonique dans cette réponse.
@@ -80,7 +92,15 @@ class ParentApiService {
         'school': child.school,
       },
     );
-    return _childFromFamily(family, firstName: child.firstName);
+    final saved = _childFromFamily(family, firstName: child.firstName);
+    if (child.kitSelection != null && saved.id != null) {
+      try {
+        await _assignKitIfSelected(saved.id!, child.level, child.kitSelection);
+        final updatedFamily = await _client.get(ApiRoutes.family);
+        return _childFromFamily(updatedFamily, id: saved.id);
+      } catch (_) {}
+    }
+    return saved;
   }
 
   Future<ChildProfile> updateChild(ChildProfile child) async {
@@ -242,7 +262,7 @@ class ParentApiService {
         'La réponse du serveur ne contient pas l’enfant attendu.',
       );
     }
-    return ChildProfile.fromJson(item);
+    return _withBackendKit(ChildProfile.fromJson(item), item);
   }
 
   DeliveryOrder _deliveryFromResponse(Map<String, dynamic> response) {
@@ -256,10 +276,6 @@ class ParentApiService {
   String _paymentMethodCode(String method) => switch (method) {
     'Orange Money' => 'orangeMoney',
     'Moov Money' => 'moovMoney',
-    // Le cash ne passe jamais par cette route self-service (contrat backend
-    // §payments : `selfContributionSchema` n'accepte que orangeMoney/moovMoney/
-    // wave, "le cash passe par l'agent") — échouer bruyamment plutôt que de
-    // mentir en soumettant une méthode différente de celle choisie.
     _ => throw StateError(
       'La méthode "$method" ne peut pas être utilisée pour un paiement en ligne. '
       'Les paiements en espèces se font uniquement avec un agent.',
@@ -273,19 +289,36 @@ class ParentApiService {
   ) async {
     if (selection == null) return;
     if (selection.type == KitSelectionType.custom) {
-      throw UnsupportedError(
-        'Le catalogue personnalisé local ne peut pas être envoyé au catalogue serveur. Choisissez un kit standard.',
+      final articles = SchoolCatalogue.articlesFor(level);
+      final items = <Map<String, dynamic>>[];
+      for (final entry in selection.customItemIds.entries) {
+        final article = articles.firstWhere(
+          (a) => a.id == entry.key,
+          orElse: () => CatalogueArticle(
+            id: entry.key,
+            label: entry.key,
+            category: 'Fournitures',
+            unitPrice: 0,
+            quantity: entry.value,
+          ),
+        );
+        items.add({
+          'name': article.label,
+          'quantity': entry.value,
+          'price': article.unitPrice,
+        });
+      }
+      await _client.post(
+        ApiRoutes.childKit(childId),
+        body: {'custom': true, 'items': items},
       );
+      return;
     }
     final expectedLevel = switch (selection.standardKit!) {
       SchoolKit.basic => 'basic',
       SchoolKit.comfort => 'intermediate',
       SchoolKit.complete => 'premium',
     };
-    // Filtré par la classe de l'ENFANT (level_scope) : un même tarif
-    // (basic/intermediate/premium) correspond à un kit différent — donc un
-    // prix différent — par classe. Chercher dans tout le catalogue sans ce
-    // filtre risquerait d'assigner le kit d'une autre classe.
     final kits = await fetchKitsForClass(level);
     String? kitId;
     for (final item in kits) {
@@ -293,6 +326,19 @@ class ParentApiService {
         kitId = item['id'] as String?;
         break;
       }
+    }
+    // Repli sur le catalogue global si aucun kit spécifique à la classe n'est trouvé
+    if (kitId == null) {
+      try {
+        final allKitsResp = await _client.get(ApiRoutes.catalogKits);
+        final allKits = allKitsResp['data'] as List<dynamic>? ?? const [];
+        for (final item in allKits) {
+          if (item is Map<String, dynamic> && item['level'] == expectedLevel) {
+            kitId = item['id'] as String?;
+            break;
+          }
+        }
+      } catch (_) {}
     }
     if (kitId == null) {
       throw StateError(
@@ -314,26 +360,44 @@ class ParentApiService {
 
   Future<void> _loadKitLevels() async {
     if (_kitLevelById != null) return;
-    final response = await _client.get(ApiRoutes.catalogKits);
-    final kits = response['data'] as List<dynamic>? ?? const [];
-    _kitLevelById = {
-      for (final item in kits)
-        if (item is Map<String, dynamic> &&
-            item['id'] is String &&
-            item['level'] is String)
-          item['id'] as String: item['level'] as String,
-    };
+    try {
+      final response = await _client.get(ApiRoutes.catalogKits);
+      final kits = response['data'] as List<dynamic>? ?? const [];
+      _kitLevelById = {
+        for (final item in kits)
+          if (item is Map<String, dynamic> &&
+              item['id'] is String &&
+              item['level'] is String)
+            item['id'] as String: item['level'] as String,
+      };
+    } catch (_) {}
   }
 
   ChildProfile _withBackendKit(ChildProfile child, Map<String, dynamic> json) {
     final kitId = json['kit_id'] as String?;
     final level = kitId == null ? null : _kitLevelById?[kitId];
-    final selection = switch (level) {
-      'basic' => const ChildKitSelection.standard(SchoolKit.basic),
-      'intermediate' => const ChildKitSelection.standard(SchoolKit.comfort),
-      'premium' => const ChildKitSelection.standard(SchoolKit.complete),
-      _ => child.kitSelection,
-    };
+    final customAdded = json['custom_added_items'] as List<dynamic>?;
+    ChildKitSelection? selection;
+    if (level != null) {
+      selection = switch (level) {
+        'basic' => const ChildKitSelection.standard(SchoolKit.basic),
+        'intermediate' => const ChildKitSelection.standard(SchoolKit.comfort),
+        'premium' => const ChildKitSelection.standard(SchoolKit.complete),
+        _ => child.kitSelection,
+      };
+    } else if (customAdded != null && customAdded.isNotEmpty) {
+      final customMap = <String, int>{};
+      for (final item in customAdded) {
+        if (item is Map<String, dynamic>) {
+          final name = item['name'] as String? ?? '';
+          final qty = (item['quantity'] as num?)?.toInt() ?? 1;
+          if (name.isNotEmpty) customMap[name] = qty;
+        }
+      }
+      selection = ChildKitSelection.custom(customMap);
+    } else {
+      selection = child.kitSelection;
+    }
     return ChildProfile(
       id: child.id,
       firstName: child.firstName,

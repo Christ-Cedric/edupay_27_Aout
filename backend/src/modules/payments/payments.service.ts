@@ -12,11 +12,15 @@ import { allocateProrata, type Allocatable } from './prorata.js';
 import { toContributionDto } from './payments.serializer.js';
 import type { RecordCashContributionInput } from './payments.schemas.js';
 
+import { resolveActiveGateway } from './payment-gateway.service.js';
+
 /** Acteur système pour les actions déclenchées par un webhook (pas d'admin). */
 const SYSTEM_ACTOR = 'system:ligdicash-webhook';
 
-function resolveProvider(method: ContributionMethod): PaymentProvider {
-  return method === 'cashAgent' ? cashProvider : ligdiCashProvider;
+async function resolveProvider(method: ContributionMethod): Promise<PaymentProvider> {
+  if (method === 'cashAgent') return cashProvider;
+  await resolveActiveGateway(method);
+  return ligdiCashProvider;
 }
 
 function generateReference(prefix: string): string {
@@ -36,11 +40,18 @@ export async function getActiveGoalsForCapacity(
   parentId: string,
   mode: 'fund' | 'withdraw',
   targetGoalType?: SavingsGoalType,
+  seasonId?: string,
 ): Promise<Allocatable[]> {
+  let effectiveSeasonId = seasonId;
+  if (!effectiveSeasonId) {
+    const current = await db.season.findFirst({ where: { isCurrent: true }, select: { id: true } });
+    effectiveSeasonId = current?.id;
+  }
   const goals = await db.savingsGoal.findMany({
     where: { 
       parentId, 
       status: 'active',
+      ...(effectiveSeasonId ? { seasonId: effectiveSeasonId } : {}),
       ...(targetGoalType ? { type: targetGoalType } : {})
     },
     select: { id: true, childId: true, targetAmount: true, savedAmount: true },
@@ -174,7 +185,8 @@ async function creditConfirmedContribution(
 
 /** Notifications post-transaction (fire-and-forget) pour une cotisation
  * confirmée — jamais dans la transaction financière elle-même (voir
- * `creditConfirmedContribution`). */
+ * `creditConfirmedContribution`). Déclenche également la détection de
+ * franchissement de seuils (70 % et 100 %) pour alerter les admins. */
 async function notifyContributionConfirmed(
   parentId: string,
   amount: number,
@@ -188,6 +200,9 @@ async function notifyContributionConfirmed(
       `Nous avons bien reçu votre cotisation de ${amount} FCFA. Merci de votre confiance !`,
     )
     .catch(() => {});
+
+  // Détection des seuils 70 % / 100 % — fire-and-forget
+  checkAndNotifyMilestones(parentId, amount, completedGoals).catch(() => {});
 
   if (completedGoals.length === 0) return;
 
@@ -207,6 +222,96 @@ async function notifyContributionConfirmed(
         `L'épargne pour ${childName ?? 'un enfant de votre famille'} est complète ! Le kit sera préparé pour la livraison.`,
       )
       .catch(() => {});
+  }
+}
+
+/**
+ * Vérifie si le paiement courant franchit un seuil significatif (70 % ou
+ * 100 %) et envoie des notifications appropriées aux admins (et au parent
+ * pour le seuil 70 %). Anti-doublon : on ne notifie pas deux fois dans les
+ * 24 h pour le même type de milestone afin d'éviter le spam admin.
+ */
+async function checkAndNotifyMilestones(
+  parentId: string,
+  amount: number,
+  completedGoals: CompletedGoal[],
+): Promise<void> {
+  const [parent, allGoals] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: parentId },
+      select: { id: true, fullName: true, phone: true },
+    }),
+    prisma.savingsGoal.findMany({
+      where: { parentId, status: { in: ['active', 'completed'] } },
+      select: { id: true, targetAmount: true, savedAmount: true },
+    }),
+  ]);
+
+  if (!parent || allGoals.length === 0) return;
+
+  const totalTarget = allGoals.reduce((sum, g) => sum + g.targetAmount, 0);
+  if (totalTarget === 0) return;
+
+  const totalSaved = allGoals.reduce((sum, g) => sum + g.savedAmount, 0);
+  const totalSavedBefore = Math.max(0, totalSaved - amount);
+
+  const progressAfter = totalSaved / totalTarget;
+  const progressBefore = totalSavedBefore / totalTarget;
+  const parentName = parent.fullName ?? parent.phone;
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  // ── Seuil 100 % (objectif atteint) ──────────────────────────────────────
+  if (completedGoals.length > 0 && progressAfter >= 1.0) {
+    const recent = await prisma.notification.findFirst({
+      where: {
+        type: 'goal_completed_admin',
+        createdAt: { gte: oneDayAgo },
+        body: { contains: parentId },
+      },
+    });
+    if (!recent) {
+      notificationsService
+        .notifyAdmins(
+          'goal_completed_admin',
+          '✅ Cotisation terminée',
+          `🎉 ${parentName} a atteint 100 % de son objectif d'épargne ` +
+          `(${totalSaved} FCFA / ${totalTarget} FCFA). La commande peut être finalisée. [parentId: ${parentId}]`,
+        )
+        .catch(() => {});
+    }
+    return; // 100 % inclut 70 % : pas besoin de vérifier les deux
+  }
+
+  // ── Seuil 70 % (commande déclenchable) ──────────────────────────────────
+  if (progressBefore < 0.70 && progressAfter >= 0.70) {
+    const recent = await prisma.notification.findFirst({
+      where: {
+        type: 'goal_threshold_70',
+        createdAt: { gte: oneDayAgo },
+        body: { contains: parentId },
+      },
+    });
+    if (!recent) {
+      const percent = Math.round(progressAfter * 100);
+      notificationsService
+        .notifyAdmins(
+          'goal_threshold_70',
+          '📦 Commande déclenchable (70 %)',
+          `${parentName} a atteint ${percent} % de son objectif d'épargne ` +
+          `(${totalSaved} FCFA / ${totalTarget} FCFA). La commande peut maintenant être lancée. [parentId: ${parentId}]`,
+        )
+        .catch(() => {});
+
+      // Féliciter également le parent
+      notificationsService
+        .notify(
+          parentId,
+          'goal_threshold_70',
+          '💡 Cap des 70 % franchi !',
+          `Félicitations ! Vous avez atteint ${percent} % de votre objectif d'épargne. Votre commande peut maintenant être lancée.`,
+        )
+        .catch(() => {});
+    }
   }
 }
 
@@ -295,7 +400,7 @@ export async function initiateContribution(
     ]);
   }
 
-  const provider = resolveProvider(method);
+  const provider = await resolveProvider(method);
   const reference = generateReference('COT');
   const initResult = await provider.initiate({ amount, phone: parent.phone, reference });
 

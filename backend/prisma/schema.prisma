@@ -597,3 +597,22 @@ model TransportVehicle {
   @@map("transport_vehicles")
 }
 
+// Configuration des passerelles de paiement (LigdiCash, etc.) persistée en base
+model PaymentGatewayConfig {
+  id               String   @id @default(cuid())
+  name             String   @unique // ex: "ligdicash"
+  displayName      String   @map("display_name")
+  isActive         Boolean  @default(true) @map("is_active")
+  isSandbox        Boolean  @default(true) @map("is_sandbox")
+  apiKey           String?  @map("api_key")
+  authToken        String?  @map("auth_token")
+  webhookSecret    String?  @map("webhook_secret")
+  baseUrl          String?  @map("base_url")
+  supportedMethods Json?    @map("supported_methods") // ["orangeMoney", "moovMoney", "wave"]
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("payment_gateway_configs")
+}
+
+

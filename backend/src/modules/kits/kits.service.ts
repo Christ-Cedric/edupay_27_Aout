@@ -48,14 +48,42 @@ async function getKitOrThrow(id: string) {
  * saison (usage admin) ; fourni, ne renvoie que les kits de cette classe
  * (usage agent/client, qui n'ont besoin que du kit de l'enfant concerné). */
 export async function listKits(levelScope?: string) {
-  const seasonId = await prisma.season
-    .findFirst({ where: { isCurrent: true }, select: { id: true } })
-    .then((s) => s?.id);
-  const kits = await prisma.kit.findMany({
+  const season = await prisma.season.findFirst({ where: { isCurrent: true }, select: { id: true } });
+  const seasonId = season?.id;
+
+  let kits = await prisma.kit.findMany({
     where: { ...(seasonId ? { seasonId } : {}), ...(levelScope ? { levelScope } : {}) },
     include: kitInclude,
     orderBy: { tier: 'asc' },
   });
+
+  // Si aucun kit trouvé pour ce scope précis dans la saison courante, repli gracieux
+  if (kits.length === 0) {
+    if (levelScope) {
+      // 1. Chercher ce levelScope dans n'importe quelle saison
+      kits = await prisma.kit.findMany({
+        where: { levelScope },
+        include: kitInclude,
+        orderBy: { tier: 'asc' },
+      });
+      // 2. Si toujours rien, repli sur tous les kits de la saison courante
+      if (kits.length === 0 && seasonId) {
+        kits = await prisma.kit.findMany({
+          where: { seasonId },
+          include: kitInclude,
+          orderBy: { tier: 'asc' },
+        });
+      }
+    }
+    // 3. Si toujours rien (ex. nouvelle saison sans kits encore créés), repli global
+    if (kits.length === 0) {
+      kits = await prisma.kit.findMany({
+        include: kitInclude,
+        orderBy: { tier: 'asc' },
+      });
+    }
+  }
+
   return kits.map(toKitDto);
 }
 

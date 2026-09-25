@@ -1022,12 +1022,21 @@ export async function assignKit(
       throw ApiError.badRequest('Kit inconnu.', [{ field: 'kit_id', issue: 'Introuvable.' }]);
     }
     if (kit.seasonId !== seasonId) {
-      throw ApiError.badRequest("Ce kit n'appartient pas à la saison en cours.", [
-        { field: 'kit_id', issue: 'Kit hors saison courante.' },
-      ]);
+      const currentSeasonKit = await prisma.kit.findFirst({
+        where: { seasonId, tier: kit.tier, levelScope: kit.levelScope },
+        include: { items: true },
+      });
+      if (currentSeasonKit) {
+        kitId = currentSeasonKit.id;
+        kitName = currentSeasonKit.name;
+      } else {
+        kitId = kit.id;
+        kitName = kit.name;
+      }
+    } else {
+      kitId = kit.id;
+      kitName = kit.name;
     }
-    kitId = kit.id;
-    kitName = kit.name;
 
     // Personnalisation propre à CET enfant — ne modifie jamais `kit`/`kit.items`
     // en base, seulement le prix effectif de son `SavingsGoal` (voir doc du

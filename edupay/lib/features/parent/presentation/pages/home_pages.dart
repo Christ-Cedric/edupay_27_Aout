@@ -1779,6 +1779,8 @@ enum _NotifTone { success, info, warning }
 (IconData, _NotifTone) _iconAndToneForType(String type) => switch (type) {
   'contribution_received' => (Icons.check_circle_outline, _NotifTone.success),
   'goal_completed' => (Icons.verified, _NotifTone.success),
+  'goal_threshold_70' => (Icons.emoji_events_outlined, _NotifTone.info),
+  'goal_completed_admin' => (Icons.verified, _NotifTone.success),
   'contribution_failed' => (Icons.error_outline, _NotifTone.warning),
   'delivery_confirmed' => (Icons.local_shipping_outlined, _NotifTone.info),
   'delivery_issue' => (Icons.report_problem_outlined, _NotifTone.warning),

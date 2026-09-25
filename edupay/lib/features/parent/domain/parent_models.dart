@@ -29,6 +29,38 @@ extension SavingsGoalTypeExt on SavingsGoalType {
   String get backendCode => name;
 }
 
+class AppSeason {
+  const AppSeason({
+    required this.id,
+    required this.label,
+    required this.launchDate,
+    required this.deliveryDeadline,
+    this.enrollmentOpen = true,
+    this.refundFee = 0,
+    this.isCurrent = false,
+  });
+
+  final String id;
+  final String label;
+  final DateTime launchDate;
+  final DateTime deliveryDeadline;
+  final bool enrollmentOpen;
+  final int refundFee;
+  final bool isCurrent;
+
+  factory AppSeason.fromJson(Map<String, dynamic> json) {
+    return AppSeason(
+      id: json['id'] as String? ?? '',
+      label: json['label'] as String? ?? '',
+      launchDate: DateTime.tryParse(json['launch_date'] as String? ?? '') ?? DateTime(2025, 6, 24),
+      deliveryDeadline: DateTime.tryParse(json['delivery_deadline'] as String? ?? '') ?? DateTime(2026, 9, 15),
+      enrollmentOpen: json['enrollment_open'] as bool? ?? true,
+      refundFee: (json['refund_fee'] as num? ?? 0).toInt(),
+      isCurrent: json['is_current'] as bool? ?? false,
+    );
+  }
+}
+
 class TransportVehicle {
   const TransportVehicle({
     required this.id,
@@ -294,10 +326,10 @@ class ChildProfile {
         json['transportDeadline'] as String?;
     final parsedDeadline = rawDeadline != null ? DateTime.tryParse(rawDeadline) : null;
 
+    // IMPORTANT: Ne PAS utiliser saved_amount global comme fallback de kitSavedAmount —
+    // cela polluerait la progression Fournitures avec les paiements Scolarité/Transport.
     final kitSaved = json['kitSavedAmount'] as num? ??
         json['kit_saved_amount'] as num? ??
-        json['saved_amount'] as num? ??
-        json['savedAmount'] as num? ??
         0;
 
     return ChildProfile(

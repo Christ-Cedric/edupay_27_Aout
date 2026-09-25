@@ -43,35 +43,46 @@ class _SavingsDetailPageState extends State<SavingsDetailPage> {
     int target;
     int savedAmount;
     String progressTitle;
+    SavingsGoalType? goalType;
 
     switch (_selectedTab) {
       case _SavingsDetailTab.supplies:
         target = child.suppliesCost;
         savedAmount = child.kitSavedAmount;
         progressTitle = 'Progression fournitures';
+        goalType = SavingsGoalType.supplies;
         break;
       case _SavingsDetailTab.tuition:
         target = child.tuitionAmount;
         savedAmount = child.tuitionSavedAmount;
         progressTitle = 'Progression scolarité';
+        goalType = SavingsGoalType.registration;
         break;
       case _SavingsDetailTab.transport:
         target = child.transportAmount;
         savedAmount = child.transportSavedAmount;
         progressTitle = 'Progression déplacement';
+        goalType = SavingsGoalType.transport;
         break;
     }
 
-    final progress = target == 0
-        ? 0.0
-        : (savedAmount / target).clamp(0.0, 1.0);
+    final progress = target == 0 ? 0.0 : (savedAmount / target).clamp(0.0, 1.0);
     final remaining = (target - savedAmount).clamp(0, target);
     final percent = (progress * 100).round();
     final status = _status(savedAmount, target);
+
+    // BUG #2 fix : utiliser le plan de la catégorie active, pas le plan global.
+    // Cela garantit que la "part de cet enfant" est calculée sur le reste DUE
+    // de cette catégorie uniquement, et non sur le reste de toutes les cotisations.
+    final categoryPlan = goalType != null
+        ? state.savingsPlanFor(goalType!)
+        : state.savingsPlan;
     final childShare = childShareOfContribution(
-      contribution: state.installmentAmount,
+      contribution: categoryPlan.perPeriodAmount,
       childRemaining: remaining,
-      globalRemaining: state.globalRemaining,
+      globalRemaining: categoryPlan.globalRemaining > 0
+          ? categoryPlan.globalRemaining
+          : 1, // évite division par zéro
     );
     final history = state.contributionsFor(child.firstName);
 
@@ -207,14 +218,13 @@ class _SavingsDetailPageState extends State<SavingsDetailPage> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(14),
                               gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFF82F4B1),
-                                  Color(0xFF30C5D2),
-                                ],
+                                colors: [Color(0xFF82F4B1), Color(0xFF30C5D2)],
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF30C5D2).withValues(alpha: 0.4),
+                                  color: const Color(
+                                    0xFF30C5D2,
+                                  ).withValues(alpha: 0.4),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -227,19 +237,24 @@ class _SavingsDetailPageState extends State<SavingsDetailPage> {
                 },
               ),
               const SizedBox(height: 16),
+              if (percent >= 70)
+                _MilestoneBanner(percent: percent),
+              if (percent >= 70)
+                const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerRight,
                 child: InkWell(
                   onTap: () {},
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: palette.onSurface(.05),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: palette.onSurface(.1),
-                      ),
+                      border: Border.all(color: palette.onSurface(.1)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -363,24 +378,40 @@ class _SavingsDetailPageState extends State<SavingsDetailPage> {
             const SizedBox(height: 6),
             Builder(
               builder: (context) {
-                final rem = (child.suppliesCost - child.kitSavedAmount).clamp(0, child.suppliesCost);
-                final days = kSubscriptionDeadline.difference(DateTime.now()).inDays;
+                final rem = (child.suppliesCost - child.kitSavedAmount).clamp(
+                  0,
+                  child.suppliesCost,
+                );
+                final days = kSubscriptionDeadline
+                    .difference(DateTime.now())
+                    .inDays;
                 final daysRemaining = days > 0 ? days : 0;
-                final daily = daysRemaining > 0 ? (rem / daysRemaining).ceil() : rem;
+                final daily = daysRemaining > 0
+                    ? (rem / daysRemaining).ceil()
+                    : rem;
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
                     color: palette.accentGreen.withValues(alpha: .08),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: palette.accentGreen.withValues(alpha: .2)),
+                    border: Border.all(
+                      color: palette.accentGreen.withValues(alpha: .2),
+                    ),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         'Échéance : 15 sept. ($daysRemaining j restants)',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.onSurface(.75)),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: palette.onSurface(.75),
+                        ),
                       ),
                       Text(
                         '${_money(daily)} FCFA / jour',
@@ -487,24 +518,39 @@ class _SavingsDetailPageState extends State<SavingsDetailPage> {
                 if (child.tuitionAmount > 0) ...[
                   Builder(
                     builder: (context) {
-                      final rem = (child.tuitionAmount - child.tuitionSavedAmount).clamp(0, child.tuitionAmount);
-                      final days = kSubscriptionDeadline.difference(DateTime.now()).inDays;
+                      final rem =
+                          (child.tuitionAmount - child.tuitionSavedAmount)
+                              .clamp(0, child.tuitionAmount);
+                      final days = kSubscriptionDeadline
+                          .difference(DateTime.now())
+                          .inDays;
                       final daysRemaining = days > 0 ? days : 0;
-                      final daily = daysRemaining > 0 ? (rem / daysRemaining).ceil() : rem;
+                      final daily = daysRemaining > 0
+                          ? (rem / daysRemaining).ceil()
+                          : rem;
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         margin: const EdgeInsets.only(top: 10, bottom: 4),
                         decoration: BoxDecoration(
                           color: palette.accentYellow.withValues(alpha: .08),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: palette.accentYellow.withValues(alpha: .2)),
+                          border: Border.all(
+                            color: palette.accentYellow.withValues(alpha: .2),
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               'Échéance : 15 sept. ($daysRemaining j restants)',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.onSurface(.75)),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: palette.onSurface(.75),
+                              ),
                             ),
                             Text(
                               '${_money(daily)} FCFA / jour',
@@ -589,25 +635,41 @@ class _SavingsDetailPageState extends State<SavingsDetailPage> {
                 if (child.transportAmount > 0) ...[
                   Builder(
                     builder: (context) {
-                      final deadline = child.transportDeadline ?? kSubscriptionDeadline;
-                      final rem = (child.transportAmount - child.transportSavedAmount).clamp(0, child.transportAmount);
+                      final deadline =
+                          child.transportDeadline ?? kSubscriptionDeadline;
+                      final rem =
+                          (child.transportAmount - child.transportSavedAmount)
+                              .clamp(0, child.transportAmount);
                       final days = deadline.difference(DateTime.now()).inDays;
                       final daysRemaining = days > 0 ? days : 0;
-                      final daily = daysRemaining > 0 ? (rem / daysRemaining).ceil() : rem;
+                      final daily = daysRemaining > 0
+                          ? (rem / daysRemaining).ceil()
+                          : rem;
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         margin: const EdgeInsets.only(top: 10, bottom: 4),
                         decoration: BoxDecoration(
                           color: const Color(0xFF00B4D8).withValues(alpha: .08),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFF00B4D8).withValues(alpha: .2)),
+                          border: Border.all(
+                            color: const Color(
+                              0xFF00B4D8,
+                            ).withValues(alpha: .2),
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               'Fin : ${DateFormat("dd/MM/yyyy").format(deadline)} ($daysRemaining j)',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.onSurface(.75)),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: palette.onSurface(.75),
+                              ),
                             ),
                             Text(
                               '${_money(daily)} FCFA / jour',
@@ -765,6 +827,84 @@ class _FilterTabButton extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Bannière de célébration affichée quand la progression atteint 70 % ou 100 %.
+/// À 70 % : gradient orange/jaune + icône 🎁 (commande déclenchable).
+/// À 100 % : gradient vert + icône 🏆 (objectif atteint).
+class _MilestoneBanner extends StatelessWidget {
+  const _MilestoneBanner({required this.percent});
+
+  final int percent;
+
+  @override
+  Widget build(BuildContext context) {
+    final isComplete = percent >= 100;
+    final gradient = isComplete
+        ? const LinearGradient(
+            colors: [Color(0xFF30C5D2), Color(0xFF82F4B1)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          )
+        : const LinearGradient(
+            colors: [Color(0xFFFFA040), Color(0xFFFFD700)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          );
+    final icon = isComplete ? '🏆' : '🎁';
+    final title = isComplete ? 'Objectif atteint !' : 'Commande déclenchable !';
+    final subtitle = isComplete
+        ? 'Félicitations ! Votre épargne est complète. Votre kit va être préparé.'
+        : 'Vous avez atteint $percent % de votre objectif. La commande peut être lancée.';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: (isComplete ? const Color(0xFF30C5D2) : const Color(0xFFFFA040))
+                .withValues(alpha: 0.35),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 28)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withValues(alpha: 0.9),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

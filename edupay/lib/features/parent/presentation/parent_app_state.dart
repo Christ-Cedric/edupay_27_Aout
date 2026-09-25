@@ -110,6 +110,7 @@ class ParentAppState extends ChangeNotifier {
   List<ChildProfile> children = [];
   List<Contribution> contributions = [];
   List<TransportVehicle> availableVehicles = [];
+  AppSeason? currentSeason;
   SavingsPlan plan = SavingsPlan.weekly;
   PaymentMethod paymentMethod = PaymentMethod.orangeMoney;
   AuthFlow authFlow = AuthFlow.signUp;
@@ -311,10 +312,28 @@ class ParentAppState extends ChangeNotifier {
   bool isKitLockedAt(int index) =>
       index >= 0 && index < children.length && isKitLocked(children[index]);
 
-  void assignStandardKit(int childIndex, SchoolKit kit) {
+  Future<void> assignStandardKit(int childIndex, SchoolKit kit) async {
     // Kit verrouillé (≥ 75 %) : aucune modification autorisée.
     if (isKitLockedAt(childIndex)) return;
-    _updateChildKit(childIndex, ChildKitSelection.standard(kit));
+    final selection = ChildKitSelection.standard(kit);
+    _updateChildKit(childIndex, selection);
+    await persistChildKit(childIndex);
+  }
+
+  Future<void> persistChildKit(int childIndex) async {
+    if (childIndex < 0 || childIndex >= children.length) return;
+    final child = children[childIndex];
+    if (child.id != null) {
+      try {
+        final updatedChild = await _useCases.updateChild(child);
+        final next = [...children];
+        next[childIndex] = updatedChild;
+        children = next;
+        notifyListeners();
+      } catch (err) {
+        debugPrint('[EduPay] ⚠️ Erreur persistance kit en base: $err');
+      }
+    }
   }
 
   /// [articleId] provient du catalogue officiel pour la classe de l'enfant
@@ -386,12 +405,14 @@ class ParentAppState extends ChangeNotifier {
   /// Définit le moyen de déplacement, son montant et sa date de fin personnalisée
   /// pour un enfant donné et l'enregistre.
   /// En cas d'ajout (isCumulative), additionne le reste dû de l'ancien objectif au nouveau montant.
+  /// [clearTransportDeadline] : si true, efface la date de fin (retour à la date globale).
   Future<void> setChildTransport(
     int childIndex,
     int amount,
     String? type, {
     DateTime? deadline,
     bool isCumulative = false,
+    bool clearTransportDeadline = false,
   }) async {
     if (childIndex < 0 || childIndex >= children.length) return;
     final child = children[childIndex];
@@ -410,7 +431,8 @@ class ParentAppState extends ChangeNotifier {
     updated[childIndex] = updated[childIndex].copyWith(
       transportAmount: effectiveAmount,
       transportType: type,
-      transportDeadline: deadline ?? child.transportDeadline,
+      // clearTransportDeadline=true efface la date, sinon garde deadline ?? existante
+      transportDeadline: clearTransportDeadline ? null : (deadline ?? child.transportDeadline),
     );
     children = updated;
     notifyListeners();
@@ -440,9 +462,9 @@ class ParentAppState extends ChangeNotifier {
       // fire-and-forget : la home reste utilisable avec les valeurs du JSON
       // en attendant, aucune erreur réseau ne doit bloquer le chargement.
       unawaited(_syncKitPricesForChildren());
-      // Fire-and-forget : alimente le badge de la cloche (AppBar, toutes
-      // pages) sans attendre que l'utilisateur ouvre l'écran Notifications.
       unawaited(loadNotifications());
+      unawaited(loadCurrentSeason());
+      unawaited(loadVehicles());
       // Au retour dans l'app, on infère que le contrat a déjà été signé si des
       // données ne peuvent exister qu'après signature (cotisations, statut actif,
       // ou épargne déjà constituée) :
@@ -519,12 +541,60 @@ class ParentAppState extends ChangeNotifier {
     }
   }
 
-  Future<void> loadVehicles() async {
+  Future<void> loadCurrentSeason() async {
     try {
-      availableVehicles = await repository.getVehicles();
-      notifyListeners();
+      final season = await repository.getCurrentSeason();
+      if (season != null) {
+        currentSeason = season;
+        setSeasonDeadline(season.deliveryDeadline);
+        notifyListeners();
+      }
     } catch (_) {}
   }
+
+  Future<void> loadVehicles() async {
+    try {
+      final list = await repository.getVehicles();
+      if (list.isNotEmpty) {
+        availableVehicles = list;
+      } else if (availableVehicles.isEmpty) {
+        availableVehicles = _fallbackVehicles();
+      }
+      notifyListeners();
+    } catch (_) {
+      if (availableVehicles.isEmpty) {
+        availableVehicles = _fallbackVehicles();
+        notifyListeners();
+      }
+    }
+  }
+
+  static List<TransportVehicle> _fallbackVehicles() => const [
+    TransportVehicle(
+      id: 'moto-default',
+      name: 'Moto Yamaha YBR 125',
+      description: 'Moto solide et économe, idéale pour le transport des enfants et déplacements professionnels.',
+      price: 650000,
+      images: ['https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600'],
+      isAvailable: true,
+    ),
+    TransportVehicle(
+      id: 'velo-default',
+      name: 'Vélo Tout-Terrain (VTT) Junior',
+      description: 'Vélo robuste équipé pour la piste, adapté aux élèves de collège et lycée.',
+      price: 95000,
+      images: ['https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=600'],
+      isAvailable: true,
+    ),
+    TransportVehicle(
+      id: 'tricycle-default',
+      name: 'Tricycle KAVAKI Cargo 200cc',
+      description: 'Engin 3 roues grand volume pour le transport familial et marchandises.',
+      price: 1200000,
+      images: ['https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=600'],
+      isAvailable: true,
+    ),
+  ];
 
   void startAuth(AuthFlow flow) {
     authFlow = flow;
@@ -1016,21 +1086,18 @@ class ParentAppState extends ChangeNotifier {
       // doivent avancer, sous peine d'afficher une progression que
       // l'historique (« Echoue ») contredirait juste en dessous.
       final quotaResult = applyQuotaPayment(baseQuota, effective);
-      final amountToCredit = quotaResult.quotasValidatedNow > 0
-          ? quotaResult.quotasValidatedNow * quotaResult.state.quotaValue
-          : 0;
+      // L'intégralité du montant versé (`effective`) est créditée aux
+      // enfants selon la règle de répartition et le type d'objectif ciblé.
       final result = await _useCases.makePayment(
         children: children,
-        amount: amountToCredit,
+        amount: effective,
         paymentMethod: paymentMethod,
         displayAmount: effective,
         targetGoalType: targetGoalType,
       );
       contributions = [result.contribution, ...contributions];
-      if (result.contribution.success) {
-        quotaState = quotaResult.state;
-        children = result.children;
-      }
+      quotaState = quotaResult.state;
+      children = result.children;
       paymentState = RequestState.success(result);
     } catch (error) {
       paymentState = RequestState.error(error);
@@ -1108,7 +1175,8 @@ class ParentAppState extends ChangeNotifier {
   /// Ouvre un nouveau cycle d'épargne après la confirmation de réception :
   /// tous les compteurs de progression repassent à 0 % et l'ensemble des kits
   /// sélectionnés est retiré. Les enfants restent inscrits (mêmes profils) ;
-  /// le parent peut aussitôt refaire une sélection de kits et re-souscrire.
+  /// les montants d'objectifs permanents (scolarité, transport) sont préservés.
+  /// Le parent peut aussitôt refaire une sélection de kits et re-souscrire.
   void _startNewSavingsCycle() {
     children = [
       for (final child in children)
@@ -1118,7 +1186,15 @@ class ParentAppState extends ChangeNotifier {
           level: child.level,
           school: child.school,
           savedAmount: 0,
+          kitSavedAmount: 0,
           // kitSelection non fourni → remis à null (nouvelle sélection à faire).
+          // Préservation des objectifs permanents — ils ne dépendent pas du cycle de kits :
+          tuitionAmount: child.tuitionAmount,
+          tuitionSavedAmount: 0,
+          transportAmount: child.transportAmount,
+          transportSavedAmount: 0,
+          transportType: child.transportType,
+          transportDeadline: child.transportDeadline,
         ),
     ];
     contributions = [];

@@ -10,12 +10,51 @@ async function getVehicleOrThrow(id: string) {
   return vehicle;
 }
 
+const DEFAULT_VEHICLES = [
+  {
+    name: 'Moto Yamaha YBR 125',
+    description: 'Moto solide et économe, idéale pour le transport des enfants et déplacements professionnels.',
+    price: 650000,
+    images: ['https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600'],
+    isAvailable: true,
+  },
+  {
+    name: 'Vélo Tout-Terrain (VTT) Junior',
+    description: 'Vélo robuste équipé pour la piste, adapté aux élèves de collège et lycée.',
+    price: 95000,
+    images: ['https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=600'],
+    isAvailable: true,
+  },
+  {
+    name: 'Tricycle KAVAKI Cargo 200cc',
+    description: 'Engin 3 roues grand volume pour le transport familial et marchandises.',
+    price: 1200000,
+    images: ['https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=600'],
+    isAvailable: true,
+  },
+];
+
 export async function listVehicles(onlyAvailable = false): Promise<VehicleDto[]> {
   const where = onlyAvailable ? { isAvailable: true } : {};
-  const vehicles = await prisma.transportVehicle.findMany({
+  let vehicles = await prisma.transportVehicle.findMany({
     where,
     orderBy: { createdAt: 'desc' },
   });
+
+  if (vehicles.length === 0) {
+    try {
+      await prisma.transportVehicle.createMany({
+        data: DEFAULT_VEHICLES,
+      });
+      vehicles = await prisma.transportVehicle.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (_) {
+      // Best-effort auto-seed
+    }
+  }
+
   return vehicles.map(toVehicleDto);
 }
 
