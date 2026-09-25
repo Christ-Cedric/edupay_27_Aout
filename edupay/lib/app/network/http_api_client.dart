@@ -56,6 +56,12 @@ class HttpApiClient implements ApiClient {
     Map<String, dynamic>? body,
     bool allowRefresh = true,
   }) async {
+    // Si l'access token n'est pas encore en mémoire mais qu'on a un refresh token valide,
+    // on le rafraîchit immédiatement avant d'envoyer la requête pour éviter un aller-retour 401 inutile.
+    if (tokens.accessToken == null && tokens.refreshToken != null && allowRefresh) {
+      await _refresh();
+    }
+
     final response = await _dispatch(method, path, body);
 
     // Session expirée : on tente une rotation puis on rejoue une seule fois.
@@ -130,17 +136,33 @@ class HttpApiClient implements ApiClient {
     }
   }
 
-  Future<bool> _refresh() async {
+  Future<bool>? _refreshFuture;
+
+  /// Rafraîchissement sécurisé avec déduplication : plusieurs requêtes simultanées
+  /// partagent le même appel au lieu de déclencher des rotations concurrentes.
+  Future<bool> _refresh() {
+    return _refreshFuture ??= _doRefresh().whenComplete(() {
+      _refreshFuture = null;
+    });
+  }
+
+  Future<bool> _doRefresh() async {
+    final currentRefresh = tokens.refreshToken;
+    if (currentRefresh == null) return false;
     try {
       final response = await _client
           .post(
             Uri.parse('$baseUrl/auth/refresh'),
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'refresh_token': tokens.refreshToken}),
+            body: jsonEncode({'refresh_token': currentRefresh}),
           )
-          .timeout(_timeout);
+          .timeout(const Duration(seconds: 8));
+
       if (response.statusCode < 200 || response.statusCode >= 300) {
-        await tokens.clear(expired: true);
+        // Seule une vraie réponse d'invalidation (401/403) purge la session
+        if (response.statusCode == 401 || response.statusCode == 403) {
+          await tokens.clear(expired: true);
+        }
         return false;
       }
       final data =
@@ -151,7 +173,7 @@ class HttpApiClient implements ApiClient {
       );
       return true;
     } catch (_) {
-      await tokens.clear(expired: true);
+      // Un simple problème de réseau ou timeout ne doit JAMAIS déconnecter l'utilisateur.
       return false;
     }
   }

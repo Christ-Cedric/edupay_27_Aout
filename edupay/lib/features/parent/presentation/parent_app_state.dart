@@ -490,20 +490,29 @@ class ParentAppState extends ChangeNotifier {
         .map((c) => c.level)
         .where((l) => l.isNotEmpty)
         .toSet();
-    var changed = false;
-    for (final level in levels) {
-      try {
-        final kits = await repository.fetchKitsForClass(level);
-        if (kits.isEmpty) continue;
-        SchoolCatalogue.applyBackendKits(level, kits);
-        changed = true;
-      } catch (_) {
-        // Classe non synchronisée cette fois-ci : le catalogue statique reste
-        // affiché pour elle, pas d'erreur utilisateur pour un rafraîchissement
-        // en arrière-plan.
+    if (levels.isEmpty) return;
+    try {
+      final results = await Future.wait(
+        levels.map((level) async {
+          try {
+            final kits = await repository.fetchKitsForClass(level);
+            return (level, kits);
+          } catch (_) {
+            return (level, const []);
+          }
+        }),
+      );
+      var changed = false;
+      for (final item in results) {
+        final level = item.$1;
+        final kits = item.$2;
+        if (kits.isNotEmpty) {
+          SchoolCatalogue.applyBackendKits(level, kits);
+          changed = true;
+        }
       }
-    }
-    if (changed && !_disposed) notifyListeners();
+      if (changed && !_disposed) notifyListeners();
+    } catch (_) {}
   }
 
   List<NotificationItem> notifications = [];
@@ -1233,11 +1242,17 @@ class ParentAppState extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    // Avant de révoquer la session : le retrait du device nécessite encore un
-    // token valide pour s'authentifier auprès de `/notifications/device-token`.
-    await _fcm?.unregisterCurrentDevice();
-    await _auth.signOut();
+    // 1. Purge locale immédiate : l'utilisateur quitte l'espace connecté instantanément (< 50ms)
     _purgeSession();
+    // 2. Révocation réseau et retrait FCM en arrière-plan sans bloquer l'UI
+    unawaited(() async {
+      try {
+        await _fcm?.unregisterCurrentDevice().timeout(const Duration(seconds: 2));
+      } catch (_) {}
+      try {
+        await _auth.signOut().timeout(const Duration(seconds: 3));
+      } catch (_) {}
+    }());
   }
 
   /// Change le mot de passe côté backend. Retourne `null` en cas de succès, ou
@@ -1268,9 +1283,15 @@ class ParentAppState extends ChangeNotifier {
 
   /// Déconnexion de TOUS les appareils (y compris celui-ci).
   Future<void> signOutAllDevices() async {
-    await _fcm?.unregisterCurrentDevice();
-    await _auth.revokeAllSessions();
     _purgeSession();
+    unawaited(() async {
+      try {
+        await _fcm?.unregisterCurrentDevice().timeout(const Duration(seconds: 2));
+      } catch (_) {}
+      try {
+        await _auth.revokeAllSessions().timeout(const Duration(seconds: 3));
+      } catch (_) {}
+    }());
   }
 
   /// Remet l'app à l'état déconnecté et purge les données de session pour

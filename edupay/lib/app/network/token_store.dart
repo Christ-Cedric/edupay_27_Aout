@@ -21,6 +21,7 @@ class TokenStore {
             aOptions: AndroidOptions(),
           );
 
+  static const _accessKey = 'edupay_access_token';
   static const _refreshKey = 'edupay_refresh_token';
   // Borne un appel plateforme qui ne répondrait jamais (pas de handler natif
   // enregistré), pour ne pas geler indéfiniment le démarrage de l'app.
@@ -44,23 +45,28 @@ class TokenStore {
   /// redirige l'utilisateur vers l'écran de connexion.
   void Function()? onSessionExpired;
 
-  bool get isAuthenticated => accessToken != null;
+  bool get isAuthenticated => accessToken != null || refreshToken != null;
 
-  /// Recharge le refresh token persisté au démarrage de l'app. Retourne
-  /// `true` si une session existait déjà (l'utilisateur ne devrait pas revoir
-  /// l'écran de connexion).
+  /// Recharge les jetons persistés au démarrage de l'app. Retourne
+  /// `true` si une session existait déjà (l'utilisateur reste connecté).
   Future<bool> restore() async {
-    // Le trousseau système peut être indisponible (appareil sans enclave
-    // sécurisée, environnement de test) : on dégrade vers "pas de session"
-    // plutôt que de faire planter le démarrage de l'app.
     try {
-      refreshToken = await _storage
-          .read(key: _refreshKey)
-          .timeout(_storageTimeout);
+      final results = await Future.wait([
+        _storage.read(key: _accessKey).timeout(_storageTimeout),
+        _storage.read(key: _refreshKey).timeout(_storageTimeout),
+      ]);
+      accessToken = results[0];
+      refreshToken = results[1];
     } catch (_) {
-      refreshToken = null;
+      try {
+        refreshToken = await _storage
+            .read(key: _refreshKey)
+            .timeout(_storageTimeout);
+      } catch (_) {
+        refreshToken = null;
+      }
     }
-    return refreshToken != null;
+    return refreshToken != null || accessToken != null;
   }
 
   Future<void> setSession({
@@ -71,9 +77,10 @@ class TokenStore {
     refreshToken = refresh;
     registrationToken = null;
     try {
-      await _storage
-          .write(key: _refreshKey, value: refresh)
-          .timeout(_storageTimeout);
+      await Future.wait([
+        _storage.write(key: _accessKey, value: access).timeout(_storageTimeout),
+        _storage.write(key: _refreshKey, value: refresh).timeout(_storageTimeout),
+      ]);
     } catch (_) {
       // La session courante reste utilisable en mémoire ; elle ne survivra
       // simplement pas à un redémarrage si l'écriture échoue.
@@ -89,7 +96,10 @@ class TokenStore {
     registrationToken = null;
     resetToken = null;
     try {
-      await _storage.delete(key: _refreshKey).timeout(_storageTimeout);
+      await Future.wait([
+        _storage.delete(key: _accessKey).timeout(_storageTimeout),
+        _storage.delete(key: _refreshKey).timeout(_storageTimeout),
+      ]);
     } catch (_) {
       // Rien à faire de plus : l'état en mémoire est déjà purgé.
     }
