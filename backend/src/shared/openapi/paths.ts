@@ -977,7 +977,7 @@ registry.registerPath({
   request: { params: familyCodeParamSchema },
   responses: {
     200: jsonResponse('Famille.', FamilyDto),
-    404: errorResponse('Famille introuvable ou non assignée à cet agent.'),
+    404: errorResponse('Famille introuvable.'),
   },
 });
 
@@ -1112,7 +1112,7 @@ registry.registerPath({
   request: { params: idPathParam, body: jsonBody(agentContributionSchema) },
   responses: {
     200: jsonResponse('Cotisation créée et créditée.', ContributionDto),
-    404: errorResponse('Famille introuvable ou non assignée à cet agent.'),
+    404: errorResponse('Famille introuvable.'),
     409: errorResponse('Aucun objectif actif à créditer.'),
   },
 });

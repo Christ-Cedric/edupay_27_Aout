@@ -136,9 +136,14 @@ async function assertOwnFamily(agentId: string, familyId: string): Promise<void>
 }
 
 /** Encaissement cash sur le terrain — `collected_by_agent_id` est toujours
- * l'agent authentifié, jamais une valeur envoyée par le client. Le header
- * `X-Idempotency-Key` (optionnel) protège d'un double-tap sur un réseau
- * terrain instable — rejouer la même clé renvoie la même cotisation. */
+ * l'agent authentifié, jamais une valeur envoyée par le client.
+ *
+ * RÈGLE D'INCLUSION UNIVERSELLE : N'importe quel client peut payer sa cotisation
+ * auprès de n'importe quel agent certifié, même s'il n'est pas initialement
+ * assigné à cet agent (ou s'il n'a pas encore d'agent référent).
+ * L'agent qui encaisse perçoit sa commission de collecte.
+ * Si le client n'avait aucun agent référent, il est automatiquement rattaché
+ * à cet agent pour son suivi de proximité. */
 export async function recordContribution(
   agentId: string,
   familyId: string,
@@ -146,7 +151,20 @@ export async function recordContribution(
   idempotencyKey?: string,
   targetGoalType?: any,
 ) {
-  await assertOwnFamily(agentId, familyId);
+  const family = await prisma.user.findFirst({
+    where: { id: familyId, role: 'client' },
+    select: { id: true, assignedAgentId: true },
+  });
+  if (!family) throw ApiError.notFound('Famille introuvable.');
+
+  // Si la famille n'a aucun agent référent assigné, on la rattache à cet agent
+  if (!family.assignedAgentId) {
+    await prisma.user.update({
+      where: { id: familyId },
+      data: { assignedAgentId: agentId },
+    });
+  }
+
   return paymentsService.recordCashContribution(
     agentId,
     familyId,
@@ -213,16 +231,23 @@ export async function remindLateFamily(agentId: string, familyId: string) {
   return { reminded: true };
 }
 
-/** Identification terrain rapide (QR agent) — retrouve une famille par son
- * `familyCode`, uniquement si elle est assignée à cet agent. */
+/** Identification terrain rapide (QR agent, code famille, téléphone ou ID) — retrouve
+ * n'importe quelle famille cliente, même si elle n'est pas assignée à cet agent.
+ * Tout client doit pouvoir être identifié et payer sa cotisation avec n'importe quel agent. */
 export async function getFamilyByCode(agentId: string, code: string) {
   const family = await prisma.user.findFirst({
-    where: { familyCode: code, role: 'client', assignedAgentId: agentId },
+    where: {
+      role: 'client',
+      OR: [
+        { familyCode: code },
+        { phone: code },
+        { id: code },
+      ],
+    },
     select: { id: true },
   });
-  if (!family) throw ApiError.notFound('Famille introuvable ou non assignée à cet agent.');
-  const families = await listFamilies({ assignedAgentId: agentId });
-  return families.find((f) => f.id === family.id);
+  if (!family) throw ApiError.notFound('Famille introuvable.');
+  return getFamily(family.id);
 }
 
 /** Enrôle une nouvelle famille — `assigned_agent_id` est toujours l'agent
@@ -232,9 +257,14 @@ export async function enrollFamily(agentId: string, input: EnrollFamilyInput) {
   return adminEnrollFamily(agentId, { ...input, assigned_agent_id: agentId });
 }
 
-/** Détail d'une famille assignée à cet agent. */
+/** Détail d'une famille — accessible pour son agent référent ou pour tout agent
+ * effectuant un encaissement terrain. */
 export async function getFamilyDetail(agentId: string, familyId: string) {
-  await assertOwnFamily(agentId, familyId);
+  const family = await prisma.user.findFirst({
+    where: { id: familyId, role: 'client' },
+    select: { id: true },
+  });
+  if (!family) throw ApiError.notFound('Famille introuvable.');
   return getFamily(familyId);
 }
 
@@ -262,9 +292,13 @@ export async function archiveFamily(agentId: string, familyId: string) {
   return adminArchiveFamily(agentId, familyId);
 }
 
-/** Historique des cotisations d'une famille assignée à cet agent. */
+/** Historique des cotisations d'une famille — accessible pour vérifier les versements récents. */
 export async function getFamilyContributions(agentId: string, familyId: string) {
-  await assertOwnFamily(agentId, familyId);
+  const family = await prisma.user.findFirst({
+    where: { id: familyId, role: 'client' },
+    select: { id: true },
+  });
+  if (!family) throw ApiError.notFound('Famille introuvable.');
   return listFamilyContributions(familyId);
 }
 
@@ -285,10 +319,13 @@ export async function getContribution(agentId: string, contributionId: string) {
   return contribution;
 }
 
-/** Historique comptable complet (équivalent "wallet transactions") d'une
- * famille assignée à cet agent. */
+/** Historique comptable complet (équivalent "wallet transactions") d'une famille. */
 export async function getFamilyLedger(agentId: string, familyId: string) {
-  await assertOwnFamily(agentId, familyId);
+  const family = await prisma.user.findFirst({
+    where: { id: familyId, role: 'client' },
+    select: { id: true },
+  });
+  if (!family) throw ApiError.notFound('Famille introuvable.');
   return listFamilyLedger(familyId);
 }
 
