@@ -37,4 +37,7 @@ class AgentRepositoryImpl implements AgentRepository {
 
   @override
   Future<Agent> reactivateAgent(String id) => _dataSource.reactivate(id);
+
+  @override
+  Future<void> deleteAgent(String id) => _dataSource.delete(id);
 }

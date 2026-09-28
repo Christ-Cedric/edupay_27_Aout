@@ -78,6 +78,34 @@ class _AgentDetailBody extends ConsumerWidget {
     );
   }
 
+  Future<void> _deleteAgent(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Supprimer cet agent ?',
+      message:
+          'Cette action est irréversible. L\'agent "${agent.fullName}" '
+          'sera définitivement retiré du système.',
+      confirmLabel: 'Supprimer définitivement',
+      danger: true,
+    );
+    if (!confirmed) return;
+
+    final controller = ref.read(agentStatusControllerProvider.notifier);
+    await controller.delete(agent.id);
+    if (!context.mounted) return;
+
+    if (ref.read(agentStatusControllerProvider).hasError) {
+      showAppToast(
+        context,
+        'Impossible de supprimer cet agent',
+        type: AppToastType.error,
+      );
+      return;
+    }
+    showAppToast(context, 'Agent supprimé avec succès');
+    context.pop();
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final submitting = ref.watch(agentStatusControllerProvider).isLoading;
@@ -119,9 +147,17 @@ class _AgentDetailBody extends ConsumerWidget {
         const SizedBox(height: AppSpacing.lg),
         AppButton(
           label: isActive ? 'Suspendre cet agent' : 'Réactiver cet agent',
-          variant: isActive ? AppButtonVariant.danger : AppButtonVariant.green,
+          variant: isActive ? AppButtonVariant.outline : AppButtonVariant.green,
           loading: submitting,
           onPressed: submitting ? null : () => _toggleStatus(context, ref),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        AppButton(
+          label: 'Supprimer cet agent',
+          icon: Icons.delete_outline,
+          variant: AppButtonVariant.danger,
+          loading: submitting,
+          onPressed: submitting ? null : () => _deleteAgent(context, ref),
         ),
       ],
     );

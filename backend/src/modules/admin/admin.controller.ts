@@ -56,6 +56,11 @@ export async function reactivateAgentHandler(req: Request, res: Response): Promi
   ok(res, await adminService.reactivateAgent(actorId(req), id));
 }
 
+export async function deleteAgentHandler(req: Request, res: Response): Promise<void> {
+  const { id } = idParamSchema.parse(req.params);
+  ok(res, await adminService.deleteAgent(actorId(req), id));
+}
+
 export async function dashboardHandler(_req: Request, res: Response): Promise<void> {
   ok(res, await adminService.dashboardStats());
 }

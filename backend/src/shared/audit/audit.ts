@@ -10,6 +10,7 @@ import { Prisma } from '@prisma/client';
 /** Actions traçées — union fermée pour éviter les fautes de frappe. */
 export type AuditAction =
   | 'agent.created'
+  | 'agent.deleted'
   | 'user.suspended'
   | 'user.reactivated'
   | 'client.approved'

@@ -17,4 +17,6 @@ abstract interface class AgentRepository {
   Future<Agent> suspendAgent(String id);
 
   Future<Agent> reactivateAgent(String id);
+
+  Future<void> deleteAgent(String id);
 }

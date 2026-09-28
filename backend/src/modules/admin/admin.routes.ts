@@ -16,6 +16,7 @@ import {
   assignKitHandler,
   createAgentHandler,
   dashboardHandler,
+  deleteAgentHandler,
   enrollFamilyHandler,
   familyContributionsHandler,
   getAgentHandler,
@@ -83,5 +84,6 @@ adminRouter.use('/refunds', refundsRouter);
 adminRouter.get('/agents', asyncHandler(listAgentsHandler));
 adminRouter.post('/agents', asyncHandler(createAgentHandler));
 adminRouter.get('/agents/:id', asyncHandler(getAgentHandler));
+adminRouter.delete('/agents/:id', asyncHandler(deleteAgentHandler));
 adminRouter.post('/agents/:id/suspend', asyncHandler(suspendAgentHandler));
 adminRouter.post('/agents/:id/reactivate', asyncHandler(reactivateAgentHandler));

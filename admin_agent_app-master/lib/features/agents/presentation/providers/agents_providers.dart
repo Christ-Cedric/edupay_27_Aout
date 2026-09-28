@@ -105,4 +105,13 @@ class AgentStatusController extends _$AgentStatusController {
       ref.invalidate(agentDetailProvider(id));
     });
   }
+
+  Future<void> delete(String id) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(agentRepositoryProvider).deleteAgent(id);
+      ref.invalidate(agentsListProvider);
+      ref.invalidate(agentDetailProvider(id));
+    });
+  }
 }

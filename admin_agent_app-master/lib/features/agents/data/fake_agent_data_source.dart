@@ -98,6 +98,14 @@ class FakeAgentDataSource implements AgentDataSource {
     return _replace(id, agent.copyWith(status: AgentStatus.active));
   }
 
+  @override
+  Future<void> delete(String id) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final index = _agents.indexWhere((a) => a.id == id);
+    if (index == -1) throw AgentFailure('Agent introuvable : $id');
+    _agents.removeAt(index);
+  }
+
   Agent _replace(String id, Agent updated) {
     final index = _agents.indexWhere((a) => a.id == id);
     _agents[index] = updated;

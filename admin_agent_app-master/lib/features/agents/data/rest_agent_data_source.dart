@@ -72,6 +72,16 @@ class RestAgentDataSource implements AgentDataSource {
   @override
   Future<Agent> reactivate(String id) => _postStatus(ApiRoutes.adminReactivateAgent(id));
 
+  @override
+  Future<void> delete(String id) async {
+    try {
+      await _client.delete(ApiRoutes.adminAgent(id));
+    } on ApiException catch (e) {
+      if (e.statusCode == 404) throw AgentFailure(e.message);
+      rethrow;
+    }
+  }
+
   Future<Agent> _postStatus(String path) async {
     try {
       final json = await _client.post(path);

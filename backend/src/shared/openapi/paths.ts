@@ -1333,6 +1333,22 @@ registry.registerPath({
 });
 
 registry.registerPath({
+  method: 'delete',
+  path: '/admin/agents/{id}',
+  tags: ['Admin · Agents'],
+  summary: 'Supprimer définitivement un agent',
+  description: 'Dissocie ses clients et livraisons, purge ses commissions, son profil et son compte.',
+  security: bearerAuth,
+  request: { params: idPathParam },
+  responses: {
+    200: jsonResponse('Agent supprimé.', z.object({ success: z.boolean(), message: z.string() })),
+    401: errorResponse('Authentification requise.'),
+    403: errorResponse('Réservé admin / mot de passe à changer.'),
+    404: errorResponse('Agent introuvable.'),
+  },
+});
+
+registry.registerPath({
   method: 'get',
   path: '/admin/audit-logs',
   tags: ['Admin · Audit'],

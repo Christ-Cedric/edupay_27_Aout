@@ -223,6 +223,56 @@ export async function reactivateAgent(actorId: string, agentId: string) {
   return toAgentDto(updated);
 }
 
+/** Supprime définitivement un agent : dissocie ses clients, livraisons, supprime ses commissions, son profil et son compte utilisateur. */
+export async function deleteAgent(actorId: string, agentId: string) {
+  const agent = await getAgentOrThrow(agentId);
+
+  await prisma.$transaction(async (tx) => {
+    // 1. Dissocier les clients rattachés
+    await tx.user.updateMany({
+      where: { assignedAgentId: agentId },
+      data: { assignedAgentId: null },
+    });
+
+    // 2. Dissocier les livraisons assignées
+    await tx.delivery.updateMany({
+      where: { assignedAgentId: agentId },
+      data: { assignedAgentId: null },
+    });
+
+    // 3. Supprimer les commissions de l'agent
+    await tx.agentCommission.deleteMany({
+      where: { agentId },
+    });
+
+    // 4. Supprimer le profil agent
+    await tx.agentProfile.deleteMany({
+      where: { userId: agentId },
+    });
+
+    // 5. Supprimer le compte utilisateur (cascade sur RefreshToken, Session, DeviceToken, Notification)
+    await tx.user.delete({
+      where: { id: agentId },
+    });
+
+    // 6. Enregistrer dans l'audit log
+    await writeAudit(tx, {
+      actorId,
+      action: 'agent.deleted',
+      entity: 'user',
+      entityId: agentId,
+      before: {
+        fullName: agent.fullName,
+        phone: agent.phone,
+        zone: agent.agentProfile?.zone,
+        contractType: agent.agentProfile?.contractType,
+      },
+    });
+  });
+
+  return { success: true, message: 'Agent supprimé avec succès.' };
+}
+
 export async function listAuditLogs(query: PaginationQuery) {
   const [total, logs] = await prisma.$transaction([
     prisma.auditLog.count(),

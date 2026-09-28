@@ -24,4 +24,6 @@ abstract interface class AgentDataSource {
   Future<Agent> suspend(String id);
 
   Future<Agent> reactivate(String id);
+
+  Future<void> delete(String id);
 }
