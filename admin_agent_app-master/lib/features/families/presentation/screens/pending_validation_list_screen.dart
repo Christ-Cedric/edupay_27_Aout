@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -29,9 +28,8 @@ class PendingValidationListScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(
+      appBar: const AppHeader(
         title: 'Comptes en attente',
-        onBack: () => context.pop(),
       ),
       body: pendingAsync.when(
         data: (families) => families.isEmpty

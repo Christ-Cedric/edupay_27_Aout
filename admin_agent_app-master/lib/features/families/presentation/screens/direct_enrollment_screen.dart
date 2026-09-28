@@ -227,7 +227,9 @@ class _DirectEnrollmentScreenState
       backgroundColor: AppColors.navy,
       appBar: AppHeader(
         title: 'Inscrire un client',
-        onBack: () => context.pop(),
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/families'),
       ),
       body: kitsAsync.when(
         data: (kits) => agentsAsync.when(

@@ -30,7 +30,7 @@ class RefundsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Remboursements', onBack: () => context.pop()),
+      appBar: const AppHeader(title: 'Remboursements'),
       body: pendingAsync.when(
         data: (refunds) => ListView(
           padding: const EdgeInsets.all(AppSpacing.md),

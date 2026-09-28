@@ -32,7 +32,12 @@ class EditKitScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Modifier le kit', onBack: () => context.pop()),
+      appBar: AppHeader(
+        title: 'Modifier le kit',
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/settings/kits'),
+      ),
       body: kitAsync.when(
         data: (kit) => _EditKitBody(kit: kit),
         loading: () => const LoadingScreen(),

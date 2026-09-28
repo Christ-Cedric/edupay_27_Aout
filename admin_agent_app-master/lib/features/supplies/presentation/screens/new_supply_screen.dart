@@ -69,7 +69,12 @@ class _NewSupplyScreenState extends ConsumerState<NewSupplyScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Nouvelle fourniture', onBack: () => context.pop()),
+      appBar: AppHeader(
+        title: 'Nouvelle fourniture',
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/settings/kits/supplies'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: ListView(

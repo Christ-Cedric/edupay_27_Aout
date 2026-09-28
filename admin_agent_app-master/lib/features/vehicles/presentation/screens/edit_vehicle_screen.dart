@@ -168,7 +168,9 @@ class _EditVehicleScreenState extends ConsumerState<EditVehicleScreen> {
       backgroundColor: AppColors.navy,
       appBar: AppHeader(
         title: 'Modifier l\'engin',
-        onBack: () => context.pop(),
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/settings/vehicles'),
       ),
       body: vehicleAsync.when(
         data: (vehicle) {

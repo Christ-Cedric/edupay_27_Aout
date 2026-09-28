@@ -101,7 +101,7 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Mon compte', onBack: () => context.pop()),
+      appBar: const AppHeader(title: 'Mon compte'),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: ListView(

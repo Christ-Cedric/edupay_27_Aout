@@ -28,7 +28,6 @@ class AgentsListScreen extends ConsumerWidget {
       backgroundColor: AppColors.navy,
       appBar: AppHeader(
         title: 'Agents terrain',
-        onBack: () => context.pop(),
         trailing: IconButton(
           icon: const Icon(
             Icons.person_add_alt,

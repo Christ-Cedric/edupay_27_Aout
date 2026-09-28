@@ -102,7 +102,12 @@ class _NewAgentScreenState extends ConsumerState<NewAgentScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Ajouter un agent', onBack: () => context.pop()),
+      appBar: AppHeader(
+        title: 'Ajouter un agent',
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/settings/agents'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: ListView(

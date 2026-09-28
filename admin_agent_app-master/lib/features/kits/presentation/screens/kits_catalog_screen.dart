@@ -109,7 +109,6 @@ class KitsCatalogScreen extends ConsumerWidget {
       backgroundColor: AppColors.navy,
       appBar: AppHeader(
         title: 'Catalogue Kits',
-        onBack: () => context.pop(),
         trailing: IconButton(
           icon: const Icon(
             Icons.bar_chart,

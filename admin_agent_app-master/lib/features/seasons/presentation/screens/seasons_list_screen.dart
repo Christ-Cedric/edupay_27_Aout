@@ -72,7 +72,6 @@ class SeasonsListScreen extends ConsumerWidget {
       backgroundColor: AppColors.navy,
       appBar: AppHeader(
         title: 'Gestion des saisons',
-        onBack: () => context.pop(),
         trailing: IconButton(
           icon: const Icon(
             Icons.add_circle_outline,

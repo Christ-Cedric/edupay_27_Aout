@@ -27,7 +27,12 @@ class EditSupplyScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Modifier la fourniture', onBack: () => context.pop()),
+      appBar: AppHeader(
+        title: 'Modifier la fourniture',
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/settings/kits/supplies'),
+      ),
       body: supplyAsync.when(
         data: (supply) => _EditSupplyBody(supply: supply),
         loading: () => const LoadingScreen(),

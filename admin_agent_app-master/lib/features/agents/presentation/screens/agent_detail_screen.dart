@@ -30,7 +30,12 @@ class AgentDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Dossier agent', onBack: () => context.pop()),
+      appBar: AppHeader(
+        title: 'Dossier agent',
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/settings/agents'),
+      ),
       body: agentAsync.when(
         data: (agent) => _AgentDetailBody(agent: agent),
         loading: () => const LoadingScreen(),

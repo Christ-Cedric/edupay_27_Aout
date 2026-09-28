@@ -35,7 +35,12 @@ class FamilyDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Dossier famille', onBack: () => context.pop()),
+      appBar: AppHeader(
+        title: 'Dossier famille',
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/families'),
+      ),
       body: familyAsync.when(
         data: (family) => _FamilyDetailBody(family: family),
         loading: () => const LoadingScreen(),

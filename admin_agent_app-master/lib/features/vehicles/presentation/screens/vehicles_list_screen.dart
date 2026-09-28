@@ -27,9 +27,8 @@ class VehiclesListScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(
+      appBar: const AppHeader(
         title: 'Moyens de Déplacement',
-        onBack: () => context.pop(),
       ),
       body: vehiclesAsync.when(
         data: (vehicles) {

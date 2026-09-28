@@ -107,7 +107,12 @@ class _NewSeasonScreenState extends ConsumerState<NewSeasonScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Nouvelle saison', onBack: () => context.pop()),
+      appBar: AppHeader(
+        title: 'Nouvelle saison',
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/settings/seasons'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: ListView(

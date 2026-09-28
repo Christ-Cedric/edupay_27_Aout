@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/export/csv_exporter.dart';
@@ -215,7 +214,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Rapports Exports', onBack: () => context.pop()),
+      appBar: const AppHeader(title: 'Rapports Exports'),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.md),
         children: [

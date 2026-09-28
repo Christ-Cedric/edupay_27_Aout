@@ -84,7 +84,12 @@ class _NewKitScreenState extends ConsumerState<NewKitScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Nouveau kit', onBack: () => context.pop()),
+      appBar: AppHeader(
+        title: 'Nouveau kit',
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/settings/kits'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: ListView(

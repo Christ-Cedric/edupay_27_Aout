@@ -33,7 +33,12 @@ class RefundDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Remboursement', onBack: () => context.pop()),
+      appBar: AppHeader(
+        title: 'Remboursement',
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/finances/refunds'),
+      ),
       body: refundAsync.when(
         data: (refund) => _RefundDetailBody(refund: refund),
         loading: () => const LoadingScreen(),

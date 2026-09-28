@@ -35,7 +35,9 @@ class FamilyContractScreen extends ConsumerWidget {
       backgroundColor: AppColors.navy,
       appBar: AppHeader(
         title: "Contrat d'engagement",
-        onBack: () => context.pop(),
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/families/$familyId'),
         trailing: familyAsync.maybeWhen(
           data: (family) {
             final document = buildContractDocumentFromFamily(family: family);

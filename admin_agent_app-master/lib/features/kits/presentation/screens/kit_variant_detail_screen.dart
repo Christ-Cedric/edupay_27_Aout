@@ -39,7 +39,12 @@ class _KitVariantDetailScreenState extends ConsumerState<KitVariantDetailScreen>
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: widget.level.label, onBack: () => context.pop()),
+      appBar: AppHeader(
+        title: widget.level.label,
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/settings/kits'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(

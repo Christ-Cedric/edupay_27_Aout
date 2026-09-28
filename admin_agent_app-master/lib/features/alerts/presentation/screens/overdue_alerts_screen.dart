@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/widgets/app_header.dart';
@@ -12,10 +11,10 @@ class OverdueAlertsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Alertes impayés', onBack: () => context.pop()),
-      body: const OverdueFamiliesPanel(),
+      appBar: AppHeader(title: 'Alertes impayés'),
+      body: OverdueFamiliesPanel(),
     );
   }
 }

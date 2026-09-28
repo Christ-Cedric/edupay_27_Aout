@@ -33,7 +33,9 @@ class RecordContributionScreen extends ConsumerWidget {
       backgroundColor: AppColors.navy,
       appBar: AppHeader(
         title: 'Enregistrer un encaissement',
-        onBack: () => context.pop(),
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/families/$familyId'),
       ),
       body: familyAsync.when(
         data: (family) =>

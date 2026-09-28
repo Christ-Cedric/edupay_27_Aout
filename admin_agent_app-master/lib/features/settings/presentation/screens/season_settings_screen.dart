@@ -60,7 +60,7 @@ class SeasonSettingsScreen extends ConsumerWidget {
           ),
           AppNavRow(
             label: 'Moyens de déplacement',
-            onTap: () => context.push('/admin/vehicles'),
+            onTap: () => context.push('/admin/settings/vehicles'),
           ),
           AppNavRow(
             label: 'Journal d\'audit',

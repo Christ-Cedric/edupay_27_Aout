@@ -44,7 +44,9 @@ class FamilyChildrenScreen extends ConsumerWidget {
       backgroundColor: AppColors.navy,
       appBar: AppHeader(
         title: 'Enfants',
-        onBack: () => context.pop(),
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/families/$familyId'),
         trailing: IconButton(
           icon: const Icon(
             Icons.person_add_alt,

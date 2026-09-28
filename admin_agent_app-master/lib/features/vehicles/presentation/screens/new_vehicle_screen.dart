@@ -140,7 +140,9 @@ class _NewVehicleScreenState extends ConsumerState<NewVehicleScreen> {
       backgroundColor: AppColors.navy,
       appBar: AppHeader(
         title: 'Ajouter un Engin',
-        onBack: () => context.pop(),
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/settings/vehicles'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),

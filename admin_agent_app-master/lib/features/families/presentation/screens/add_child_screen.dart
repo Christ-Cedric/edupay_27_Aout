@@ -69,7 +69,12 @@ class _AddChildScreenState extends ConsumerState<AddChildScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Ajouter un enfant', onBack: () => context.pop()),
+      appBar: AppHeader(
+        title: 'Ajouter un enfant',
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/families/${widget.familyId}/children'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: ListView(

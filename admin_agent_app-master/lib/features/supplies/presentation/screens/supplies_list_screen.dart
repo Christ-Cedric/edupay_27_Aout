@@ -28,7 +28,7 @@ class SuppliesListScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Fournitures', onBack: () => context.pop()),
+      appBar: const AppHeader(title: 'Fournitures'),
       body: suppliesAsync.when(
         data: (supplies) {
           final byCategory = <String, List<Supply>>{};

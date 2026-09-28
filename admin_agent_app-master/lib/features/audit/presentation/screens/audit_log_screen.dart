@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -26,7 +25,7 @@ class AuditLogScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Journal d\'audit', onBack: () => context.pop()),
+      appBar: const AppHeader(title: 'Journal d\'audit'),
       body: logsAsync.when(
         data: (logs) => logs.isEmpty
             ? const EmptyState(

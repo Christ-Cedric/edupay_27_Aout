@@ -31,7 +31,12 @@ class KitStatsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.navy,
-      appBar: AppHeader(title: 'Stats Kits', onBack: () => context.pop()),
+      appBar: AppHeader(
+        title: 'Stats Kits',
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go('/admin/settings/kits'),
+      ),
       body: kitsAsync.when(
         data: (kits) => familiesAsync.when(
           data: (families) {
