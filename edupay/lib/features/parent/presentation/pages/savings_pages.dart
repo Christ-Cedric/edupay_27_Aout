@@ -74,9 +74,7 @@ class _SavingsDetailPageState extends State<SavingsDetailPage> {
     // BUG #2 fix : utiliser le plan de la catégorie active, pas le plan global.
     // Cela garantit que la "part de cet enfant" est calculée sur le reste DUE
     // de cette catégorie uniquement, et non sur le reste de toutes les cotisations.
-    final categoryPlan = goalType != null
-        ? state.savingsPlanFor(goalType!)
-        : state.savingsPlan;
+    final categoryPlan = state.savingsPlanFor(goalType);
     final childShare = childShareOfContribution(
       contribution: categoryPlan.perPeriodAmount,
       childRemaining: remaining,
@@ -176,7 +174,7 @@ class _SavingsDetailPageState extends State<SavingsDetailPage> {
                   Text(
                     '$percent%',
                     style: TextStyle(
-                      color: palette.onSurface(.6),
+                      color: palette.accentGreen,
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
                     ),
@@ -184,57 +182,37 @@ class _SavingsDetailPageState extends State<SavingsDetailPage> {
                 ],
               ),
               const SizedBox(height: 12),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final maxWidth = constraints.maxWidth;
-                  final fillWidth = maxWidth * progress;
-                  return Container(
-                    height: 28,
-                    width: maxWidth,
-                    decoration: BoxDecoration(
-                      color: palette.onSurface(.08),
-                      borderRadius: BorderRadius.circular(14),
+              AppProgressBar(
+                progress: progress,
+                height: 8,
+                backgroundColor: palette.onSurface(.08),
+                color: palette.accentGreen,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Objectif : ${_money(target)} F',
+                    style: TextStyle(
+                      color: palette.onSurface(.55),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                     ),
-                    child: Stack(
-                      children: [
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: Text(
-                              'Objectif : ${_money(target)} F',
-                              style: TextStyle(
-                                color: palette.onSurface(.4),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (progress > 0)
-                          Container(
-                            width: fillWidth,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF82F4B1), Color(0xFF30C5D2)],
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(
-                                    0xFF30C5D2,
-                                  ).withValues(alpha: 0.4),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                          ),
-                      ],
+                  ),
+                  Text(
+                    remaining > 0
+                        ? 'Reste : ${_money(remaining)} F'
+                        : 'Objectif atteint !',
+                    style: TextStyle(
+                      color: remaining > 0
+                          ? palette.onSurface(.55)
+                          : palette.accentGreen,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               if (percent >= 70)
