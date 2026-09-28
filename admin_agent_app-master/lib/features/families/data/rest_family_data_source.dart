@@ -243,4 +243,24 @@ class RestFamilyDataSource implements FamilyDataSource {
       rethrow;
     }
   }
+
+  @override
+  Future<Family> assignAgent({
+    required String familyId,
+    required String? agentId,
+  }) async {
+    try {
+      final json = await _client.patch(
+        ApiRoutes.adminFamilyAgent(familyId),
+        body: {'assigned_agent_id': agentId},
+      );
+      return _parseFamily(json);
+    } on ApiException catch (e) {
+      if (e.statusCode == 400 || e.statusCode == 404) {
+        throw FamilyFailure(e.message);
+      }
+      rethrow;
+    }
+  }
 }
+

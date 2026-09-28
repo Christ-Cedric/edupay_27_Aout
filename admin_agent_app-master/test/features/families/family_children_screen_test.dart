@@ -83,7 +83,14 @@ class _FakeFamilyRepository implements FamilyRepository {
     required String childId,
     required String kitId,
   }) => throw UnimplementedError();
+
+  @override
+  Future<Family> assignAgent({
+    required String familyId,
+    required String? agentId,
+  }) => throw UnimplementedError();
 }
+
 
 Family _familyWith(List<FamilyChild> children) => Family(
   id: 'fam-1',

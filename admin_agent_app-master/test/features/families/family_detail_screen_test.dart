@@ -113,7 +113,14 @@ class _FakeFamilyRepository implements FamilyRepository {
     required String childId,
     required String kitId,
   }) => throw UnimplementedError();
+
+  @override
+  Future<Family> assignAgent({
+    required String familyId,
+    required String? agentId,
+  }) => throw UnimplementedError();
 }
+
 
 Future<void> _pump(WidgetTester tester, _FakeFamilyRepository repository) {
   return tester.pumpWidget(

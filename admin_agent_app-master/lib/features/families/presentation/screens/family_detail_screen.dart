@@ -22,7 +22,9 @@ import '../../domain/models/family.dart';
 import '../../domain/models/family_status.dart';
 import '../../domain/models/savings_plan.dart';
 import '../providers/families_providers.dart';
+import '../widgets/assign_agent_sheet.dart';
 import '../widgets/family_status_tag.dart';
+
 
 /// Dossier détaillé d'une famille (motif `ad_do` du prototype).
 class FamilyDetailScreen extends ConsumerWidget {
@@ -72,13 +74,37 @@ class _FamilyDetailBody extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(family.fullName, style: AppTextStyles.h2),
-                  Text(
-                    [
-                      family.phone,
-                      if (family.assignedAgentName != null)
-                        'Agent : ${family.assignedAgentName}',
-                    ].join(' - '),
-                    style: AppTextStyles.caption,
+                  InkWell(
+                    onTap: () => showAssignAgentSheet(context, family),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            [
+                              family.phone,
+                              if (family.assignedAgentName != null)
+                                'Agent : ${family.assignedAgentName}'
+                              else
+                                'Attribuer un agent',
+                            ].join(' - '),
+                            style: AppTextStyles.caption.copyWith(
+                              color: family.assignedAgentName == null
+                                  ? AppColors.gold
+                                  : null,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.edit_outlined,
+                          size: 13,
+                          color: family.assignedAgentName == null
+                              ? AppColors.gold
+                              : AppColors.textSecondary,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -171,26 +197,42 @@ class _FamilyDetailBody extends ConsumerWidget {
                       '${family.deliveryLocationLat!.toStringAsFixed(5)}, ${family.deliveryLocationLng!.toStringAsFixed(5)}',
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton.icon(
-                    onPressed: () async {
-                      final uri = Uri.parse(
-                        'https://www.google.com/maps/search/?api=1&query=${family.deliveryLocationLat},${family.deliveryLocationLng}',
-                      );
-                      if (await canLaunchUrl(uri)) {
-                        await launchUrl(
-                          uri,
-                          mode: LaunchMode.externalApplication,
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.map_outlined, size: 16),
-                    label: const Text('Ouvrir dans Google Maps'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.green,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () => showAssignAgentSheet(context, family),
+                      icon: const Icon(Icons.person_pin_circle_outlined, size: 16),
+                      label: Text(
+                        family.assignedAgentName != null
+                            ? 'Transmis à ${family.assignedAgentName}'
+                            : 'Envoyer à un agent',
+                      ),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.gold,
+                        visualDensity: VisualDensity.compact,
+                      ),
                     ),
-                  ),
+                    TextButton.icon(
+                      onPressed: () async {
+                        final uri = Uri.parse(
+                          'https://www.google.com/maps/search/?api=1&query=${family.deliveryLocationLat},${family.deliveryLocationLng}',
+                        );
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(
+                            uri,
+                            mode: LaunchMode.externalApplication,
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.map_outlined, size: 16),
+                      label: const Text('Google Maps'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.green,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -198,10 +240,17 @@ class _FamilyDetailBody extends ConsumerWidget {
         ],
         const SizedBox(height: AppSpacing.md),
         _ActionRow(
+          label: family.assignedAgentName != null
+              ? 'Agent assigné : ${family.assignedAgentName}'
+              : 'Attribuer la mission à un agent',
+          onTap: () => showAssignAgentSheet(context, family),
+        ),
+        _ActionRow(
           label: 'Voir le contrat',
           onTap: () =>
               context.push('${RoutePaths.adminFamilies}/${family.id}/contract'),
         ),
+
         _ActionRow(
           label: 'Historique cotisations',
           onTap: () => showCollectionHistorySheet(context, family.id),

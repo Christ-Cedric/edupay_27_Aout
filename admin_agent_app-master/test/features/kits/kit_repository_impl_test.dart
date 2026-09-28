@@ -81,7 +81,14 @@ class _EmptyFamilyRepository implements FamilyRepository {
     required String childId,
     required String kitId,
   }) => throw UnimplementedError();
+
+  @override
+  Future<Family> assignAgent({
+    required String familyId,
+    required String? agentId,
+  }) => throw UnimplementedError();
 }
+
 
 void main() {
   test('deleteKit refuse de supprimer un kit assigné à des familles', () async {

@@ -382,8 +382,24 @@ class FakeFamilyDataSource implements FamilyDataSource {
     return fetchById(familyId);
   }
 
+  @override
+  Future<Family> assignAgent({
+    required String familyId,
+    required String? agentId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    _replace(
+      familyId,
+      (f) => f.copyWith(
+        assignedAgentName: agentId != null ? 'Agent $agentId' : null,
+      ),
+    );
+    return fetchById(familyId);
+  }
+
   void _replace(String id, Family Function(Family) update) {
     final index = _families.indexWhere((f) => f.id == id);
     if (index != -1) _families[index] = update(_families[index]);
   }
 }
+

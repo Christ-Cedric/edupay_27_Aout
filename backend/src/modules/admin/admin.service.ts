@@ -1497,6 +1497,10 @@ export async function reassignAgent(actorId: string, clientId: string, agentId: 
 
   await prisma.$transaction(async (tx) => {
     await tx.user.update({ where: { id: clientId }, data: { assignedAgentId: agentId } });
+    await tx.delivery.updateMany({
+      where: { parentId: clientId, status: { not: 'receiptConfirmed' } },
+      data: { assignedAgentId: agentId },
+    });
     await writeAudit(tx, {
       actorId,
       action: 'family.agent_reassigned',
@@ -1521,12 +1525,21 @@ export async function reassignAgent(actorId: string, clientId: string, agentId: 
       )
       .catch(() => {});
     if (agentId) {
+      const activeDelivery = client.deliveries[0];
+      const addressInfo = activeDelivery?.address
+        ? `\nLieu de livraison : ${activeDelivery.address}`
+        : (client.city ? `\nZone : ${client.city}` : '');
+      const gpsInfo =
+        activeDelivery?.locationLat != null && activeDelivery?.locationLng != null
+          ? ` (GPS: ${activeDelivery.locationLat.toFixed(5)}, ${activeDelivery.locationLng.toFixed(5)})`
+          : '';
+
       notificationsService
         .notify(
           agentId,
           'family_assigned_to_agent',
-          'Nouvelle famille assignée',
-          `${client.fullName} vous a été assignée comme famille référente.`,
+          'Nouvelle mission & localisation assignées',
+          `La famille ${client.fullName} vous a été attribuée.${addressInfo}${gpsInfo}`,
         )
         .catch(() => {});
     }

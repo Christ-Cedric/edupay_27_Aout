@@ -17,6 +17,7 @@ import '../../../../core/widgets/loading_screen.dart';
 import '../../../families/domain/models/delivery_status.dart';
 import '../../../families/domain/models/family_filter.dart';
 import '../../../families/presentation/providers/families_providers.dart';
+import '../../../families/presentation/widgets/assign_agent_sheet.dart';
 
 /// Suivi des livraisons (motif `ad_li` du prototype) — vue Admin sur toutes
 /// les agences, à partir du vrai `Family.deliveryStatus`.
@@ -99,9 +100,32 @@ class DeliveriesScreen extends ConsumerWidget {
                                   style: AppTextStyles.bodyStrong,
                                 ),
                                 const SizedBox(height: 2),
-                                Text(
-                                  'Agent : ${family.assignedAgentName ?? '-'}',
-                                  style: AppTextStyles.caption,
+                                InkWell(
+                                  onTap: () => showAssignAgentSheet(context, family),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Agent : ${family.assignedAgentName ?? "Non assigné"}',
+                                        style: AppTextStyles.caption.copyWith(
+                                          color: family.assignedAgentName != null
+                                              ? null
+                                              : AppColors.gold,
+                                          fontWeight: family.assignedAgentName == null
+                                              ? FontWeight.w600
+                                              : null,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Icon(
+                                        Icons.edit_outlined,
+                                        size: 12,
+                                        color: family.assignedAgentName != null
+                                            ? AppColors.textSecondary
+                                            : AppColors.gold,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 if (family.deliveryAddress?.isNotEmpty == true ||
                                     family.deliveryLocationLat != null) ...[
@@ -134,6 +158,22 @@ class DeliveriesScreen extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(width: AppSpacing.xs),
+                          IconButton(
+                            icon: Icon(
+                              family.assignedAgentName != null
+                                  ? Icons.person_pin_circle
+                                  : Icons.person_add_alt_1_outlined,
+                              size: 20,
+                              color: family.assignedAgentName != null
+                                  ? AppColors.gold
+                                  : AppColors.textSecondary,
+                            ),
+                            tooltip: family.assignedAgentName != null
+                                ? 'Changer l\'agent (${family.assignedAgentName})'
+                                : 'Attribuer à un agent',
+                            onPressed: () => showAssignAgentSheet(context, family),
+                          ),
+
                           if (family.deliveryLocationLat != null &&
                               family.deliveryLocationLng != null)
                             IconButton(
@@ -164,6 +204,7 @@ class DeliveriesScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
+
                     ),
                   ),
             ],

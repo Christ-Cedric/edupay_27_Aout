@@ -113,4 +113,13 @@ class FamilyRepositoryImpl implements FamilyRepository {
   }) {
     return _dataSource.assignKit(familyId: familyId, childId: childId, kitId: kitId);
   }
+
+  @override
+  Future<Family> assignAgent({
+    required String familyId,
+    required String? agentId,
+  }) {
+    return _dataSource.assignAgent(familyId: familyId, agentId: agentId);
+  }
 }
+

@@ -54,4 +54,5 @@ abstract final class ApiRoutes {
       '/admin/families/$id/children/$childId';
   static String adminAssignChildKit(String id, String childId) =>
       '/admin/families/$id/children/$childId/kit';
+  static String adminFamilyAgent(String id) => '/admin/families/$id/agent';
 }

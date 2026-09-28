@@ -76,4 +76,10 @@ abstract interface class FamilyDataSource {
     required String childId,
     required String kitId,
   });
+
+  /// Assigne ou réassigne l'agent référent d'une famille (et lui transmet la livraison/localisation).
+  Future<Family> assignAgent({
+    required String familyId,
+    required String? agentId,
+  });
 }
