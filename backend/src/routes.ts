@@ -7,6 +7,7 @@ import { notificationsRouter } from './modules/notifications/notifications.route
 import { parentsRouter } from './modules/parents/parents.routes.js';
 import { paymentsRouter } from './modules/payments/payments.routes.js';
 import { vehiclesPublicRouter } from './modules/vehicles/vehicles.routes.js';
+import { contactRouter } from './modules/contact/contact.routes.js';
 import { docsRouter } from './shared/openapi/docs.router.js';
 import { asyncHandler } from './shared/http/async-handler.js';
 import { ok } from './shared/http/respond.js';
@@ -31,6 +32,7 @@ apiRouter.use('/admin', adminRouter);
 apiRouter.use('/agent', agentRouter);
 apiRouter.use('/catalog', catalogRouter);
 apiRouter.use('/vehicles', vehiclesPublicRouter);
+apiRouter.use('/contact', contactRouter);
 apiRouter.use('/notifications', notificationsRouter);
 apiRouter.use('/parents', parentsRouter);
 // Public (pas d'auth JWT) : webhook de la passerelle de paiement.

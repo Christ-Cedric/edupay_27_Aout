@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="EduPay — Guide pratique du parent : étapes d'enrôlement, versement des cotisations par Mobile Money ou agent, et simulateur de plan d'épargne en FCFA.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' http://localhost:3000 http://127.0.0.1:3000 https://api.edupay.bf;">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <title>Fonctionnement & Guide — EduPay</title>
+
+  <!-- Polices Google : Newsreader, Plus Jakarta Sans et Kalam -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+
+  <!-- 1. Bandeau supérieur d'informations -->
+  <div class="top-info-bar">
+    <div class="site-container top-info-inner">
+      <div class="top-info-left">
+        <svg class="top-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Campagne Rentrée 2026-2027 : Inscriptions & Épargne ouvertes</span>
+      </div>
+      <div class="top-info-right">
+        <a href="mailto:contact@edupay.bf" class="top-contact-link">
+          <svg class="top-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+          <span>contact@edupay.bf</span>
+        </a>
+        <a href="tel:+22676691911" class="top-contact-link">
+          <svg class="top-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          <span>+226 76 69 19 11</span>
+        </a>
+        <div class="top-contact-link top-hours">
+          <svg class="top-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 14 10"></polyline>
+          </svg>
+          <span>Lun - Ven : 08h00 - 17h30 GMT</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. En-tête principal de navigation -->
+  <header class="main-header" id="header">
+    <div class="site-container header-inner">
+      <a href="index.html" class="brand-identity" aria-label="Accueil EduPay">
+        <div class="brand-logo-pill">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+          </svg>
+        </div>
+        <span class="brand-text">Edu<span class="brand-p">P</span><span class="brand-at">@</span><span class="brand-y">y</span><span class="dot">.</span></span>
+      </a>
+
+      <nav class="main-navigation" aria-label="Navigation principale">
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Accueil</a></li>
+          <li><a href="entreprise.html" class="nav-link">L'Entreprise</a></li>
+          <li><a href="services.html" class="nav-link">Services</a></li>
+          <li><a href="fonctionnement.html" class="nav-link is-active">Fonctionnement</a></li>
+          <li><a href="garanties.html" class="nav-link">Garanties</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-action-zone">
+        <a href="index.html#simulateur" class="portal-toggle-pill">
+          <span class="portal-toggle-text">Simuler mon Épargne</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        </a>
+
+        <!-- Bouton Menu Mobile (Hamburger) -->
+        <button class="mobile-menu-toggle" id="mobile-nav-toggle" aria-label="Menu de navigation mobile" aria-expanded="false">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tiroir de Navigation Mobile Déroulant -->
+    <nav class="mobile-nav-drawer" id="mobile-nav-menu" aria-label="Navigation mobile">
+      <ul class="mobile-nav-links">
+        <li><a href="index.html" class="mobile-nav-link">Accueil</a></li>
+        <li><a href="entreprise.html" class="mobile-nav-link">L'Entreprise</a></li>
+        <li><a href="services.html" class="mobile-nav-link">Services & Prestations</a></li>
+        <li><a href="fonctionnement.html" class="mobile-nav-link is-active">Fonctionnement</a></li>
+        <li><a href="garanties.html" class="mobile-nav-link">Garanties & Confiance</a></li>
+        <li><a href="contact.html" class="mobile-nav-link">Contact</a></li>
+      </ul>
+      <div class="mobile-nav-footer">
+        <a href="index.html#simulateur" class="btn btn-amber btn-block">
+          Simuler mon Épargne Scolaire
+        </a>
+        <a href="contact.html" class="btn btn-outline-pill btn-block" style="border-color: rgba(255, 255, 255, 0.35); color: #FFFFFF;">
+          Nous Contacter
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Voile d'arrière-plan pour le menu mobile -->
+  <div class="mobile-nav-backdrop" id="mobile-nav-backdrop" aria-hidden="true"></div>
+
+  <main id="contenu">
+
+    <!-- Bannière de page avec fil d'Ariane -->
+    <section class="subpage-banner">
+      <div class="site-container">
+        <nav class="subpage-breadcrumb" aria-label="Fil d'Ariane">
+          <a href="index.html">Accueil</a>
+          <span>/</span>
+          <span aria-current="page">Fonctionnement & Guide</span>
+        </nav>
+        <h1 class="subpage-title">Comment Fonctionne EduPay</h1>
+        <p class="subpage-lead">
+          De l'inscription initiale jusqu'à la remise physique des fournitures scolaires, découvrez les quatre étapes structurées qui garantissent la tranquillité des parents.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 1 : Le Protocole en 4 Étapes -->
+    <section class="section-process">
+      <div class="site-container">
+        <header class="section-head-editorial">
+          <p class="section-label">Méthodologie Opérationnelle</p>
+          <h2 class="section-title">Quatre étapes simples pour une rentrée scolaire réussie</h2>
+          <p class="section-intro">
+            Le parcours est conçu pour s'adapter à vos habitudes, que vous soyez à l'aise avec votre smartphone ou préfériez le contact humain d'un agent de quartier.
+          </p>
+        </header>
+
+        <div class="process-sequence">
+          <div class="process-stage">
+            <div class="stage-counter">Étape 01</div>
+            <h3 class="stage-title">Enrôlement & Définition du Plan</h3>
+            <p class="stage-text">
+              Vous enregistrez votre famille et la liste de vos enfants avec leur niveau scolaire (maternelle, primaire, collège, lycée ou technique). Vous sélectionnez la formule de kit adaptée et les éventuelles prestations annexes.
+            </p>
+            <div class="stage-document">Document : Fiche d'enrôlement & Mandat parental</div>
+          </div>
+
+          <div class="process-stage">
+            <div class="stage-counter">Étape 02</div>
+            <h3 class="stage-title">Attribution de l'Agent Référent</h3>
+            <p class="stage-text">
+              Un agent de terrain certifié vous est formellement affecté. Vous convenez ensemble du rythme des cotisations (quotidien, hebdomadaire ou mensuel) et du canal de paiement privilégié.
+            </p>
+            <div class="stage-document">Document : Code Famille unique & QR de contrôle</div>
+          </div>
+
+          <div class="process-stage">
+            <div class="stage-counter">Étape 03</div>
+            <h3 class="stage-title">Versements & Registre Comptable</h3>
+            <p class="stage-text">
+              Chaque contribution est enregistrée sur votre compte séquestre. Vous recevez un récépissé numérique immédiat par SMS/WhatsApp, et le solde progresse visiblement vers l'objectif fixé.
+            </p>
+            <div class="stage-document">Document : Récépissé numérique certifié</div>
+          </div>
+
+          <div class="process-stage">
+            <div class="stage-counter">Étape 04</div>
+            <h3 class="stage-title">Livraison des Kits & Règlements</h3>
+            <p class="stage-text">
+              Quinze jours avant la rentrée officielle, vos fournitures scellées vous sont remises contre émargement. Si vous avez souscrit aux frais de scolarité, la quittance officielle est transmise à l'école.
+            </p>
+            <div class="stage-document">Document : Bordereau de délivrance & Quittance</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2 : Les Canaux de Paiement Disponibles -->
+    <section class="section-presentation">
+      <div class="site-container">
+        <header class="section-head-editorial">
+          <p class="section-label">Canaux de Versement</p>
+          <h2 class="section-title">Deux modes d'encaissement adaptés à vos usages</h2>
+        </header>
+
+        <div class="editorial-columns">
+          <article class="editorial-col">
+            <h3 class="col-title">Paiement Mobile Money en Ligne (24h/24)</h3>
+            <p>
+              Pour les parents utilisateurs réguliers des services télécoms, EduPay est connecté directement aux opérateurs majeurs : <strong>Orange Money</strong>, <strong>Moov Money</strong> et <strong>Wave</strong> via la passerelle agréée LigdiCash.
+            </p>
+            <p>
+              Vous effectuez vos versements en totale autonomie depuis votre téléphone à l'heure qui vous convient, sans frais de transaction déduits de votre épargne.
+            </p>
+          </article>
+
+          <article class="editorial-col">
+            <h3 class="col-title">Collecte en Espèces par Agent de Quartier</h3>
+            <p>
+              Pour les ménages non équipés de portefeuille électronique ou préférant manipuler les espèces, notre agent de quartier assermenté se présente à votre boutique, atelier ou domicile.
+            </p>
+            <p>
+              Il saisit la somme sur son terminal sécurisé sous vos yeux et vous recevez un SMS de validation avant même qu'il ne quitte votre domicile.
+            </p>
+          </article>
+
+          <article class="editorial-col">
+            <h3 class="col-title">Versement aux Guichets Scolaires Partenaires</h3>
+            <p>
+              Si l'école de vos enfants a conclu une convention d'agrément avec EduPay, les paiements peuvent également être déposés directement auprès de l'économat de l'établissement.
+            </p>
+            <p>
+              Les écritures sont réconciliées en temps réel sur le dossier de l'enfant dans le grand livre central.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3 : Le Simulateur Réel en FCFA -->
+    <section class="section-simulator" id="simulateur">
+      <div class="site-container">
+        <div class="simulator-wrapper">
+          <div class="simulator-info">
+            <p class="section-label">Outil d'Évaluation Pratique</p>
+            <h2 class="simulator-title">Simulateur de plan d'épargne scolaire</h2>
+            <p class="simulator-desc">
+              Calculez avec exactitude l'effort d'épargne nécessaire selon le niveau d'enseignement de votre enfant et la formule de matériel retenue. Les montants sont exprimés en Francs CFA (XOF) sur une base réelle de 8 mois d'anticipation.
+            </p>
+
+            <div class="simulator-notes">
+              <h3 class="note-title">Principes appliqués au calcul :</h3>
+              <ul class="note-list">
+                <li>Prix des kits calculés à prix coûtant négocié grossiste.</li>
+                <li>Frais de scolarité modulables selon le caractère public ou privé de l'école.</li>
+                <li>Zéro commission cachée : l'intégralité des sommes cotisées est affectée aux fournitures et frais de l'enfant.</li>
+                <li>En cas d'interruption, les fonds restent protégés selon les conditions contractuelles en vigueur.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="simulator-panel">
+            <div class="panel-header">
+              <span class="panel-title">Paramètres de la simulation</span>
+              <span class="panel-currency" id="sim-sync-status">Devise : FCFA (XOF)</span>
+            </div>
+
+            <form class="simulator-form" id="sim-form" onsubmit="return false;">
+              <!-- Cycle / Niveau -->
+              <div class="form-group">
+                <label for="sim-level" class="form-label">Niveau d'études de l'élève</label>
+                <select id="sim-level" class="form-select">
+                  <option value="primaire_cp_ce" selected>Primaire — Cycle préparatoire & élémentaire (CP1 à CE2)</option>
+                  <option value="primaire_cm">Primaire — Cours moyen & examen (CM1 et CM2 / CEP)</option>
+                  <option value="college_6_4">Collège — Premier cycle (6e à 4e)</option>
+                  <option value="college_3">Collège — Classe de 3e & brevet (BEPC)</option>
+                  <option value="lycee_seconde_terminale">Lycée — Second cycle (2nde à Terminale / BAC)</option>
+                  <option value="technique">Enseignement technique & professionnel (BEP / BAC Pro)</option>
+                </select>
+              </div>
+
+              <!-- Composition du kit de fournitures -->
+              <div class="form-group">
+                <label class="form-label">Dotation en fournitures scolaires</label>
+                <div class="radio-stack">
+                  <label class="radio-option">
+                    <input type="radio" name="kit_tier" value="basic">
+                    <span class="radio-content">
+                      <span class="radio-name">Kit Essentiel</span>
+                      <span class="radio-detail">Cahiers réglementaires, stylos, crayons, ensemble géométrie basique.</span>
+                    </span>
+                  </label>
+                  <label class="radio-option is-active">
+                    <input type="radio" name="kit_tier" value="comfort" checked>
+                    <span class="radio-content">
+                      <span class="radio-name">Kit Confort Recommandé</span>
+                      <span class="radio-detail">Dotation complète de l'année, protège-cahiers renforcés, trousse et matériel d'arts.</span>
+                    </span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="kit_tier" value="complete">
+                    <span class="radio-content">
+                      <span class="radio-name">Kit Intégral avec Manuels</span>
+                      <span class="radio-detail">Fournitures complètes + dictionnaire, annales d'examen et calculatrice scientifique agréée.</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Options complémentaires -->
+              <div class="form-group">
+                <label class="form-label">Prestations complémentaires à inclure</label>
+                <div class="checkbox-stack">
+                  <label class="checkbox-option">
+                    <input type="checkbox" id="opt-uniform" value="12000">
+                    <span class="checkbox-text">Deux tenues scolaires officielles réglementaires (+12 000 FCFA)</span>
+                  </label>
+                  <label class="checkbox-option">
+                    <input type="checkbox" id="opt-exam" value="8000">
+                    <span class="checkbox-text">Frais d'inscription et droits d'examen officiel (+8 000 FCFA)</span>
+                  </label>
+                  <label class="checkbox-option">
+                    <input type="checkbox" id="opt-tuition" value="45000">
+                    <span class="checkbox-text">Avance annuelle de scolarité établissement (+45 000 FCFA)</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Période d'épargne -->
+              <div class="form-group">
+                <label for="sim-duration" class="form-label">Durée d'anticipation avant la rentrée</label>
+                <select id="sim-duration" class="form-select">
+                  <option value="6">6 mois d'anticipation</option>
+                  <option value="8" selected>8 mois d'anticipation (rythme standard)</option>
+                  <option value="10">10 mois d'anticipation (effort allégé)</option>
+                </select>
+              </div>
+            </form>
+
+            <div class="panel-result" id="sim-result">
+              <div class="result-total-row">
+                <span class="result-total-label">Objectif global de la saison :</span>
+                <span class="result-total-value" id="res-total">22 000 FCFA</span>
+              </div>
+
+              <div class="result-breakdown-grid">
+                <div class="breakdown-card">
+                  <span class="breakdown-period">Effort Quotidien</span>
+                  <span class="breakdown-amount" id="res-daily">92 FCFA / jour</span>
+                  <span class="breakdown-sub">Sur base de 30 jours par mois</span>
+                </div>
+                <div class="breakdown-card">
+                  <span class="breakdown-period">Effort Hebdomadaire</span>
+                  <span class="breakdown-amount" id="res-weekly">635 FCFA / semaine</span>
+                  <span class="breakdown-sub">Versement chaque fin de semaine</span>
+                </div>
+                <div class="breakdown-card">
+                  <span class="breakdown-period">Effort Mensuel</span>
+                  <span class="breakdown-amount" id="res-monthly">2 750 FCFA / mois</span>
+                  <span class="breakdown-sub">Prélèvement ou passage programmé</span>
+                </div>
+              </div>
+
+              <div class="result-actions">
+                <a href="contact.html" class="btn btn-primary btn-block">
+                  Ouvrir un dossier famille sur cette base
+                </a>
+                <p class="result-disclaimer">
+                  Simulation indicative conforme au barème en vigueur pour la saison scolaire 2026-2027.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Pied de page officiel -->
+  <footer class="main-footer">
+    <div class="site-container footer-layout">
+      <div class="footer-col-brand">
+        <div class="brand-identity">
+          <div class="brand-logo-mark">
+            <span class="brand-title-stylized">EduPay</span>
+            <svg class="sun-symbol" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFD600" stroke-width="2.5" stroke-linecap="round">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="m4.93 4.93 1.41 1.41"></path>
+              <path d="m17.66 17.66 1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="m6.34 17.66-1.41 1.41"></path>
+              <path d="m19.07 4.93-1.41 1.41"></path>
+            </svg>
+          </div>
+        </div>
+        <p class="footer-legal-desc">
+          Dispositif de prévoyance scolaire et centrale d'approvisionnement éducatif. Immatriculé au registre du commerce et du crédit mobilier. Siège social : Ouagadougou, Burkina Faso.
+        </p>
+        <p class="footer-copyright">
+          &copy; 2026 EduPay. Tous droits réservés.
+        </p>
+      </div>
+
+      <div class="footer-col-links">
+        <h4 class="footer-col-title">Navigation</h4>
+        <ul class="footer-menu">
+          <li><a href="index.html">Page d'accueil</a></li>
+          <li><a href="entreprise.html">L'Entreprise & Mission</a></li>
+          <li><a href="services.html">Services & Prestations</a></li>
+          <li><a href="fonctionnement.html">Comment ça marche</a></li>
+          <li><a href="garanties.html">Garanties & Sécurité</a></li>
+          <li><a href="contact.html">Contact & Permanences</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col-links">
+        <h4 class="footer-col-title">Accompagnement</h4>
+        <ul class="footer-menu">
+          <li><a href="fonctionnement.html">Comment souscrire</a></li>
+          <li><a href="index.html#simulateur">Simulateur d'épargne</a></li>
+          <li><a href="garanties.html">Garanties & Confiance</a></li>
+          <li><a href="contact.html">Prendre rendez-vous</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col-links">
+        <h4 class="footer-col-title">Cadre Contractuel</h4>
+        <ul class="footer-menu">
+          <li><a href="garanties.html">Règlement général de prévoyance</a></li>
+          <li><a href="garanties.html">Charte des agents de proximité</a></li>
+          <li><a href="garanties.html">Politique de confidentialité</a></li>
+          <li><a href="contact.html">Agrément des établissements</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script src="src/script.js"></script>
+</body>
+</html>

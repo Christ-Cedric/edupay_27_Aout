@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="EduPay — Présentation de l'institution, mission fondatrice, gouvernance et engagement pour l'inclusion financière scolaire en Afrique de l'Ouest.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' http://localhost:3000 http://127.0.0.1:3000 https://api.edupay.bf;">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <title>L'Entreprise — EduPay</title>
+
+  <!-- Polices Google : Newsreader, Plus Jakarta Sans et Kalam -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+
+  <!-- 1. Bandeau supérieur d'informations -->
+  <div class="top-info-bar">
+    <div class="site-container top-info-inner">
+      <div class="top-info-left">
+        <svg class="top-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Campagne Rentrée 2026-2027 : Inscriptions & Épargne ouvertes</span>
+      </div>
+      <div class="top-info-right">
+        <a href="mailto:contact@edupay.bf" class="top-contact-link">
+          <svg class="top-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+          <span>contact@edupay.bf</span>
+        </a>
+        <a href="tel:+22676691911" class="top-contact-link">
+          <svg class="top-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          <span>+226 76 69 19 11</span>
+        </a>
+        <div class="top-contact-link top-hours">
+          <svg class="top-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 14 10"></polyline>
+          </svg>
+          <span>Lun - Ven : 08h00 - 17h30 GMT</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. En-tête principal de navigation -->
+  <header class="main-header" id="header">
+    <div class="site-container header-inner">
+      <a href="index.html" class="brand-identity" aria-label="Accueil EduPay">
+        <div class="brand-logo-pill">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+          </svg>
+        </div>
+        <span class="brand-text">Edu<span class="brand-p">P</span><span class="brand-at">@</span><span class="brand-y">y</span><span class="dot">.</span></span>
+      </a>
+
+      <nav class="main-navigation" aria-label="Navigation principale">
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Accueil</a></li>
+          <li><a href="entreprise.html" class="nav-link is-active">L'Entreprise</a></li>
+          <li><a href="services.html" class="nav-link">Services</a></li>
+          <li><a href="fonctionnement.html" class="nav-link">Fonctionnement</a></li>
+          <li><a href="garanties.html" class="nav-link">Garanties</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-action-zone">
+        <a href="index.html#simulateur" class="portal-toggle-pill">
+          <span class="portal-toggle-text">Simuler mon Épargne</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        </a>
+
+        <!-- Bouton Menu Mobile (Hamburger) -->
+        <button class="mobile-menu-toggle" id="mobile-nav-toggle" aria-label="Menu de navigation mobile" aria-expanded="false">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tiroir de Navigation Mobile Déroulant -->
+    <nav class="mobile-nav-drawer" id="mobile-nav-menu" aria-label="Navigation mobile">
+      <ul class="mobile-nav-links">
+        <li><a href="index.html" class="mobile-nav-link">Accueil</a></li>
+        <li><a href="entreprise.html" class="mobile-nav-link is-active">L'Entreprise</a></li>
+        <li><a href="services.html" class="mobile-nav-link">Services & Prestations</a></li>
+        <li><a href="fonctionnement.html" class="mobile-nav-link">Fonctionnement</a></li>
+        <li><a href="garanties.html" class="mobile-nav-link">Garanties & Confiance</a></li>
+        <li><a href="contact.html" class="mobile-nav-link">Contact</a></li>
+      </ul>
+      <div class="mobile-nav-footer">
+        <a href="index.html#simulateur" class="btn btn-amber btn-block">
+          Simuler mon Épargne Scolaire
+        </a>
+        <a href="contact.html" class="btn btn-outline-pill btn-block" style="border-color: rgba(255, 255, 255, 0.35); color: #FFFFFF;">
+          Nous Contacter
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Voile d'arrière-plan pour le menu mobile -->
+  <div class="mobile-nav-backdrop" id="mobile-nav-backdrop" aria-hidden="true"></div>
+
+  <main id="contenu">
+
+    <!-- Bannière de page avec fil d'Ariane -->
+    <section class="subpage-banner">
+      <div class="site-container">
+        <nav class="subpage-breadcrumb" aria-label="Fil d'Ariane">
+          <a href="index.html">Accueil</a>
+          <span>/</span>
+          <span aria-current="page">L'Entreprise</span>
+        </nav>
+        <h1 class="subpage-title">Institution & Mission Fondatrice</h1>
+        <p class="subpage-lead">
+          EduPay est né d'une conviction fondamentale : l'accès continu et digne à l'éducation ne doit pas dépendre d'une contrainte budgétaire ponctuelle concentrée sur le mois de septembre.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 1 : Constat & Raison d'Être -->
+    <section class="section-presentation">
+      <div class="site-container">
+        <header class="section-head-editorial">
+          <p class="section-label">Origines du Projet</p>
+          <h2 class="section-title">Comprendre la réalité des ménages pour apporter une réponse pérenne</h2>
+          <p class="section-intro">
+            Dans la sous-région, des millions de familles affrontent chaque année une équation financière critique : financer en quelques semaines les frais de scolarité, les manuels obligatoires, les uniformes et le matériel de classe.
+          </p>
+        </header>
+
+        <div class="editorial-columns">
+          <article class="editorial-col">
+            <h3 class="col-title">Le choc financier de septembre</h3>
+            <p>
+              Pour un artisan, une commerçante de marché, un travailleur indépendant ou un salarié modeste, accumuler en une seule fois l'intégralité des dépenses scolaires relève de la gageure. Les ménages recourent fréquemment à des expédients d'urgence : vente précipitée de biens productifs, emprunts informels à taux usuraires, ou renoncement temporaire à la scolarisation d'un ou plusieurs enfants.
+            </p>
+            <p>
+              Ce phénomène induit des rentrées retardées de plusieurs semaines, affectant la scolarité et la confiance académique des élèves dès les premiers trimestres.
+            </p>
+          </article>
+
+          <article class="editorial-col">
+            <h3 class="col-title">La distorsion du marché des fournitures</h3>
+            <p>
+              À l'approche de la rentrée officielle, les marchés ouverts subissent une spéculation intense sur les fournitures scolaires : hausse de 30% à 50% sur les cahiers, ruptures de stocks sur les manuels au programme national, et prolifération de matériels contrefaits de piètre longévité.
+            </p>
+            <p>
+              Sans capacité d'achat groupé, les parents subissent le prix fort au moment précis où leur trésorerie domestique est la plus fragile.
+            </p>
+          </article>
+
+          <article class="editorial-col">
+            <h3 class="col-title">L'infrastructure EduPay</h3>
+            <p>
+              EduPay brise ce cercle vicieux en introduisant une ingénierie financière et logistique simple : planifier l'épargne sur 6 à 10 mois, massifier les commandes dès le printemps auprès des grossistes et éditeurs agréés, et orchestrer une distribution physique irréprochable avant le 1er septembre.
+            </p>
+            <p>
+              L'argent cotisé ne dort pas : il est immédiatement adossé à des approvisionnements réels et sanctuarisé pour l'avenir de l'élève.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2 : Le Modèle Phygital (Technologie + Terrain) -->
+    <section class="section-services">
+      <div class="site-container">
+        <header class="section-head-editorial">
+          <p class="section-label">Stratégie d'Inclusion</p>
+          <h2 class="section-title">Une démarche hybride ancrée dans les quartiers</h2>
+          <p class="section-intro">
+            EduPay conjugue la précision d'une plateforme technologique d'avant-garde avec la proximité humaine indispensable à la confiance sur le terrain.
+          </p>
+        </header>
+
+        <div class="services-dossier">
+          <div class="service-entry">
+            <div class="service-meta">
+              <span class="service-index">Pilier 01</span>
+              <h3 class="service-name">Le Réseau d'Agents Assermentés</h3>
+            </div>
+            <div class="service-details">
+              <p class="service-lead-text">
+                Parce que près de la moitié des foyers ne disposent pas d'un accès bancaire permanent ou d'une maîtrise complète des interfaces numériques, nos agents de proximité constituent le visage d'EduPay.
+              </p>
+              <div class="service-specs-grid">
+                <div class="spec-block">
+                  <h4 class="spec-heading">Sélection & Cautionnement</h4>
+                  <p class="spec-text">Chaque agent fait l'objet d'une enquête de moralité rigoureuse, signe un contrat d'assermentation et dépose une caution légale d'intégrité.</p>
+                </div>
+                <div class="spec-block">
+                  <h4 class="spec-heading">Collecte Sécurisée en Face-à-Face</h4>
+                  <p class="spec-text">L'agent passe au domicile ou au commerce selon le calendrier fixé avec la famille. Chaque encaissement génère un reçu numérique instantané sur le téléphone du parent.</p>
+                </div>
+                <div class="spec-block">
+                  <h4 class="spec-heading">Accompagnement Pédagogique</h4>
+                  <p class="spec-text">Aide à la lecture des listes scolaires, vérification des niveaux d'étude et conseil sur la formule de kit adaptée aux exigences de l'établissement.</p>
+                </div>
+                <div class="spec-block">
+                  <h4 class="spec-heading">Remise Contrôlée des Colis</h4>
+                  <p class="spec-text">L'agent procède personnellement à l'ouverture et au pointage des kits livrés avec le parent avant capture de l'émargement final.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="service-entry">
+            <div class="service-meta">
+              <span class="service-index">Pilier 02</span>
+              <h3 class="service-name">La Plateforme Numérique & Passerelles Télécoms</h3>
+            </div>
+            <div class="service-details">
+              <p class="service-lead-text">
+                En parallèle de la proximité humaine, l'infrastructure logicielle EduPay assure une réconciliation instantanée avec les écosystèmes Mobile Money nationaux.
+              </p>
+              <div class="service-specs-grid">
+                <div class="spec-block">
+                  <h4 class="spec-heading">Interconnexion Mobile Money</h4>
+                  <p class="spec-text">Compatibilité native avec Orange Money, Moov Money et Wave à travers la passerelle agréée LigdiCash pour des versements autonomes 24h/24.</p>
+                </div>
+                <div class="spec-block">
+                  <h4 class="spec-heading">Grand Livre Immuable</h4>
+                  <p class="spec-text">Chaque transaction alimente un registre comptable append-only infalsifiable garantissant que pas un franc cotisé ne puisse être égaré.</p>
+                </div>
+                <div class="spec-block">
+                  <h4 class="spec-heading">Interface Multi-Profils</h4>
+                  <p class="spec-text">Applications dédiées avec vues adaptées : application intuitive pour les parents, terminal de tournée pour les agents, tableau de bord de trésorerie pour l'administration.</p>
+                </div>
+                <div class="spec-block">
+                  <h4 class="spec-heading">Notifications Temps Réel</h4>
+                  <p class="spec-text">Alerte SMS et WhatsApp immédiate pour chaque écriture, rappel d'échéance bienveillant et avis de disponibilité des fournitures.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3 : Valeurs & Engagements Éthiques -->
+    <section class="section-security">
+      <div class="site-container">
+        <header class="section-head-editorial">
+          <p class="section-label">Cadre Déontologique</p>
+          <h2 class="section-title">Les engagements intangibles d'EduPay envers la communauté</h2>
+          <p class="section-intro">
+            Notre activité touche directement aux enfants et à la confiance des ménages. Nous appliquons des standards de responsabilité sans compromis.
+          </p>
+        </header>
+
+        <div class="security-table-layout">
+          <div class="security-pillar">
+            <h3 class="pillar-title">Sanctuarisation des Fonds</h3>
+            <p class="pillar-text">
+              L'intégralité des cotisations perçues est logée sur des comptes bancaires de cantonnement séquestres auprès de partenaires agréés. Ces sommes sont strictement indisponibles pour les charges d'exploitation de la structure.
+            </p>
+            <ul class="pillar-points">
+              <li>Compte séquestre dédié et audité</li>
+              <li>Aucune spéculation financière sur les dépôts</li>
+              <li>Régularité trimestrielle certifiée</li>
+            </ul>
+          </div>
+
+          <div class="security-pillar">
+            <h3 class="pillar-title">Équité & Zéro Frais Cachés</h3>
+            <p class="pillar-text">
+              Les tarifs appliqués aux fournitures sont négociés au plus bas et répercutés avec une marge d'assemblage transparente. Les frais d'interopérabilité télécoms sont pris en charge pour que 1 FCFA versé = 1 FCFA d'épargne.
+            </p>
+            <ul class="pillar-points">
+              <li>Prix des kits fixés dès le lancement de saison</li>
+              <li>Pas de pénalités abusives en cas de retard de versement</li>
+              <li>Conditions de remboursement claires et encadrées</li>
+            </ul>
+          </div>
+
+          <div class="security-pillar">
+            <h3 class="pillar-title">Conformité aux Programmes</h3>
+            <p class="pillar-text">
+              Nos comités de sélection passent en revue les listes officielles des ministères de l'Éducation nationale et des inspections académiques. Aucun manuel obsolète ou hors-programme n'intègre les colisages EduPay.
+            </p>
+            <ul class="pillar-points">
+              <li>Contrôle systématique des éditions de référence</li>
+              <li>Partenariat direct avec les maisons d'édition nationales</li>
+              <li>Garantie d'échange gratuit sous 48h si besoin</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="regulatory-notice">
+          <div class="notice-badge">Immatriculation & Siège</div>
+          <div class="notice-content">
+            <h4 class="notice-title">Société EduPay SAS — Ouagadougou, Burkina Faso</h4>
+            <p class="notice-text">
+              Immatriculée au Registre du Commerce et du Crédit Mobilier (RCCM). Siège social : Secteur 15, Ouagadougou. Représentation locale dans les zones scolaires de la capitale et déploiement progressif dans les centres urbains de la zone UEMOA.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Pied de page officiel -->
+  <footer class="main-footer">
+    <div class="site-container footer-layout">
+      <div class="footer-col-brand">
+        <div class="brand-identity">
+          <div class="brand-logo-mark">
+            <span class="brand-title-stylized">EduPay</span>
+            <svg class="sun-symbol" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFD600" stroke-width="2.5" stroke-linecap="round">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="m4.93 4.93 1.41 1.41"></path>
+              <path d="m17.66 17.66 1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="m6.34 17.66-1.41 1.41"></path>
+              <path d="m19.07 4.93-1.41 1.41"></path>
+            </svg>
+          </div>
+        </div>
+        <p class="footer-legal-desc">
+          Dispositif de prévoyance scolaire et centrale d'approvisionnement éducatif. Immatriculé au registre du commerce et du crédit mobilier. Siège social : Ouagadougou, Burkina Faso.
+        </p>
+        <p class="footer-copyright">
+          &copy; 2026 EduPay. Tous droits réservés.
+        </p>
+      </div>
+
+      <div class="footer-col-links">
+        <h4 class="footer-col-title">Navigation</h4>
+        <ul class="footer-menu">
+          <li><a href="index.html">Page d'accueil</a></li>
+          <li><a href="entreprise.html">L'Entreprise & Mission</a></li>
+          <li><a href="services.html">Services & Prestations</a></li>
+          <li><a href="fonctionnement.html">Comment ça marche</a></li>
+          <li><a href="garanties.html">Garanties & Sécurité</a></li>
+          <li><a href="contact.html">Contact & Permanences</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col-links">
+        <h4 class="footer-col-title">Accompagnement</h4>
+        <ul class="footer-menu">
+          <li><a href="fonctionnement.html">Comment souscrire</a></li>
+          <li><a href="index.html#simulateur">Simulateur d'épargne</a></li>
+          <li><a href="garanties.html">Garanties & Confiance</a></li>
+          <li><a href="contact.html">Prendre rendez-vous</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col-links">
+        <h4 class="footer-col-title">Cadre Contractuel</h4>
+        <ul class="footer-menu">
+          <li><a href="garanties.html">Règlement général de prévoyance</a></li>
+          <li><a href="garanties.html">Charte des agents de proximité</a></li>
+          <li><a href="garanties.html">Politique de confidentialité</a></li>
+          <li><a href="contact.html">Agrément des établissements</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script src="src/script.js"></script>
+</body>
+</html>

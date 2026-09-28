@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="EduPay — Plateforme moderne de prévoyance, d'épargne programmée et de logistique scolaire. Financement serein des fournitures, scolarités et mobilités scolaires.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' http://localhost:3000 http://127.0.0.1:3000 https://api.edupay.bf;">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <title>EduPay — Prévoyance & Services Scolaires</title>
+
+  <!-- Polices Google : Plus Jakarta Sans, Outfit, Newsreader et Kalam -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="src/style.css">
+</head>
+
+<body>
+
+  <!-- 1. Bandeau supérieur d'informations -->
+  <div class="top-info-bar">
+    <div class="site-container top-info-inner">
+      <div class="top-info-left">
+        <span class="live-dot"></span>
+        <span>Campagne Rentrée 2026-2027 : Inscriptions & Épargne ouvertes aux familles</span>
+      </div>
+      <div class="top-info-right">
+        <a href="mailto:contact@edupay.bf" class="top-contact-link">
+          <svg class="top-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+          <span>contact@edupay.bf</span>
+        </a>
+        <a href="tel:+22676691911" class="top-contact-link">
+          <svg class="top-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+            </path>
+          </svg>
+          <span>+226 76 69 19 11</span>
+        </a>
+        <div class="top-contact-link">
+          <svg class="top-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 14 10"></polyline>
+          </svg>
+          <span>Lun - Ven : 08h00 - 17h30 GMT</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. En-tête Flottant Forest Green (Inspiré du Modèle) -->
+  <div class="header-wrapper">
+    <header class="main-header site-container" id="header">
+      <div class="header-inner">
+        <!-- Logo Marque -->
+        <a href="index.html" class="brand-identity" aria-label="Accueil EduPay">
+          <div class="brand-logo-pill">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+            </svg>
+          </div>
+          <span class="brand-text">Edu<span class="brand-p">P</span><span class="brand-at">@</span><span
+              class="brand-y">y</span><span class="dot">.</span></span>
+        </a>
+
+        <!-- Liens Centrés -->
+        <nav class="main-navigation" aria-label="Navigation principale">
+          <ul class="nav-links">
+            <li><a href="index.html" class="nav-link is-active">Accueil</a></li>
+            <li><a href="#services" class="nav-link">Services</a></li>
+            <li><a href="#qui-sommes-nous" class="nav-link">À Propos</a></li>
+            <li><a href="#fonctionnement" class="nav-link">Fonctionnement</a></li>
+            <li><a href="#simulateur" class="nav-link">Simulateur</a></li>
+            <li><a href="#securite" class="nav-link">Garanties</a></li>
+            <li><a href="#contact" class="nav-link">Contact</a></li>
+          </ul>
+        </nav>
+
+        <!-- Bouton Action Client & Rentrée -->
+        <div class="header-action-zone">
+          <a href="#simulateur" class="portal-toggle-pill">
+            <span class="portal-toggle-text">Simuler mon Épargne</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+          </a>
+
+          <!-- Bouton Menu Mobile (Hamburger) -->
+          <button class="mobile-menu-toggle" id="mobile-nav-toggle" aria-label="Menu de navigation mobile" aria-expanded="false">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tiroir de Navigation Mobile Déroulant -->
+      <nav class="mobile-nav-drawer" id="mobile-nav-menu" aria-label="Navigation mobile">
+        <ul class="mobile-nav-links">
+          <li><a href="index.html" class="mobile-nav-link is-active">Accueil</a></li>
+          <li><a href="#services" class="mobile-nav-link">Services</a></li>
+          <li><a href="#qui-sommes-nous" class="mobile-nav-link">À Propos d'EduPay</a></li>
+          <li><a href="#partenaires" class="mobile-nav-link">Partenaires & Outils</a></li>
+          <li><a href="#simulateur" class="mobile-nav-link">Simulateur d'Épargne</a></li>
+          <li><a href="#fonctionnement" class="mobile-nav-link">Fonctionnement</a></li>
+          <li><a href="#securite" class="mobile-nav-link">Garanties & Confiance</a></li>
+          <li><a href="#contact" class="mobile-nav-link">Contact</a></li>
+        </ul>
+        <div class="mobile-nav-footer">
+          <a href="#simulateur" class="btn btn-amber btn-block">
+            Simuler mon Épargne Scolaire
+          </a>
+          <a href="#contact" class="btn btn-outline-pill btn-block" style="border-color: rgba(255, 255, 255, 0.35); color: #FFFFFF;">
+            Nous Contacter
+          </a>
+        </div>
+      </nav>
+    </header>
+  </div>
+
+  <!-- Voile d'arrière-plan pour le menu mobile -->
+  <div class="mobile-nav-backdrop" id="mobile-nav-backdrop" aria-hidden="true"></div>
+
+  <main id="contenu">
+
+    <!-- 3. Section Hero Showcase (Disposition exacte du modèle) -->
+    <section class="hero-showcase">
+      <div class="site-container hero-showcase-grid">
+
+        <!-- Colonne Gauche : Badge créatif, Titre impactant, Sous-titre et Double Bouton -->
+        <div class="hero-left-column">
+          <!-- Badge vectoriel découpé style designer -->
+        
+
+          <h1 class="hero-main-title">
+            Assurez la Rentrée avec <span class="highlight-brand">Edu<span
+                style="color:var(--color-bright-green)">P</span><span
+                style="color:var(--color-sun-yellow)">@</span><span
+                style="color:var(--color-bright-green)">y</span></span>, Prévoyance Pour Vos Enfants.
+          </h1>
+
+          <p class="hero-subtext">
+            EduPay permet aux familles d'épargner à leur rythme tout au long de l'année pour garantir fournitures
+            conformes, kits certifiés et frais de scolarité sans subir le choc financier de septembre.
+          </p>
+
+          <div class="hero-cta-group">
+            <!-- Bouton signature dual-pill sombre + cercle jaune -->
+            <a href="#simulateur" class="btn-dual-pill">
+              <span class="btn-text">Simuler mon Épargne</span>
+              <span class="btn-icon-circle">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="6 4 20 12 6 20 6 4"></polygon>
+                </svg>
+              </span>
+            </a>
+
+            <!-- Bouton outline secondaire -->
+            <a href="#fonctionnement" class="btn-outline-pill">
+              Comment ça marche
+            </a>
+          </div>
+
+          <div class="hero-annotation-note">
+            <svg class="curved-arrow" width="28" height="22" viewBox="0 0 32 24" fill="none" stroke="#17382B"
+              stroke-width="2" stroke-linecap="round">
+              <path d="M4 18 C 12 18, 16 6, 26 6"></path>
+              <polyline points="20 2 27 6 20 10"></polyline>
+            </svg>
+            <span class="annotation-text">Simple, 100% garanti et sans commission cachée !</span>
+          </div>
+        </div>
+
+        <!-- Colonne Droite : Forme solaire jaune, Photo authentique et Pastilles flottantes -->
+        <div class="hero-right-column">
+          <div class="hero-visual-stage">
+            <!-- Forme jaune solaire en fond -->
+            <div class="hero-sun-backdrop" aria-hidden="true"></div>
+
+            <!-- Cadre de la photo -->
+            <div class="hero-image-frame">
+              <img src="hero-family.jpg"
+                alt="Mère et enfant souriants avec leurs fournitures scolaires et l'application EduPay"
+                class="hero-photo" width="560" height="440" loading="eager">
+            </div>
+
+            <!-- Badge circulaire tournant (Inspiré du sticker rotatif "Hire Me") -->
+            <div class="hero-spinning-badge" title="Prévoyance 100% Sécurisée">
+              <svg class="spinning-badge-svg" viewBox="0 0 100 100">
+                <path id="badge-circle-path" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
+                  fill="transparent" />
+                <text font-size="8.8" font-weight="700" fill="#FFD600" letter-spacing="2.2">
+                  <textPath href="#badge-circle-path" startOffset="0%">
+                    ✦ 100% GARANTI ✦ EDUPAY SÉCURITÉ ✦
+                  </textPath>
+                </text>
+              </svg>
+              <div class="spinning-badge-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Pastilles Flottantes Autour de la Photo -->
+            <div class="floating-pill floating-pill-bottom-left">
+              <span>Kits Scolaires Homologués</span>
+            </div>
+
+            <div class="floating-pill floating-pill-mid-right">
+              <span>Épargne Mobile Money</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. Ruban Défilant Jaune Solaire (Inspiré de la bannière centrale du modèle) -->
+    <section class="marquee-ribbon" aria-label="Points forts et services clés">
+      <div class="marquee-track">
+        <div class="marquee-content">
+          <div class="marquee-item">Épargne Programmée <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Kits Scolaires Homologués <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Frais de Scolarité Directs <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Mobilité & Vélos d'Élèves <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Zéro Frais Cachés <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Agents de Proximité Dédiés <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Paiements Sécurisés Wave & Orange <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Délivrance 100% Garantie <span class="marquee-star">✳</span></div>
+        </div>
+        <div class="marquee-content" aria-hidden="true">
+          <div class="marquee-item">Épargne Programmée <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Kits Scolaires Homologués <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Frais de Scolarité Directs <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Mobilité & Vélos d'Élèves <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Zéro Frais Cachés <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Agents de Proximité Dédiés <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Paiements Sécurisés Wave & Orange <span class="marquee-star">✳</span></div>
+          <div class="marquee-item">Délivrance 100% Garantie <span class="marquee-star">✳</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Section Services ("Services We Provide") -->
+    <section class="section-services" id="services">
+      <div class="site-container">
+        <!-- En-tête avec titre et bouton à droite -->
+        <div class="services-header-row">
+          <div>
+            <div class="section-eyebrow">— Services</div>
+            <h2 class="section-main-heading">Services <span class="highlight-gold">Que Nous Proposons</span></h2>
+          </div>
+          <a href="services.html" class="btn-dual-pill btn-dual-sm">
+            <span class="btn-text">Voir Tous les Services</span>
+            <span class="btn-icon-circle">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14"></path>
+                <path d="m12 5 7 7-7 7"></path>
+              </svg>
+            </span>
+          </a>
+        </div>
+
+        <!-- Grille de 4 Cartes Minimalistes aux Bords Arrondis -->
+        <div class="services-cards-grid">
+          <!-- Carte 1 -->
+          <article class="service-clean-card">
+            <div class="service-icon-box">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                <line x1="2" y1="10" x2="22" y2="10"></line>
+              </svg>
+            </div>
+            <h3 class="service-card-title">Épargne Scolaire Programmée</h3>
+            <p class="service-card-desc">
+              Cotisations journalières, hebdomadaires ou mensuelles adaptées au secteur formel et informel. Chaque
+              enfant possède son compte individualisé.
+            </p>
+            <a href="services.html#epargne" class="service-card-link">
+              <span>En savoir plus</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14"></path>
+                <path d="m12 5 7 7-7 7"></path>
+              </svg>
+            </a>
+          </article>
+
+          <!-- Carte 2 -->
+          <article class="service-clean-card">
+            <div class="service-icon-box">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+            </div>
+            <h3 class="service-card-title">Kits de Fournitures Certifiés</h3>
+            <p class="service-card-desc">
+              Manuels officiels, cahiers grand format et trousses complètes négociés aux tarifs de gros et livrés sous
+              emballage scellé 15 jours avant la rentrée.
+            </p>
+            <a href="services.html#fournitures" class="service-card-link">
+              <span>En savoir plus</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14"></path>
+                <path d="m12 5 7 7-7 7"></path>
+              </svg>
+            </a>
+          </article>
+
+          <!-- Carte 3 -->
+          <article class="service-clean-card">
+            <div class="service-icon-box">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+              </svg>
+            </div>
+            <h3 class="service-card-title">Prise en Charge Scolarité & Examens</h3>
+            <p class="service-card-desc">
+              Transfert direct des droits d'écolage et frais de candidature aux examens (CEP, BEPC, BAC) aux intendances
+              scolaires avec certificat d'apurement.
+            </p>
+            <a href="services.html#scolarite" class="service-card-link">
+              <span>En savoir plus</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14"></path>
+                <path d="m12 5 7 7-7 7"></path>
+              </svg>
+            </a>
+          </article>
+
+          <!-- Carte 4 -->
+          <article class="service-clean-card">
+            <div class="service-icon-box">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="5.5" cy="17.5" r="3.5"></circle>
+                <circle cx="18.5" cy="17.5" r="3.5"></circle>
+                <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h4"></path>
+              </svg>
+            </div>
+            <h3 class="service-card-title">Mobilité, Vélos & Tenues Scolaires</h3>
+            <p class="service-card-desc">
+              Financement progressif d'engins de déplacement (vélos) pour les élèves éloignés de leur lycée, avec
+              casques agréés et uniformes sur-mesure.
+            </p>
+            <a href="services.html#mobilite" class="service-card-link">
+              <span>En savoir plus</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14"></path>
+                <path d="m12 5 7 7-7 7"></path>
+              </svg>
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Section Vert Forêt : "Qui est EduPay ?" (Inspiré du Modèle) -->
+    <section class="section-dark-about" id="qui-sommes-nous">
+      <div class="site-container">
+        <div class="about-dark-grid">
+
+          <!-- Colonne Gauche : Cercle Portrait, Halo Jaune et Nuage de Pastilles -->
+          <div class="about-visual-column">
+            <div class="about-visual-cluster">
+              <div class="about-sun-circle" aria-hidden="true"></div>
+              <div class="about-portrait-circle">
+                <img src="about-portrait.jpg" alt="Conseillère en éducation EduPay souriante" width="340" height="340"
+                  loading="lazy">
+              </div>
+
+              <!-- Nuage de pastilles autour de la base du portrait -->
+              <div class="about-tags-cloud">
+                <span class="about-tag-pill highlight-green">Kits Conformes</span>
+                <span class="about-tag-pill">Mobile Money</span>
+                <span class="about-tag-pill highlight-yellow">Agents Terrain</span>
+                <span class="about-tag-pill">50+ Écoles</span>
+                <span class="about-tag-pill highlight-green">Séquestre Garanti</span>
+                <span class="about-tag-pill highlight-yellow">0 Frais Cachés</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Colonne Droite : Contenu, Compteurs et Signature -->
+          <div class="about-content-column">
+            <div class="section-eyebrow">— À Propos d'EduPay</div>
+            <h2 class="about-heading">Qui est <span class="highlight-gold">Edu<span
+                  style="color:var(--color-bright-green)">P</span><span
+                  style="color:var(--color-sun-yellow)">@</span><span
+                  style="color:var(--color-bright-green)">y</span></span> ?</h2>
+
+            <p class="about-narrative">
+              Né d'une volonté d'inclusion et de prévoyance, EduPay transforme l'angoisse financière de la rentrée de
+              septembre en une démarche planifiée, digne et sereine pour les familles. En combinant technologie
+              d'épargne séquestrée et réseau d'agents de terrain de confiance, nous garantissons l'avenir scolaire de
+              chaque élève.
+            </p>
+
+            <!-- Rangée des 3 Statistiques Majeures -->
+            <div class="about-stats-row">
+              <div class="about-stat-item">
+                <span class="stat-number stat-green">100%</span>
+                <span class="stat-label">Kits Scolaires Livrés</span>
+              </div>
+              <div class="about-stat-item">
+                <span class="stat-number stat-yellow">50+</span>
+                <span class="stat-label">Écoles Partenaires</span>
+              </div>
+              <div class="about-stat-item">
+                <span class="stat-number stat-green">8 Mois</span>
+                <span class="stat-label">Préparation Sereine</span>
+              </div>
+            </div>
+
+            <!-- Bouton CTA et Signature -->
+            <div class="about-footer-row">
+              <a href="entreprise.html" class="btn-dual-pill">
+                <span class="btn-text">Découvrir notre Mission</span>
+                <span class="btn-icon-circle">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M5 12h14"></path>
+                    <path d="m12 5 7 7-7 7"></path>
+                  </svg>
+                </span>
+              </a>
+
+              <div class="signature-mark">
+                <span class="sig-name">EduPay Africa</span>
+                <span class="sig-title">Direction Générale & Prévoyance</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Section Écosystème, Outils & Partenaires (Inspiré du Modèle) -->
+    <section class="section-ecosystem" id="partenaires">
+      <div class="site-container">
+        <header class="ecosystem-header">
+          <div class="section-eyebrow">— Moyens & Partenaires</div>
+          <h2 class="section-main-heading">Les Outils & Réseaux <span class="highlight-gold">Au Cœur du
+              Dispositif</span></h2>
+        </header>
+
+        <div class="ecosystem-grid">
+          <div class="ecosystem-card">
+            <div class="ecosystem-circle-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+            </div>
+            <span class="ecosystem-name">Orange Money</span>
+            <span class="ecosystem-role">Paiement Mobile</span>
+          </div>
+
+          <div class="ecosystem-card">
+            <div class="ecosystem-circle-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <span class="ecosystem-name">Moov Money</span>
+            <span class="ecosystem-role">Recharge Compte</span>
+          </div>
+
+          <div class="ecosystem-card">
+            <div class="ecosystem-circle-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M2 12h20M2 6h20M2 18h20"></path>
+              </svg>
+            </div>
+            <span class="ecosystem-name">Wave Money</span>
+            <span class="ecosystem-role">0 Frais Transfert</span>
+          </div>
+
+          <div class="ecosystem-card">
+            <div class="ecosystem-circle-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <span class="ecosystem-name">LigdiCash</span>
+            <span class="ecosystem-role">Passerelle UEMOA</span>
+          </div>
+
+          <div class="ecosystem-card">
+            <div class="ecosystem-circle-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"></path>
+              </svg>
+            </div>
+            <span class="ecosystem-name">Écoles Partenaires</span>
+            <span class="ecosystem-role">50+ Conventions</span>
+          </div>
+
+          <div class="ecosystem-card">
+            <div class="ecosystem-circle-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path
+                  d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                </path>
+              </svg>
+            </div>
+            <span class="ecosystem-name">Centrale Logistique</span>
+            <span class="ecosystem-role">Colisage Scellé</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Section Simulateur d'Épargne Réel en FCFA -->
+    <section class="section-simulator" id="simulateur">
+      <div class="site-container">
+        <div class="simulator-wrapper">
+
+          <div class="simulator-info">
+            <div class="section-eyebrow"> Outil d'Évaluation Pratique</div>
+            <h2 class="simulator-title">Simulateur de plan d'épargne scolaire</h2>
+            <p class="simulator-desc">
+              Calculez avec exactitude l'effort d'épargne nécessaire selon le cycle d'études de votre enfant et la
+              formule de matériel retenue. Les montants sont exprimés en Francs CFA (XOF) sur une anticipation
+              recommandée de 8 mois.
+            </p>
+
+            <div class="simulator-notes">
+              <h3 class="note-title">Principes appliqués au calcul :</h3>
+              <ul class="note-list">
+                <li>Prix des kits calculés à prix coûtant négocié grossiste.</li>
+                <li>Frais de scolarité modulables selon le caractère public ou privé de l'école.</li>
+                <li>Zéro commission cachée : 100% des sommes cotisées sont affectées à l'enfant.</li>
+                <li>En cas d'imprévu, vos fonds restent protégés selon le contrat de prévoyance.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="simulator-panel">
+            <div class="panel-header">
+              <span class="panel-title">Paramètres de la simulation</span>
+              <span class="panel-currency" id="sim-sync-status">Devise : FCFA (XOF)</span>
+            </div>
+
+            <form class="simulator-form" id="sim-form" onsubmit="return false;">
+              <!-- Cycle / Niveau -->
+              <div class="form-group">
+                <label for="sim-level" class="form-label">Niveau d'études de l'élève</label>
+                <select id="sim-level" class="form-select">
+                  <option value="primaire_cp_ce" selected>Primaire — Cycle préparatoire & élémentaire (CP1 à CE2)
+                  </option>
+                  <option value="primaire_cm">Primaire — Cours moyen & examen (CM1 et CM2 / CEP)</option>
+                  <option value="college_6_4">Collège — Premier cycle (6e à 4e)</option>
+                  <option value="college_3">Collège — Classe de 3e & brevet (BEPC)</option>
+                  <option value="lycee_seconde_terminale">Lycée — Second cycle (2nde à Terminale / BAC)</option>
+                  <option value="technique">Enseignement technique & professionnel (BEP / BAC Pro)</option>
+                </select>
+              </div>
+
+              <!-- Composition du kit de fournitures -->
+              <div class="form-group">
+                <label class="form-label">Dotation en fournitures scolaires</label>
+                <div class="radio-stack">
+                  <label class="radio-option">
+                    <input type="radio" name="kit_tier" value="basic">
+                    <span class="radio-content">
+                      <span class="radio-name">Kit Essentiel</span>
+                      <span class="radio-detail">Cahiers réglementaires, stylos, crayons, ensemble géométrie
+                        basique.</span>
+                    </span>
+                  </label>
+                  <label class="radio-option is-active">
+                    <input type="radio" name="kit_tier" value="comfort" checked>
+                    <span class="radio-content">
+                      <span class="radio-name">Kit Confort Recommandé</span>
+                      <span class="radio-detail">Dotation complète de l'année, protège-cahiers renforcés, trousse et
+                        matériel d'arts.</span>
+                    </span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="kit_tier" value="complete">
+                    <span class="radio-content">
+                      <span class="radio-name">Kit Intégral avec Manuels</span>
+                      <span class="radio-detail">Fournitures complètes + dictionnaire, annales d'examen et calculatrice
+                        scientifique agréée.</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Options complémentaires -->
+              <div class="form-group">
+                <label class="form-label">Prestations complémentaires à inclure</label>
+                <div class="checkbox-stack">
+                  <label class="checkbox-option">
+                    <input type="checkbox" id="opt-uniform" value="12000">
+                    <span>Deux tenues scolaires officielles réglementaires (+12 000 FCFA)</span>
+                  </label>
+                  <label class="checkbox-option">
+                    <input type="checkbox" id="opt-exam" value="8000">
+                    <span>Frais d'inscription et droits d'examen officiel (+8 000 FCFA)</span>
+                  </label>
+                  <label class="checkbox-option">
+                    <input type="checkbox" id="opt-tuition" value="45000">
+                    <span>Avance annuelle de scolarité établissement (+45 000 FCFA)</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Période d'épargne -->
+              <div class="form-group">
+                <label for="sim-duration" class="form-label">Durée d'anticipation avant la rentrée</label>
+                <select id="sim-duration" class="form-select">
+                  <option value="6">6 mois d'anticipation</option>
+                  <option value="8" selected>8 mois d'anticipation (rythme standard)</option>
+                  <option value="10">10 mois d'anticipation (effort allégé)</option>
+                </select>
+              </div>
+            </form>
+
+            <div class="panel-result" id="sim-result">
+              <div class="result-total-row">
+                <span class="result-total-label">Objectif global de la saison :</span>
+                <span class="result-total-value" id="res-total">38 500 FCFA</span>
+              </div>
+
+              <div class="result-breakdown-grid">
+                <div class="breakdown-card">
+                  <span class="breakdown-period">Effort Quotidien</span>
+                  <span class="breakdown-amount" id="res-daily">160 FCFA / jour</span>
+                  <span class="breakdown-sub">Sur base de 30 jours par mois</span>
+                </div>
+                <div class="breakdown-card">
+                  <span class="breakdown-period">Effort Hebdomadaire</span>
+                  <span class="breakdown-amount" id="res-weekly">1 200 FCFA / sem</span>
+                  <span class="breakdown-sub">Versement fin de semaine</span>
+                </div>
+                <div class="breakdown-card">
+                  <span class="breakdown-period">Effort Mensuel</span>
+                  <span class="breakdown-amount" id="res-monthly">4 810 FCFA / mois</span>
+                  <span class="breakdown-sub">Mobile Money ou agent</span>
+                </div>
+              </div>
+
+              <div class="result-actions">
+                <a href="#contact" class="btn btn-amber btn-block">
+                  Ouvrir un dossier famille sur cette base
+                </a>
+                <p class="result-disclaimer">
+                  Simulation indicative conforme au barème 2026-2027. Les montants définitifs sont arrêtés lors de la
+                  formalisation du contrat avec votre agent.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. Section Protocole Opérationnel (Comment ça marche) -->
+    <section class="section-process" id="fonctionnement">
+      <div class="site-container">
+        <header class="section-head-editorial" style="margin-bottom: 3.5rem;">
+          <div class="section-eyebrow">— Méthodologie Opérationnelle</div>
+          <h2 class="section-main-heading">Une démarche en <span class="highlight-gold">quatre étapes claires</span>
+          </h2>
+        </header>
+
+        <div class="process-sequence">
+          <div class="process-stage">
+            <div class="stage-counter">1</div>
+            <h3 class="stage-title">Évaluation des Besoins & Enrôlement</h3>
+            <p class="stage-text">
+              Le parent renseigne le niveau d'étude et l'école de chaque enfant auprès d'un agent de terrain ou
+              directement en ligne. Le plan financier prévisionnel est instantanément établi.
+            </p>
+            <div class="stage-document">Doc : Fiche de souscription & mandat parental</div>
+          </div>
+
+          <div class="process-stage">
+            <div class="stage-counter">2</div>
+            <h3 class="stage-title">Affectation d'un Agent & Canaux</h3>
+            <p class="stage-text">
+              Un agent de terrain assermenté est affecté à la famille. Le parent choisit son canal : passage programmé
+              en espèces ou paiements autonomes Orange Money, Moov ou Wave.
+            </p>
+            <div class="stage-document">Doc : Code Famille & Identifiant QR de suivi</div>
+          </div>
+
+          <div class="process-stage">
+            <div class="stage-counter">3</div>
+            <h3 class="stage-title">Cotisations Échelonnées Sécurisées</h3>
+            <p class="stage-text">
+              Les versements s'effectuent tout au long des mois précédant septembre. Chaque apport crédite le compte
+              séquestre de l'élève et génère un reçu numérique infalsifiable.
+            </p>
+            <div class="stage-document">Doc : Récépissé numérique instantané par SMS</div>
+          </div>
+
+          <div class="process-stage">
+            <div class="stage-counter">4</div>
+            <h3 class="stage-title">Livraison Contrôlée & Quittances</h3>
+            <p class="stage-text">
+              15 jours avant la rentrée, les kits sont remis sous emballage scellé avec émargement du parent.
+              Simultanément, les attestations de scolarité sont remises aux écoles.
+            </p>
+            <div class="stage-document">Doc : Bordereau de livraison & Quittance scolaire</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. Section Sécurité, Rigueur Comptable & Engagements Formels -->
+    <section class="section-security" id="securite">
+      <div class="site-container">
+        <header class="section-head-editorial" style="margin-bottom: 3.5rem;">
+          <div class="section-eyebrow">— Garanties & Confiance</div>
+          <h2 class="section-main-heading">La rigueur d'une institution, <span class="highlight-gold">la proximité du
+              quartier</span></h2>
+        </header>
+
+        <div class="security-table-layout">
+          <div class="security-pillar">
+            <div class="pillar-icon-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <h3 class="pillar-title">1. Registre Comptable Immuable</h3>
+            <p class="pillar-text">
+              Le système comptable fonctionne sur un grand livre strictement chronologique. Aucun versement ne peut être
+              effacé. Chaque opération est horodatée avec preuve numérique.
+            </p>
+            <ul class="pillar-points">
+              <li>Traçabilité totale des cotisations par enfant</li>
+              <li>Rapprochement quotidien avec les passerelles télécoms</li>
+              <li>Comptes de cantonnement bancaire agréés</li>
+            </ul>
+          </div>
+
+          <div class="security-pillar">
+            <div class="pillar-icon-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <h3 class="pillar-title">2. Agents de Terrain Assermentés</h3>
+            <p class="pillar-text">
+              Les agents de quartier EduPay font l'objet d'un processus rigoureux de sélection, de vérification
+              d'identité et de formation. Ils disposent d'un mandat officiel d'encaissement.
+            </p>
+            <ul class="pillar-points">
+              <li>Enrôlement sous contrat avec caution d'intégrité</li>
+              <li>Génération immédiate d'un reçu officiel numéroté</li>
+              <li>Validation des règlements en direct sur l'application</li>
+            </ul>
+          </div>
+
+          <div class="security-pillar">
+            <div class="pillar-icon-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path
+                  d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                </path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              </svg>
+            </div>
+            <h3 class="pillar-title">3. Engagement de Délivrance des Kits</h3>
+            <p class="pillar-text">
+              EduPay contractualise une obligation formelle de remise physique des fournitures au plus tard 15 jours
+              avant la rentrée. Les stocks sont réservés dès le mois de juin.
+            </p>
+            <ul class="pillar-points">
+              <li>Colisage sous contrôle avec double pointage</li>
+              <li>Signature manuscrite du parent lors de la remise</li>
+              <li>Remplacement sous 48h en cas de non-conformité</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="regulatory-notice">
+          <div class="notice-badge">Cadre Institutionnel</div>
+          <div class="notice-content">
+            <h4 class="notice-title">Protection des données et convention de prévoyance UEMOA</h4>
+            <p class="notice-text">
+              Conformément aux normes en vigueur, les informations relatives aux familles et aux dossiers scolaires
+              demeurent strictement confidentielles. Les fonds épargnés sont sanctuarisés sur des comptes dédiés auprès
+              d'établissements financiers partenaires agréés.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. Foire aux Questions Pratiques -->
+    <section class="section-faq">
+      <div class="site-container">
+        <header class="section-head-editorial" style="text-align: center; margin-bottom: 3.5rem;">
+          <div class="section-eyebrow" style="justify-content: center;">— Renseignements Fréquents</div>
+          <h2 class="section-main-heading">Questions posées par les <span class="highlight-gold">parents et directeurs
+              d'école</span></h2>
+        </header>
+
+        <div class="faq-list">
+          <details class="faq-item" open>
+            <summary class="faq-question">
+              <span>Que se passe-t-il si un parent ne parvient pas à solder son plan avant la rentrée ?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </summary>
+            <div class="faq-answer">
+              <p>
+                EduPay privilégie toujours l'intérêt de l'enfant. Si le montant total n'a pas été entièrement atteint à
+                l'échéance de livraison, la famille peut ajuster la composition de son kit (par exemple basculer d'un
+                kit Intégral vers un kit Confort) ou convenir avec son agent référent d'un échelonnement du solde sur le
+                premier trimestre. Les fonds versés restent intégralement acquis au bénéfice de l'élève.
+              </p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">
+              <span>Comment les fournitures sont-elles acheminées jusqu'à la famille ?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </summary>
+            <div class="faq-answer">
+              <p>
+                Deux modes de distribution sont proposés : soit la remise directe au domicile par l'agent de quartier
+                référent, soit le retrait groupé au sein de l'école partenaire lors des journées officielles
+                pré-rentrée. Chaque kit est sous emballage scellé avec le nom de l'élève et sa classe.
+              </p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">
+              <span>Les versements par Mobile Money sont-ils assujettis à des frais supplémentaires ?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </summary>
+            <div class="faq-answer">
+              <p>
+                EduPay prend en charge les frais de traitement technique standard avec les opérateurs partenaires
+                (Orange Money, Moov Money et Wave via la passerelle agréée LigdiCash). Le montant débité de votre
+                portefeuille mobile correspond exactement au crédit porté sur le compte de votre enfant.
+              </p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">
+              <span>Un établissement scolaire peut-il conventionner avec EduPay pour tous ses effectifs ?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </summary>
+            <div class="faq-answer">
+              <p>
+                Oui. Nous disposons d'un protocole d'agrément institutionnel pour les collèges, lycées et groupes
+                scolaires. La convention permet d'intégrer les listes officielles spécifiques de l'établissement et
+                d'automatiser le règlement des frais de scolarité sans aucune charge administrative pour le secrétariat.
+              </p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. Section Contact & Permanences Régionales -->
+    <section class="section-contact" id="contact">
+      <div class="site-container">
+        <div class="contact-grid">
+          <div class="contact-narrative">
+            <div class="section-eyebrow">— Relations Extérieures & Partenariats</div>
+            <h2 class="contact-title">Prendre attache avec le secrétariat général</h2>
+            <p class="contact-desc">
+              Que vous soyez un parent d'élève souhaitant ouvrir un dossier famille, un directeur d'établissement
+              désireux de conventionner, ou un professionnel postulant au statut d'agent de quartier certifié, nos
+              conseillers vous répondent sous 48 heures.
+            </p>
+
+            <div class="contact-offices">
+              <div class="office-entry">
+                <span class="office-role">Siège Administratif & Logistique</span>
+                <span class="office-address">Secteur 15, Ouagadougou, Burkina Faso</span>
+                <span class="office-phone">Tél : +226 76 69 19 11 / +226 25 30 00 00</span>
+                <span class="office-hours">Horaires : Du lundi au vendredi, de 08h00 à 17h30</span>
+              </div>
+              <div class="office-entry">
+                <span class="office-role">Relations Établissements & Partenaires</span>
+                <span class="office-mail">Courriel officiel : contact@edupay.bf / direction@edupay.bf</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact-form-box">
+            <h3 class="form-box-title">Formulaire de contact & demande</h3>
+            <form id="contact-form" class="inquiry-form" onsubmit="return false;">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="contact-name" class="form-label">Nom et Prénom</label>
+                  <input type="text" id="contact-name" class="form-input" required placeholder="Ex. Ouedraogo Moussa">
+                </div>
+                <div class="form-group">
+                  <label for="contact-phone" class="form-label">Numéro de téléphone</label>
+                  <input type="tel" id="contact-phone" class="form-input" required placeholder="+226 70 00 00 00">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="contact-profile" class="form-label">Vous êtes</label>
+                <select id="contact-profile" class="form-select">
+                  <option value="parent">Parent d'élève ou tuteur légal</option>
+                  <option value="ecole">Direction d'établissement scolaire</option>
+                  <option value="agent">Candidat au rôle d'Agent de quartier</option>
+                  <option value="partenaire">Partenaire commercial ou institutionnel</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="contact-message" class="form-label">Nature de votre demande</label>
+                <textarea id="contact-message" class="form-textarea" rows="4" required
+                  placeholder="Précisez votre établissement ou quartier concerné..."></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-amber btn-block" id="btn-submit-contact">
+                Transmettre la demande au secrétariat
+              </button>
+              <div class="form-status" id="form-status" role="alert" aria-live="polite"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 13. Pied de page Forest Green (Footer) -->
+  <footer class="main-footer">
+    <div class="site-container">
+      <div class="footer-layout">
+        <div class="footer-col-brand">
+          <div class="footer-brand-header">
+            <div class="footer-logo-mark">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+              </svg>
+            </div>
+            <span class="footer-brand-title">Edu<span style="color:var(--color-bright-green)">P</span><span
+                style="color:var(--color-sun-yellow)">@</span><span
+                style="color:var(--color-bright-green)">y</span><span class="dot">.</span></span>
+          </div>
+          <p class="footer-legal-desc">
+            Dispositif de prévoyance scolaire et centrale d'approvisionnement éducatif certifiée. Ouagadougou, Burkina
+            Faso. L'assurance d'une scolarité sans rupture pour chaque élève.
+          </p>
+        </div>
+
+        <div class="footer-col-links">
+          <h4 class="footer-col-title">Prestations</h4>
+          <ul class="footer-menu">
+            <li><a href="#services">Épargne programmée</a></li>
+            <li><a href="#services">Kits scolaires certifiés</a></li>
+            <li><a href="#services">Règlements de scolarité</a></li>
+            <li><a href="#services">Engins et mobilité scolaire</a></li>
+            <li><a href="#simulateur">Simulateur prévisionnel</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col-links">
+          <h4 class="footer-col-title">Accompagnement</h4>
+          <ul class="footer-menu">
+            <li><a href="#fonctionnement">Comment ça marche</a></li>
+            <li><a href="#simulateur">Simulateur d'épargne</a></li>
+            <li><a href="#securite">Garanties & Confiance</a></li>
+            <li><a href="#contact">Prendre rendez-vous</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col-links">
+          <h4 class="footer-col-title">Cadre Contractuel</h4>
+          <ul class="footer-menu">
+            <li><a href="#securite">Règlement de prévoyance</a></li>
+            <li><a href="#securite">Charte des agents de terrain</a></li>
+            <li><a href="#securite">Politique de confidentialité</a></li>
+            <li><a href="#contact">Agrément des établissements</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom-row">
+        <span>&copy; 2026 EduPay. Tous droits réservés.</span>
+        <span>Plateforme de Prévoyance & Services Scolaires UEMOA</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="src/script.js"></script>
+</body>
+
+</html>
