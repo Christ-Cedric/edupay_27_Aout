@@ -51,6 +51,9 @@ Family _parseFamily(Map<String, dynamic> json) {
     rejectionReason: json['rejection_reason'] as String?,
     district: json['district'] as String?,
     familyCode: json['family_code'] as String?,
+    deliveryLocationLat: (json['delivery_location_lat'] as num?)?.toDouble(),
+    deliveryLocationLng: (json['delivery_location_lng'] as num?)?.toDouble(),
+    deliveryAddress: json['delivery_address'] as String?,
   );
 }
 

@@ -421,7 +421,16 @@ const familyInclude = {
       customRemovedItems: true,
     },
   },
-  deliveries: { select: { status: true }, orderBy: { createdAt: 'desc' }, take: 1 },
+  deliveries: {
+    select: {
+      status: true,
+      locationLat: true,
+      locationLng: true,
+      address: true,
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 1,
+  },
 } satisfies Prisma.UserInclude;
 
 type FamilyRow = Prisma.UserGetPayload<{ include: typeof familyInclude }>;
@@ -586,6 +595,9 @@ function toFamilyDto(f: FamilyRow, currentSeason: CurrentSeason) {
     children,
     status: toFamilyStatus(f, currentSeason),
     delivery_status: toAppDeliveryStatus(f.deliveries[0]?.status),
+    delivery_location_lat: f.deliveries[0]?.locationLat ?? null,
+    delivery_location_lng: f.deliveries[0]?.locationLng ?? null,
+    delivery_address: f.deliveries[0]?.address ?? null,
     registered_at: f.createdAt.toISOString(),
     assigned_agent_name: f.assignedAgent?.fullName ?? null,
     rejection_reason: f.rejectionReason,

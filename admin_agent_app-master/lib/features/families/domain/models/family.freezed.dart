@@ -298,7 +298,7 @@ as String?,
 /// @nodoc
 mixin _$Family {
 
- String get id; String get fullName; String get phone; String get city; SavingsPlan get plan; double get balance; double get targetAmount; List<FamilyChild> get children; FamilyStatus get status; DeliveryStatus get deliveryStatus; DateTime get registeredAt; String? get assignedAgentName; String? get rejectionReason; String? get district; String? get familyCode;
+ String get id; String get fullName; String get phone; String get city; SavingsPlan get plan; double get balance; double get targetAmount; List<FamilyChild> get children; FamilyStatus get status; DeliveryStatus get deliveryStatus; DateTime get registeredAt; String? get assignedAgentName; String? get rejectionReason; String? get district; String? get familyCode; double? get deliveryLocationLat; double? get deliveryLocationLng; String? get deliveryAddress;
 /// Create a copy of Family
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -309,16 +309,16 @@ $FamilyCopyWith<Family> get copyWith => _$FamilyCopyWithImpl<Family>(this as Fam
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Family&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.city, city) || other.city == city)&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&const DeepCollectionEquality().equals(other.children, children)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryStatus, deliveryStatus) || other.deliveryStatus == deliveryStatus)&&(identical(other.registeredAt, registeredAt) || other.registeredAt == registeredAt)&&(identical(other.assignedAgentName, assignedAgentName) || other.assignedAgentName == assignedAgentName)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason)&&(identical(other.district, district) || other.district == district)&&(identical(other.familyCode, familyCode) || other.familyCode == familyCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Family&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.city, city) || other.city == city)&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&const DeepCollectionEquality().equals(other.children, children)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryStatus, deliveryStatus) || other.deliveryStatus == deliveryStatus)&&(identical(other.registeredAt, registeredAt) || other.registeredAt == registeredAt)&&(identical(other.assignedAgentName, assignedAgentName) || other.assignedAgentName == assignedAgentName)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason)&&(identical(other.district, district) || other.district == district)&&(identical(other.familyCode, familyCode) || other.familyCode == familyCode)&&(identical(other.deliveryLocationLat, deliveryLocationLat) || other.deliveryLocationLat == deliveryLocationLat)&&(identical(other.deliveryLocationLng, deliveryLocationLng) || other.deliveryLocationLng == deliveryLocationLng)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,fullName,phone,city,plan,balance,targetAmount,const DeepCollectionEquality().hash(children),status,deliveryStatus,registeredAt,assignedAgentName,rejectionReason,district,familyCode);
+int get hashCode => Object.hash(runtimeType,id,fullName,phone,city,plan,balance,targetAmount,const DeepCollectionEquality().hash(children),status,deliveryStatus,registeredAt,assignedAgentName,rejectionReason,district,familyCode,deliveryLocationLat,deliveryLocationLng,deliveryAddress);
 
 @override
 String toString() {
-  return 'Family(id: $id, fullName: $fullName, phone: $phone, city: $city, plan: $plan, balance: $balance, targetAmount: $targetAmount, children: $children, status: $status, deliveryStatus: $deliveryStatus, registeredAt: $registeredAt, assignedAgentName: $assignedAgentName, rejectionReason: $rejectionReason, district: $district, familyCode: $familyCode)';
+  return 'Family(id: $id, fullName: $fullName, phone: $phone, city: $city, plan: $plan, balance: $balance, targetAmount: $targetAmount, children: $children, status: $status, deliveryStatus: $deliveryStatus, registeredAt: $registeredAt, assignedAgentName: $assignedAgentName, rejectionReason: $rejectionReason, district: $district, familyCode: $familyCode, deliveryLocationLat: $deliveryLocationLat, deliveryLocationLng: $deliveryLocationLng, deliveryAddress: $deliveryAddress)';
 }
 
 
@@ -329,7 +329,7 @@ abstract mixin class $FamilyCopyWith<$Res>  {
   factory $FamilyCopyWith(Family value, $Res Function(Family) _then) = _$FamilyCopyWithImpl;
 @useResult
 $Res call({
- String id, String fullName, String phone, String city, SavingsPlan plan, double balance, double targetAmount, List<FamilyChild> children, FamilyStatus status, DeliveryStatus deliveryStatus, DateTime registeredAt, String? assignedAgentName, String? rejectionReason, String? district, String? familyCode
+ String id, String fullName, String phone, String city, SavingsPlan plan, double balance, double targetAmount, List<FamilyChild> children, FamilyStatus status, DeliveryStatus deliveryStatus, DateTime registeredAt, String? assignedAgentName, String? rejectionReason, String? district, String? familyCode, double? deliveryLocationLat, double? deliveryLocationLng, String? deliveryAddress
 });
 
 
@@ -346,7 +346,7 @@ class _$FamilyCopyWithImpl<$Res>
 
 /// Create a copy of Family
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? fullName = null,Object? phone = null,Object? city = null,Object? plan = null,Object? balance = null,Object? targetAmount = null,Object? children = null,Object? status = null,Object? deliveryStatus = null,Object? registeredAt = null,Object? assignedAgentName = freezed,Object? rejectionReason = freezed,Object? district = freezed,Object? familyCode = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? fullName = null,Object? phone = null,Object? city = null,Object? plan = null,Object? balance = null,Object? targetAmount = null,Object? children = null,Object? status = null,Object? deliveryStatus = null,Object? registeredAt = null,Object? assignedAgentName = freezed,Object? rejectionReason = freezed,Object? district = freezed,Object? familyCode = freezed,Object? deliveryLocationLat = freezed,Object? deliveryLocationLng = freezed,Object? deliveryAddress = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
@@ -363,6 +363,9 @@ as DateTime,assignedAgentName: freezed == assignedAgentName ? _self.assignedAgen
 as String?,rejectionReason: freezed == rejectionReason ? _self.rejectionReason : rejectionReason // ignore: cast_nullable_to_non_nullable
 as String?,district: freezed == district ? _self.district : district // ignore: cast_nullable_to_non_nullable
 as String?,familyCode: freezed == familyCode ? _self.familyCode : familyCode // ignore: cast_nullable_to_non_nullable
+as String?,deliveryLocationLat: freezed == deliveryLocationLat ? _self.deliveryLocationLat : deliveryLocationLat // ignore: cast_nullable_to_non_nullable
+as double?,deliveryLocationLng: freezed == deliveryLocationLng ? _self.deliveryLocationLng : deliveryLocationLng // ignore: cast_nullable_to_non_nullable
+as double?,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -498,7 +501,7 @@ return $default(_that.id,_that.fullName,_that.phone,_that.city,_that.plan,_that.
 
 
 class _Family implements Family {
-  const _Family({required this.id, required this.fullName, required this.phone, required this.city, required this.plan, required this.balance, required this.targetAmount, required final  List<FamilyChild> children, required this.status, required this.deliveryStatus, required this.registeredAt, this.assignedAgentName, this.rejectionReason, this.district, this.familyCode}): _children = children;
+  const _Family({required this.id, required this.fullName, required this.phone, required this.city, required this.plan, required this.balance, required this.targetAmount, required final  List<FamilyChild> children, required this.status, required this.deliveryStatus, required this.registeredAt, this.assignedAgentName, this.rejectionReason, this.district, this.familyCode, this.deliveryLocationLat, this.deliveryLocationLng, this.deliveryAddress}): _children = children;
   
 
 @override final  String id;
@@ -522,6 +525,9 @@ class _Family implements Family {
 @override final  String? rejectionReason;
 @override final  String? district;
 @override final  String? familyCode;
+@override final  double? deliveryLocationLat;
+@override final  double? deliveryLocationLng;
+@override final  String? deliveryAddress;
 
 /// Create a copy of Family
 /// with the given fields replaced by the non-null parameter values.
@@ -533,16 +539,16 @@ _$FamilyCopyWith<_Family> get copyWith => __$FamilyCopyWithImpl<_Family>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Family&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.city, city) || other.city == city)&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&const DeepCollectionEquality().equals(other._children, _children)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryStatus, deliveryStatus) || other.deliveryStatus == deliveryStatus)&&(identical(other.registeredAt, registeredAt) || other.registeredAt == registeredAt)&&(identical(other.assignedAgentName, assignedAgentName) || other.assignedAgentName == assignedAgentName)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason)&&(identical(other.district, district) || other.district == district)&&(identical(other.familyCode, familyCode) || other.familyCode == familyCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Family&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.city, city) || other.city == city)&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&const DeepCollectionEquality().equals(other._children, _children)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryStatus, deliveryStatus) || other.deliveryStatus == deliveryStatus)&&(identical(other.registeredAt, registeredAt) || other.registeredAt == registeredAt)&&(identical(other.assignedAgentName, assignedAgentName) || other.assignedAgentName == assignedAgentName)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason)&&(identical(other.district, district) || other.district == district)&&(identical(other.familyCode, familyCode) || other.familyCode == familyCode)&&(identical(other.deliveryLocationLat, deliveryLocationLat) || other.deliveryLocationLat == deliveryLocationLat)&&(identical(other.deliveryLocationLng, deliveryLocationLng) || other.deliveryLocationLng == deliveryLocationLng)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,fullName,phone,city,plan,balance,targetAmount,const DeepCollectionEquality().hash(_children),status,deliveryStatus,registeredAt,assignedAgentName,rejectionReason,district,familyCode);
+int get hashCode => Object.hash(runtimeType,id,fullName,phone,city,plan,balance,targetAmount,const DeepCollectionEquality().hash(_children),status,deliveryStatus,registeredAt,assignedAgentName,rejectionReason,district,familyCode,deliveryLocationLat,deliveryLocationLng,deliveryAddress);
 
 @override
 String toString() {
-  return 'Family(id: $id, fullName: $fullName, phone: $phone, city: $city, plan: $plan, balance: $balance, targetAmount: $targetAmount, children: $children, status: $status, deliveryStatus: $deliveryStatus, registeredAt: $registeredAt, assignedAgentName: $assignedAgentName, rejectionReason: $rejectionReason, district: $district, familyCode: $familyCode)';
+  return 'Family(id: $id, fullName: $fullName, phone: $phone, city: $city, plan: $plan, balance: $balance, targetAmount: $targetAmount, children: $children, status: $status, deliveryStatus: $deliveryStatus, registeredAt: $registeredAt, assignedAgentName: $assignedAgentName, rejectionReason: $rejectionReason, district: $district, familyCode: $familyCode, deliveryLocationLat: $deliveryLocationLat, deliveryLocationLng: $deliveryLocationLng, deliveryAddress: $deliveryAddress)';
 }
 
 
@@ -553,7 +559,7 @@ abstract mixin class _$FamilyCopyWith<$Res> implements $FamilyCopyWith<$Res> {
   factory _$FamilyCopyWith(_Family value, $Res Function(_Family) _then) = __$FamilyCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String fullName, String phone, String city, SavingsPlan plan, double balance, double targetAmount, List<FamilyChild> children, FamilyStatus status, DeliveryStatus deliveryStatus, DateTime registeredAt, String? assignedAgentName, String? rejectionReason, String? district, String? familyCode
+ String id, String fullName, String phone, String city, SavingsPlan plan, double balance, double targetAmount, List<FamilyChild> children, FamilyStatus status, DeliveryStatus deliveryStatus, DateTime registeredAt, String? assignedAgentName, String? rejectionReason, String? district, String? familyCode, double? deliveryLocationLat, double? deliveryLocationLng, String? deliveryAddress
 });
 
 
@@ -570,7 +576,7 @@ class __$FamilyCopyWithImpl<$Res>
 
 /// Create a copy of Family
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? fullName = null,Object? phone = null,Object? city = null,Object? plan = null,Object? balance = null,Object? targetAmount = null,Object? children = null,Object? status = null,Object? deliveryStatus = null,Object? registeredAt = null,Object? assignedAgentName = freezed,Object? rejectionReason = freezed,Object? district = freezed,Object? familyCode = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? fullName = null,Object? phone = null,Object? city = null,Object? plan = null,Object? balance = null,Object? targetAmount = null,Object? children = null,Object? status = null,Object? deliveryStatus = null,Object? registeredAt = null,Object? assignedAgentName = freezed,Object? rejectionReason = freezed,Object? district = freezed,Object? familyCode = freezed,Object? deliveryLocationLat = freezed,Object? deliveryLocationLng = freezed,Object? deliveryAddress = freezed,}) {
   return _then(_Family(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
@@ -587,6 +593,9 @@ as DateTime,assignedAgentName: freezed == assignedAgentName ? _self.assignedAgen
 as String?,rejectionReason: freezed == rejectionReason ? _self.rejectionReason : rejectionReason // ignore: cast_nullable_to_non_nullable
 as String?,district: freezed == district ? _self.district : district // ignore: cast_nullable_to_non_nullable
 as String?,familyCode: freezed == familyCode ? _self.familyCode : familyCode // ignore: cast_nullable_to_non_nullable
+as String?,deliveryLocationLat: freezed == deliveryLocationLat ? _self.deliveryLocationLat : deliveryLocationLat // ignore: cast_nullable_to_non_nullable
+as double?,deliveryLocationLng: freezed == deliveryLocationLng ? _self.deliveryLocationLng : deliveryLocationLng // ignore: cast_nullable_to_non_nullable
+as double?,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../core/router/route_paths.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -71,40 +75,95 @@ class DeliveriesScreen extends ConsumerWidget {
                 )
               else
                 for (final family in planning)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.sm,
+                  InkWell(
+                    onTap: () => context.push(
+                      '${RoutePaths.adminFamilies}/${family.id}',
                     ),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: AppColors.surfaceBorder),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.sm,
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                family.fullName,
-                                style: AppTextStyles.bodyStrong,
-                              ),
-                              Text(
-                                'Agent : ${family.assignedAgentName ?? '-'}',
-                                style: AppTextStyles.caption,
-                              ),
-                            ],
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: AppColors.surfaceBorder),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  family.fullName,
+                                  style: AppTextStyles.bodyStrong,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Agent : ${family.assignedAgentName ?? '-'}',
+                                  style: AppTextStyles.caption,
+                                ),
+                                if (family.deliveryAddress?.isNotEmpty == true ||
+                                    family.deliveryLocationLat != null) ...[
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.location_on,
+                                        size: 13,
+                                        color: AppColors.green,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          family.deliveryAddress?.isNotEmpty == true
+                                              ? family.deliveryAddress!
+                                              : '${family.deliveryLocationLat!.toStringAsFixed(4)}, ${family.deliveryLocationLng!.toStringAsFixed(4)}',
+                                          style: AppTextStyles.caption.copyWith(
+                                            color: AppColors.green,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
-                        ),
-                        AppTag(
-                          label: family.deliveryStatus.label,
-                          variant:
-                              family.deliveryStatus == DeliveryStatus.inProgress
-                              ? AppTagVariant.gold
-                              : AppTagVariant.neutral,
-                        ),
-                      ],
+                          const SizedBox(width: AppSpacing.xs),
+                          if (family.deliveryLocationLat != null &&
+                              family.deliveryLocationLng != null)
+                            IconButton(
+                              icon: const Icon(
+                                Icons.map_outlined,
+                                size: 20,
+                                color: AppColors.green,
+                              ),
+                              tooltip: 'Ouvrir dans Google Maps',
+                              onPressed: () async {
+                                final uri = Uri.parse(
+                                  'https://www.google.com/maps/search/?api=1&query=${family.deliveryLocationLat},${family.deliveryLocationLng}',
+                                );
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(
+                                    uri,
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                }
+                              },
+                            ),
+                          AppTag(
+                            label: family.deliveryStatus.label,
+                            variant:
+                                family.deliveryStatus == DeliveryStatus.inProgress
+                                    ? AppTagVariant.gold
+                                    : AppTagVariant.neutral,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
             ],

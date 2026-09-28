@@ -505,9 +505,35 @@ class OrderDetailPage extends StatelessWidget {
             ),
           ),
         ActionButton(
-          label: 'Envoyer ma localisation',
-          icon: Icons.my_location,
-          onPressed: () => state.sendDeliveryLocation(),
+          label: state.isLocatingLocation
+              ? 'Localisation GPS en cours...'
+              : (order.location != null
+                  ? 'Mettre à jour ma position GPS'
+                  : 'Envoyer ma localisation GPS'),
+          icon: state.isLocatingLocation ? null : Icons.my_location,
+          onPressed: state.isLocatingLocation
+              ? null
+              : () async {
+                  final ok = await state.sendDeliveryLocation();
+                  if (!context.mounted) return;
+                  if (ok) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Position GPS réelle transmise avec succès !',
+                        ),
+                        backgroundColor: Color(0xFF00C853),
+                      ),
+                    );
+                  } else if (state.lastLocationError != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(state.lastLocationError!),
+                        backgroundColor: Colors.orange.shade800,
+                      ),
+                    );
+                  }
+                },
         ),
         const SizedBox(height: 10),
         ActionButton(
@@ -637,11 +663,35 @@ class HomeDeliveryPage extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         ActionButton(
-          label: location == null
-              ? 'Partager mon adresse'
-              : 'Mettre à jour mon adresse',
-          icon: Icons.my_location,
-          onPressed: () => state.sendDeliveryLocation(),
+          label: state.isLocatingLocation
+              ? 'Localisation GPS en cours...'
+              : (location == null
+                  ? 'Partager ma position GPS'
+                  : 'Mettre à jour ma position GPS'),
+          icon: state.isLocatingLocation ? null : Icons.my_location,
+          onPressed: state.isLocatingLocation
+              ? null
+              : () async {
+                  final ok = await state.sendDeliveryLocation();
+                  if (!context.mounted) return;
+                  if (ok) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Position GPS réelle transmise avec succès !',
+                        ),
+                        backgroundColor: Color(0xFF00C853),
+                      ),
+                    );
+                  } else if (state.lastLocationError != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(state.lastLocationError!),
+                        backgroundColor: Colors.orange.shade800,
+                      ),
+                    );
+                  }
+                },
         ),
         const SizedBox(height: 18),
         AppCard(

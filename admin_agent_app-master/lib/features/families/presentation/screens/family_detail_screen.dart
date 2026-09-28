@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/router/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -133,6 +134,68 @@ class _FamilyDetailBody extends ConsumerWidget {
             ],
           ),
         ),
+        if (family.deliveryLocationLat != null &&
+            family.deliveryLocationLng != null) ...[
+          const SizedBox(height: AppSpacing.md),
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.my_location,
+                      size: 18,
+                      color: AppColors.green,
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      'LOCALISATION DE LIVRAISON (TRANSMIS PAR LE CLIENT)',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.green,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                KeyValueRow(
+                  label: 'Adresse réelle',
+                  value: family.deliveryAddress?.isNotEmpty == true
+                      ? family.deliveryAddress!
+                      : 'Position GPS capturée',
+                ),
+                KeyValueRow(
+                  label: 'Coordonnées GPS',
+                  value:
+                      '${family.deliveryLocationLat!.toStringAsFixed(5)}, ${family.deliveryLocationLng!.toStringAsFixed(5)}',
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    onPressed: () async {
+                      final uri = Uri.parse(
+                        'https://www.google.com/maps/search/?api=1&query=${family.deliveryLocationLat},${family.deliveryLocationLng}',
+                      );
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.map_outlined, size: 16),
+                    label: const Text('Ouvrir dans Google Maps'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.green,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.md),
         _ActionRow(
           label: 'Voir le contrat',

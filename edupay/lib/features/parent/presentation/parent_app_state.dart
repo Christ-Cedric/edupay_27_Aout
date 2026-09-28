@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/network/api_exception.dart';
 import '../../../app/services/fcm_service.dart';
+import '../../../app/services/location_service.dart';
 import '../domain/auth_session.dart';
 import '../domain/parent_models.dart';
 import '../domain/parent_repository.dart';
@@ -1134,32 +1135,65 @@ class ParentAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// The PARENT sends their own position so the delivery agent knows where to
-  /// bring the order. Coordonnées dérivées de la ville/quartier (pas de GPS
-  /// réel), puis envoyées au backend ; repli local si le réseau échoue.
-  Future<void> sendDeliveryLocation() async {
+  /// État d'acquisition de la géolocalisation GPS en cours.
+  bool isLocatingLocation = false;
+
+  /// Dernier message d'avertissement ou d'erreur GPS s'il y a eu un repli.
+  String? lastLocationError;
+
+  /// The PARENT sends their authentic GPS position so the delivery agent knows where to
+  /// bring the order. Utilise la position GPS réelle du smartphone (LocationService),
+  /// avec géocodage de l'adresse et repli gracieux si le GPS est inaccessible.
+  Future<bool> sendDeliveryLocation() async {
+    isLocatingLocation = true;
+    lastLocationError = null;
+    notifyListeners();
+
     final city = profile?.city ?? cityController.text;
     final district = profile?.district ?? districtController.text;
-    final coordinates =
-        _cityCoordinates[city] ?? _cityCoordinates['Koudougou']!;
-    final address = '$district, $city';
+
+    double lat;
+    double lng;
+    String address;
+
+    try {
+      final userLocation = await LocationService.getCurrentLocation(
+        fallbackCity: city,
+        fallbackDistrict: district,
+      );
+      lat = userLocation.latitude;
+      lng = userLocation.longitude;
+      address = userLocation.address;
+    } catch (e) {
+      debugPrint('[ParentAppState] GPS issue: $e');
+      lastLocationError = e.toString();
+      final coordinates =
+          _cityCoordinates[city] ?? _cityCoordinates['Koudougou']!;
+      lat = coordinates.$1;
+      lng = coordinates.$2;
+      address = district.isNotEmpty ? '$district, $city' : (city.isNotEmpty ? city : 'Burkina Faso');
+    }
+
     try {
       deliveryOrder = await repository.sendDeliveryLocation(
-        lat: coordinates.$1,
-        lng: coordinates.$2,
+        lat: lat,
+        lng: lng,
         address: address,
       );
     } catch (_) {
       deliveryOrder = deliveryOrder.copyWith(
         location: DeliveryLocation(
-          lat: coordinates.$1,
-          lng: coordinates.$2,
+          lat: lat,
+          lng: lng,
           address: address,
           sentAt: DateTime.now(),
         ),
       );
+    } finally {
+      isLocatingLocation = false;
+      notifyListeners();
     }
-    notifyListeners();
+    return lastLocationError == null;
   }
 
   /// Renvoie `true` si le serveur a bien enregistré la confirmation. En cas

@@ -70,6 +70,9 @@ sealed class Family with _$Family {
     String? rejectionReason,
     String? district,
     String? familyCode,
+    double? deliveryLocationLat,
+    double? deliveryLocationLng,
+    String? deliveryAddress,
   }) = _Family;
 }
 
